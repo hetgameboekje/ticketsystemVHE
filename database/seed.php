@@ -1,0 +1,28 @@
+<?php
+// Eenmalig uitvoeren: php database/seed.php
+// Maakt demo-gebruikers aan met een door PHP gegenereerde wachtwoord-hash.
+
+require __DIR__ . '/../app/bootstrap.php';
+
+use App\Core\Database;
+
+$pdo = Database::pdo();
+$wachtwoord = 'wachtwoord123';
+$hash = password_hash($wachtwoord, PASSWORD_DEFAULT);
+
+$gebruikers = [
+    ['Joey Doe', 'admin@intranet.local', 'admin'],
+    ['M. de Vries', 'mdevries@intranet.local', 'medewerker'],
+    ['R. Mulder', 'rmulder@intranet.local', 'medewerker'],
+];
+
+$stmt = $pdo->prepare(
+    'INSERT INTO users (naam, email, wachtwoord_hash, rol) VALUES (:naam, :email, :hash, :rol)
+     ON CONFLICT (email) DO NOTHING'
+);
+
+foreach ($gebruikers as [$naam, $email, $rol]) {
+    $stmt->execute(['naam' => $naam, 'email' => $email, 'hash' => $hash, 'rol' => $rol]);
+}
+
+echo "Klaar. Demo-gebruikers aangemaakt met wachtwoord: {$wachtwoord}\n";

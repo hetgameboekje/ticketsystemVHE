@@ -1,0 +1,86 @@
+<?php
+/** @var array $item */
+/** @var array $logs */
+require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
+$statussen = ['open' => 'Open', 'in_behandeling' => 'In behandeling', 'wacht_op_info' => 'Wacht op info', 'opgelost' => 'Opgelost', 'gesloten' => 'Gesloten'];
+?>
+<div class="page-header">
+  <div style="display:flex;align-items:center;gap:12px">
+    <a class="btn" href="/tickets" style="padding:6px 10px">&larr;</a>
+    <div class="page-title">#<?= $item['id'] ?> — <?= htmlspecialchars($item['titel']) ?></div>
+    <?= statusBadge($item['status']) ?>
+  </div>
+  <div style="display:flex;gap:8px">
+    <a class="btn" href="/tickets/<?= $item['id'] ?>/edit">Bewerken</a>
+  </div>
+</div>
+
+<div class="detail-layout">
+  <div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><span class="card-title">Omschrijving</span></div>
+      <div style="padding:16px;font-size:13px;line-height:1.7;color:var(--color-text-secondary)">
+        <?= nl2br(htmlspecialchars($item['omschrijving'])) ?>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-title">Statuslogboek &amp; opmerkingen</span></div>
+
+      <?php if (empty($logs)): ?>
+        <div class="empty-state">Nog geen opmerkingen.</div>
+      <?php else: ?>
+        <?php foreach ($logs as $log): ?>
+        <div class="log-item">
+          <div class="log-meta">
+            <span class="log-user"><?= htmlspecialchars($log['user_naam'] ?? 'Onbekend') ?></span>
+            <span class="log-time"><?= formatDatumTijd($log['created_at']) ?></span>
+            <?php if ($log['status_naar']): ?>
+              <span class="status-change">
+                <span class="badge badge-<?= htmlspecialchars($log['status_van']) ?>" style="padding:2px 6px;font-size:10px"><?= statusLabel($log['status_van']) ?></span>
+                &rarr;
+                <span class="badge badge-<?= htmlspecialchars($log['status_naar']) ?>" style="padding:2px 6px;font-size:10px"><?= statusLabel($log['status_naar']) ?></span>
+              </span>
+            <?php endif; ?>
+          </div>
+          <div class="log-text"><?= nl2br(htmlspecialchars($log['opmerking'])) ?></div>
+        </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
+
+      <div style="padding:16px;border-top:0.5px solid var(--color-border-tertiary)">
+        <form method="post" action="/tickets/<?= $item['id'] ?>/log">
+          <div class="form-group">
+            <label class="form-label">Opmerking toevoegen</label>
+            <textarea name="opmerking" placeholder="Beschrijf wat je gedaan hebt of vraag om meer informatie..."></textarea>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select name="status" style="width:auto">
+              <option value="">Status ongewijzigd</option>
+              <?php foreach ($statussen as $val => $label): ?>
+                <option value="<?= $val ?>" <?= $item['status'] === $val ? 'selected' : '' ?>><?= $label ?></option>
+              <?php endforeach; ?>
+            </select>
+            <button class="btn btn-primary" type="submit">Opslaan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Details</span></div>
+      <div style="padding:0 16px">
+        <div class="meta-row"><span class="meta-key">Opdrachtgever</span><span><?= htmlspecialchars($item['opdrachtgever_naam']) ?></span></div>
+        <div class="meta-row"><span class="meta-key">Afdeling</span><span><?= htmlspecialchars($item['afdeling_naam'] ?? '—') ?></span></div>
+        <div class="meta-row"><span class="meta-key">Prioriteit</span><span><?= prioBadge($item['prioriteit']) ?></span></div>
+        <div class="meta-row"><span class="meta-key">Impact</span><span><?= htmlspecialchars($item['impact']) ?></span></div>
+        <div class="meta-row"><span class="meta-key">Schatting</span><span><?= $item['schatting_uren'] !== null ? $item['schatting_uren'] . ' uur' : '—' ?></span></div>
+        <div class="meta-row"><span class="meta-key">Behandelaar</span><span><?= htmlspecialchars($item['behandelaar_naam'] ?? '—') ?></span></div>
+        <div class="meta-row"><span class="meta-key">Datum aangemaakt</span><span><?= formatDatum($item['created_at']) ?></span></div>
+        <div class="meta-row"><span class="meta-key">Deadline</span><span><?= formatDatum($item['deadline']) ?></span></div>
+      </div>
+    </div>
+  </div>
+</div>
