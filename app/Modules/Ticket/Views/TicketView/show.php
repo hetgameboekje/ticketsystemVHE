@@ -76,7 +76,7 @@ $statussen = ['open' => 'Open', 'in_behandeling' => 'In behandeling', 'wacht_op_
         <div class="meta-row"><span class="meta-key">Afdeling</span><span><?= htmlspecialchars($item['afdeling_naam'] ?? '—') ?></span></div>
         <div class="meta-row"><span class="meta-key">Prioriteit</span><span><?= prioBadge($item['prioriteit']) ?></span></div>
         <div class="meta-row"><span class="meta-key">Impact</span><span><?= htmlspecialchars($item['impact']) ?></span></div>
-        <div class="meta-row"><span class="meta-key">Schatting</span><span><?= $item['schatting_minuten'] !== null ? $item['schatting_minuten'] . ' min' : '—' ?></span></div>
+        <div class="meta-row"><span class="meta-key">Schatting</span><span><?= ($item['schatting_minuten'] ?? null) !== null ? $item['schatting_minuten'] . ' min' : '—' ?></span></div>
         <div class="meta-row"><span class="meta-key">Behandelaar</span><span><?= htmlspecialchars($item['behandelaar_naam'] ?? '—') ?></span></div>
         <div class="meta-row"><span class="meta-key">Datum aangemaakt</span><span><?= formatDatum($item['created_at']) ?></span></div>
         <div class="meta-row"><span class="meta-key">Deadline</span><span><?= formatDatum($item['deadline']) ?></span></div>
