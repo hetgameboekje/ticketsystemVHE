@@ -1,22 +1,22 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Modules\HardwareUitgave;
 
 use App\Core\CrudController;
-use App\Models\Afdeling;
-use App\Models\HardwareUitgave;
+use App\Modules\HardwareUitgave\Models\HardwareUitgaveModel;
+use App\Shared\Afdeling\Models\AfdelingModel;
 
 class HardwareUitgaveController extends CrudController
 {
-    protected string $modelClass = HardwareUitgave::class;
-    protected string $viewDir = 'hardware';
+    protected string $modelClass = HardwareUitgaveModel::class;
+    protected string $viewDir = 'Modules/HardwareUitgave/Views/HardwareUitgaveView';
     protected string $routeBase = 'hardware-uitgaven';
     protected string $activeModule = 'hardware';
     protected string $pageTitle = 'Uitgaven hardware';
 
     protected function formData(): array
     {
-        return ['afdelingen' => Afdeling::all()];
+        return ['afdelingen' => AfdelingModel::all()];
     }
 
     protected function validatedData(array $post, bool $isUpdate = false): array

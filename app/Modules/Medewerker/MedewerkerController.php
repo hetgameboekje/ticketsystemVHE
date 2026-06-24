@@ -1,22 +1,22 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Modules\Medewerker;
 
 use App\Core\CrudController;
-use App\Models\Afdeling;
-use App\Models\Medewerker;
+use App\Modules\Medewerker\Models\MedewerkerModel;
+use App\Shared\Afdeling\Models\AfdelingModel;
 
 class MedewerkerController extends CrudController
 {
-    protected string $modelClass = Medewerker::class;
-    protected string $viewDir = 'medewerkers';
+    protected string $modelClass = MedewerkerModel::class;
+    protected string $viewDir = 'Modules/Medewerker/Views/MedewerkerView';
     protected string $routeBase = 'medewerkers';
     protected string $activeModule = 'medewerkers';
     protected string $pageTitle = 'Medewerkers';
 
     protected function formData(): array
     {
-        return ['afdelingen' => Afdeling::all()];
+        return ['afdelingen' => AfdelingModel::all()];
     }
 
     protected function validatedData(array $post, bool $isUpdate = false): array

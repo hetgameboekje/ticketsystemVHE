@@ -2,16 +2,16 @@
 
 require __DIR__ . '/../app/bootstrap.php';
 
-use App\Controllers\AuthController;
-use App\Controllers\DashboardController;
-use App\Controllers\HardwareUitgaveController;
-use App\Controllers\KennisbankController;
-use App\Controllers\MedewerkerController;
-use App\Controllers\ReflectieController;
-use App\Controllers\TicketController;
-use App\Controllers\TicketLogController;
-use App\Controllers\VerbeterpuntController;
 use App\Core\Router;
+use App\Modules\HardwareUitgave\HardwareUitgaveController;
+use App\Modules\Kennisbank\KennisbankController;
+use App\Modules\Medewerker\MedewerkerController;
+use App\Modules\Reflectie\ReflectieController;
+use App\Modules\Ticket\TicketController;
+use App\Modules\Ticket\TicketLogController;
+use App\Modules\Verbeterpunt\VerbeterpuntController;
+use App\Shared\Auth\AuthController;
+use App\Shared\Dashboard\DashboardController;
 
 $router = new Router();
 

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\Medewerker\Models;
 
 use App\Core\Database;
 use App\Core\Model;
 
-class Medewerker extends Model
+class MedewerkerModel extends Model
 {
     protected static string $table = 'medewerkers';
     protected static array $fillable = [

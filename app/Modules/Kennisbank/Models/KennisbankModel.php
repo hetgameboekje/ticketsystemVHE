@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\Kennisbank\Models;
 
 use App\Core\Database;
 use App\Core\Model;
 
-class KennisbankArtikel extends Model
+class KennisbankModel extends Model
 {
     protected static string $table = 'kennisbank_artikelen';
     protected static array $fillable = ['titel', 'categorie', 'inhoud', 'auteur_id'];

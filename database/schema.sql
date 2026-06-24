@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS tickets (
     afdeling_id         INT,
     prioriteit          VARCHAR(20) NOT NULL DEFAULT 'normaal', -- laag, normaal, hoog, kritiek
     impact              VARCHAR(100) NOT NULL DEFAULT 'Normaal',
-    schatting_uren      NUMERIC(6,2),
+    schatting_minuten   INT,
     deadline            DATE,
     behandelaar_id      INT,
     status              VARCHAR(30) NOT NULL DEFAULT 'open', -- open, in_behandeling, wacht_op_info, opgelost, gesloten

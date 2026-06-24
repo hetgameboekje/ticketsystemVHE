@@ -10,12 +10,31 @@ Navigatie:
 
 ## Structuur
 
+Elke extensie/module heeft zijn eigen map met daarin zijn eigen Controller, Models/ en
+Views/ — geen centrale Models/Controllers/Views-mappen meer per laag, maar per module.
+
 ```
 app/
-  Core/        Database, Model, Controller, CrudController, Router
-  Models/      Ticket, TicketLog, Verbeterpunt, Reflectie, KennisbankArtikel, HardwareUitgave, Medewerker, User, Afdeling
-  Controllers/ Eén controller per module, allemaal CRUD via CrudController
-  Views/       Per module: index/create/show/edit + layouts/navbar
+  Core/                  Database, Model, Controller, CrudController, Router (gedeelde basis)
+  Shared/
+    Auth/                AuthController (login/logout)
+    Dashboard/            DashboardController
+    User/Models/          UserModel
+    Afdeling/Models/       AfdelingModel
+  Modules/
+    Ticket/
+      TicketController.php
+      TicketLogController.php
+      Models/             TicketModel, TicketLogModel
+      Views/TicketView/    index, create, edit, show
+    Verbeterpunt/          (zelfde opbouw)
+    Reflectie/             (zelfde opbouw)
+    Kennisbank/            (zelfde opbouw)
+    HardwareUitgave/       (zelfde opbouw)
+    Medewerker/            (zelfde opbouw)
+  Views/
+    layouts/               app.php (navbar + dropdowns), guest.php
+    auth/, dashboard/, partials/   gedeelde/globale views
 database/
   schema.sql   Tabellen + seed-afdelingen
   seed.php     Maakt demo-gebruikers aan (wachtwoord_hash via password_hash())

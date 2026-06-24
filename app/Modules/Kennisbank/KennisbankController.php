@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Modules\Kennisbank;
 
 use App\Core\CrudController;
-use App\Models\KennisbankArtikel;
+use App\Modules\Kennisbank\Models\KennisbankModel;
 
 class KennisbankController extends CrudController
 {
-    protected string $modelClass = KennisbankArtikel::class;
-    protected string $viewDir = 'kennisbank';
+    protected string $modelClass = KennisbankModel::class;
+    protected string $viewDir = 'Modules/Kennisbank/Views/KennisbankView';
     protected string $routeBase = 'kennisbank';
     protected string $activeModule = 'kennisbank';
     protected string $pageTitle = 'Kennisbank';

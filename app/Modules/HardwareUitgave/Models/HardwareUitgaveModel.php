@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\HardwareUitgave\Models;
 
 use App\Core\Database;
 use App\Core\Model;
 
-class HardwareUitgave extends Model
+class HardwareUitgaveModel extends Model
 {
     protected static string $table = 'hardware_uitgaven';
     protected static array $fillable = [
