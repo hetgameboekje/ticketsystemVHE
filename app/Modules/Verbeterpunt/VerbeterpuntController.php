@@ -1,22 +1,22 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Modules\Verbeterpunt;
 
 use App\Core\CrudController;
-use App\Models\Afdeling;
-use App\Models\Verbeterpunt;
+use App\Modules\Verbeterpunt\Models\VerbeterpuntModel;
+use App\Shared\Afdeling\Models\AfdelingModel;
 
 class VerbeterpuntController extends CrudController
 {
-    protected string $modelClass = Verbeterpunt::class;
-    protected string $viewDir = 'verbeterpunten';
+    protected string $modelClass = VerbeterpuntModel::class;
+    protected string $viewDir = 'Modules/Verbeterpunt/Views/VerbeterpuntView';
     protected string $routeBase = 'verbeterpunten';
     protected string $activeModule = 'verbeterpunten';
     protected string $pageTitle = 'Verbeterpunten';
 
     protected function formData(): array
     {
-        return ['afdelingen' => Afdeling::all()];
+        return ['afdelingen' => AfdelingModel::all()];
     }
 
     protected function validatedData(array $post, bool $isUpdate = false): array

@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Modules\Reflectie;
 
 use App\Core\CrudController;
-use App\Models\Reflectie;
+use App\Modules\Reflectie\Models\ReflectieModel;
 
 class ReflectieController extends CrudController
 {
-    protected string $modelClass = Reflectie::class;
-    protected string $viewDir = 'reflecties';
+    protected string $modelClass = ReflectieModel::class;
+    protected string $viewDir = 'Modules/Reflectie/Views/ReflectieView';
     protected string $routeBase = 'reflecties';
     protected string $activeModule = 'reflecties';
     protected string $pageTitle = 'Reflectie';

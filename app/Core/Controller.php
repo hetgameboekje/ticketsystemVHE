@@ -8,7 +8,7 @@ abstract class Controller
     {
         extract($data);
 
-        $viewPath = APP_ROOT . "/app/Views/{$view}.php";
+        $viewPath = APP_ROOT . "/app/{$view}.php";
         if (!file_exists($viewPath)) {
             throw new \RuntimeException("View niet gevonden: {$view}");
         }

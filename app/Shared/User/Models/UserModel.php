@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models;
+namespace App\Shared\User\Models;
 
 use App\Core\Database;
 use App\Core\Model;
 
-class User extends Model
+class UserModel extends Model
 {
     protected static string $table = 'users';
     protected static array $fillable = ['naam', 'email', 'wachtwoord_hash', 'rol'];

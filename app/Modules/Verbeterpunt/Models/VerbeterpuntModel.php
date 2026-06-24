@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\Verbeterpunt\Models;
 
 use App\Core\Database;
 use App\Core\Model;
 
-class Verbeterpunt extends Model
+class VerbeterpuntModel extends Model
 {
     protected static string $table = 'verbeterpunten';
     protected static array $fillable = ['titel', 'omschrijving', 'afdeling_id', 'ingediend_door_id', 'status'];

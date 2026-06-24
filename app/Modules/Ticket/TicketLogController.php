@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Modules\Ticket;
 
 use App\Core\Controller;
-use App\Models\Ticket;
-use App\Models\TicketLog;
+use App\Modules\Ticket\Models\TicketLogModel;
+use App\Modules\Ticket\Models\TicketModel;
 
 class TicketLogController extends Controller
 {
@@ -12,7 +12,7 @@ class TicketLogController extends Controller
     {
         $this->requireAuth();
 
-        $ticket = Ticket::find($ticketId);
+        $ticket = TicketModel::find($ticketId);
         if ($ticket === null) {
             http_response_code(404);
             echo 'Niet gevonden.';
@@ -24,7 +24,7 @@ class TicketLogController extends Controller
         $statusGewijzigd = $nieuweStatus !== '' && $nieuweStatus !== $ticket['status'];
 
         if ($opmerking !== '' || $statusGewijzigd) {
-            TicketLog::create([
+            TicketLogModel::create([
                 'ticket_id' => $ticketId,
                 'user_id' => $this->currentUserId(),
                 'opmerking' => $opmerking !== '' ? $opmerking : 'Status bijgewerkt.',
@@ -34,7 +34,7 @@ class TicketLogController extends Controller
         }
 
         if ($statusGewijzigd) {
-            Ticket::update($ticketId, ['status' => $nieuweStatus]);
+            TicketModel::update($ticketId, ['status' => $nieuweStatus]);
         }
 
         $this->redirect("/tickets/{$ticketId}");

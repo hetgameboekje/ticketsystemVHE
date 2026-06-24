@@ -24,7 +24,7 @@
         </select>
       </div>
       <div class="form-group" style="grid-column:1/-1"><label class="form-label">Taak (korte titel)</label><input type="text" name="titel" value="<?= htmlspecialchars($item['titel']) ?>" required></div>
-      <div class="form-group" style="grid-column:1/-1"><label class="form-label">Omschrijving</label><textarea name="omschrijving" style="min-height:100px" required><?= htmlspecialchars($item['omschrijving']) ?></textarea></div>
+      <div class="form-group" style="grid-column:1/-1"><label class="form-label">Omschrijving</label><textarea name="omschrijving" style="min-height:100px"><?= htmlspecialchars($item['omschrijving']) ?></textarea></div>
       <div class="form-group">
         <label class="form-label">Prioriteit</label>
         <select name="prioriteit">
@@ -34,7 +34,7 @@
         </select>
       </div>
       <div class="form-group"><label class="form-label">Impact</label><input type="text" name="impact" value="<?= htmlspecialchars($item['impact']) ?>"></div>
-      <div class="form-group"><label class="form-label">Schatting (uren)</label><input type="number" step="0.5" name="schatting_uren" value="<?= htmlspecialchars((string) ($item['schatting_uren'] ?? '')) ?>"></div>
+      <div class="form-group"><label class="form-label">Schatting (minuten)</label><input type="number" step="1" name="schatting_minuten" value="<?= htmlspecialchars((string) ($item['schatting_minuten'] ?? '')) ?>"></div>
       <div class="form-group"><label class="form-label">Deadline</label><input type="date" name="deadline" value="<?= htmlspecialchars($item['deadline'] ?? '') ?>"></div>
       <div class="form-group">
         <label class="form-label">Behandelaar</label>

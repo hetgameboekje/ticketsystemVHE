@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\Reflectie\Models;
 
 use App\Core\Database;
 use App\Core\Model;
 
-class Reflectie extends Model
+class ReflectieModel extends Model
 {
     protected static string $table = 'reflecties';
     protected static array $fillable = ['titel', 'periode', 'inhoud', 'gebruiker_id'];

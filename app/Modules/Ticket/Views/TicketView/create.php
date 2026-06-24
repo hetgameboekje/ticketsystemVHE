@@ -23,7 +23,7 @@
         </select>
       </div>
       <div class="form-group" style="grid-column:1/-1"><label class="form-label">Taak (korte titel)</label><input type="text" name="titel" required></div>
-      <div class="form-group" style="grid-column:1/-1"><label class="form-label">Omschrijving</label><textarea name="omschrijving" style="min-height:100px" required></textarea></div>
+      <div class="form-group" style="grid-column:1/-1"><label class="form-label">Omschrijving</label><textarea name="omschrijving" style="min-height:100px"></textarea></div>
       <div class="form-group">
         <label class="form-label">Prioriteit</label>
         <select name="prioriteit">
@@ -42,7 +42,7 @@
           <option>Kritiek — productie</option>
         </select>
       </div>
-      <div class="form-group"><label class="form-label">Schatting (uren)</label><input type="number" step="0.5" name="schatting_uren"></div>
+      <div class="form-group"><label class="form-label">Schatting (minuten)</label><input type="number" step="1" name="schatting_minuten"></div>
       <div class="form-group"><label class="form-label">Deadline</label><input type="date" name="deadline"></div>
       <div class="form-group">
         <label class="form-label">Behandelaar</label>

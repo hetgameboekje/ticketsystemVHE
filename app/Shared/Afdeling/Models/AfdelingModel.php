@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace App\Shared\Afdeling\Models;
 
 use App\Core\Model;
 
-class Afdeling extends Model
+class AfdelingModel extends Model
 {
     protected static string $table = 'afdelingen';
     protected static array $fillable = ['naam'];

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Shared\Auth;
 
 use App\Core\Controller;
-use App\Models\User;
+use App\Shared\User\Models\UserModel;
 
 class AuthController extends Controller
 {
@@ -27,7 +27,7 @@ class AuthController extends Controller
         $email = trim($_POST['email'] ?? '');
         $wachtwoord = $_POST['wachtwoord'] ?? '';
 
-        $user = User::authenticate($email, $wachtwoord);
+        $user = UserModel::authenticate($email, $wachtwoord);
 
         if ($user === null) {
             $_SESSION['login_error'] = 'E-mailadres of wachtwoord is onjuist.';

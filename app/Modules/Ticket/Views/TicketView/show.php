@@ -20,7 +20,7 @@ $statussen = ['open' => 'Open', 'in_behandeling' => 'In behandeling', 'wacht_op_
     <div class="card" style="margin-bottom:16px">
       <div class="card-header"><span class="card-title">Omschrijving</span></div>
       <div style="padding:16px;font-size:13px;line-height:1.7;color:var(--color-text-secondary)">
-        <?= nl2br(htmlspecialchars($item['omschrijving'])) ?>
+        <?= $item['omschrijving'] !== '' ? nl2br(htmlspecialchars($item['omschrijving'])) : '<span style="color:var(--color-text-tertiary)">Geen omschrijving</span>' ?>
       </div>
     </div>
 
@@ -76,7 +76,7 @@ $statussen = ['open' => 'Open', 'in_behandeling' => 'In behandeling', 'wacht_op_
         <div class="meta-row"><span class="meta-key">Afdeling</span><span><?= htmlspecialchars($item['afdeling_naam'] ?? '—') ?></span></div>
         <div class="meta-row"><span class="meta-key">Prioriteit</span><span><?= prioBadge($item['prioriteit']) ?></span></div>
         <div class="meta-row"><span class="meta-key">Impact</span><span><?= htmlspecialchars($item['impact']) ?></span></div>
-        <div class="meta-row"><span class="meta-key">Schatting</span><span><?= $item['schatting_uren'] !== null ? $item['schatting_uren'] . ' uur' : '—' ?></span></div>
+        <div class="meta-row"><span class="meta-key">Schatting</span><span><?= $item['schatting_minuten'] !== null ? $item['schatting_minuten'] . ' min' : '—' ?></span></div>
         <div class="meta-row"><span class="meta-key">Behandelaar</span><span><?= htmlspecialchars($item['behandelaar_naam'] ?? '—') ?></span></div>
         <div class="meta-row"><span class="meta-key">Datum aangemaakt</span><span><?= formatDatum($item['created_at']) ?></span></div>
         <div class="meta-row"><span class="meta-key">Deadline</span><span><?= formatDatum($item['deadline']) ?></span></div>

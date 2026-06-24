@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\Ticket\Models;
 
 use App\Core\Database;
 use App\Core\Model;
 
-class TicketLog extends Model
+class TicketLogModel extends Model
 {
     protected static string $table = 'ticket_logs';
     protected static array $fillable = ['ticket_id', 'user_id', 'opmerking', 'status_van', 'status_naar'];

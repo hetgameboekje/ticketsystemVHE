@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\Ticket\Models;
 
 use App\Core\Database;
 use App\Core\Model;
 
-class Ticket extends Model
+class TicketModel extends Model
 {
     protected static string $table = 'tickets';
     protected static array $fillable = [
         'titel', 'omschrijving', 'opdrachtgever_naam', 'afdeling_id', 'prioriteit',
-        'impact', 'schatting_uren', 'deadline', 'behandelaar_id', 'status', 'aangemaakt_door_id',
+        'impact', 'schatting_minuten', 'deadline', 'behandelaar_id', 'status', 'aangemaakt_door_id',
     ];
 
     private const SELECT = "
