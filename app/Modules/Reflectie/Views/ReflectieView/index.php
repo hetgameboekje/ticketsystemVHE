@@ -12,7 +12,7 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
     <div class="empty-state">Nog geen reflecties geschreven.</div>
   <?php else: ?>
   <table>
-    <thead><tr><th style="width:60px">#</th><th>Titel</th><th style="width:140px">Periode</th><th style="width:140px">Gebruiker</th></tr></thead>
+    <thead><tr><th class="col-1">#</th><th>Titel</th><th class="col-2">Periode</th><th class="col-2">Gebruiker</th></tr></thead>
     <tbody>
       <?php foreach ($items as $r): ?>
       <tr onclick="window.location='/reflecties/<?= $r['id'] ?>'">

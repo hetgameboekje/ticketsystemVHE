@@ -13,9 +13,9 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
   <?php else: ?>
   <table>
     <thead><tr>
-      <th style="width:60px">#</th><th>Taak</th><th style="width:110px">Opdrachtgever</th>
-      <th style="width:90px">Afdeling</th><th style="width:90px">Prioriteit</th>
-      <th style="width:130px">Status</th><th style="width:110px">Behandelaar</th><th style="width:100px">Deadline</th>
+      <th class="col-1">#</th><th>Taak</th><th class="col-2">Opdrachtgever</th>
+      <th class="col-1">Afdeling</th><th class="col-1">Prioriteit</th>
+      <th class="col-2">Status</th><th class="col-2">Behandelaar</th><th class="col-2">Deadline</th>
     </tr></thead>
     <tbody>
       <?php foreach ($items as $t): ?>

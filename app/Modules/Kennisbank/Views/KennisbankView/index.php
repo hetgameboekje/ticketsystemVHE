@@ -12,7 +12,7 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
     <div class="empty-state">Nog geen artikelen geschreven.</div>
   <?php else: ?>
   <table>
-    <thead><tr><th style="width:60px">#</th><th>Titel</th><th style="width:140px">Categorie</th><th style="width:140px">Auteur</th></tr></thead>
+    <thead><tr><th class="col-1">#</th><th>Titel</th><th class="col-2">Categorie</th><th class="col-2">Auteur</th></tr></thead>
     <tbody>
       <?php foreach ($items as $k): ?>
       <tr onclick="window.location='/kennisbank/<?= $k['id'] ?>'">

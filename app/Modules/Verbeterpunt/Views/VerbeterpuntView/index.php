@@ -12,7 +12,7 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
     <div class="empty-state">Nog geen verbeterpunten ingediend.</div>
   <?php else: ?>
   <table>
-    <thead><tr><th style="width:60px">#</th><th>Titel</th><th style="width:110px">Afdeling</th><th style="width:120px">Ingediend door</th><th style="width:130px">Status</th></tr></thead>
+    <thead><tr><th class="col-1">#</th><th>Titel</th><th class="col-2">Afdeling</th><th class="col-2">Ingediend door</th><th class="col-2">Status</th></tr></thead>
     <tbody>
       <?php foreach ($items as $v): ?>
       <tr onclick="window.location='/verbeterpunten/<?= $v['id'] ?>'">

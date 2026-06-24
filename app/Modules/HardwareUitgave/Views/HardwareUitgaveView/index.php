@@ -13,8 +13,8 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
   <?php else: ?>
   <table>
     <thead><tr>
-      <th style="width:60px">#</th><th>Omschrijving</th><th style="width:120px">Leverancier</th>
-      <th style="width:90px">Bedrag</th><th style="width:100px">Afdeling</th><th style="width:120px">Status</th>
+      <th class="col-1">#</th><th>Omschrijving</th><th class="col-2">Leverancier</th>
+      <th class="col-1">Bedrag</th><th class="col-2">Afdeling</th><th class="col-2">Status</th>
     </tr></thead>
     <tbody>
       <?php foreach ($items as $h): ?>
