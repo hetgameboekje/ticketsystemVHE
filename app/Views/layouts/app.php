@@ -17,7 +17,7 @@ function dropdownActive(array $modules, string $active): string
 function initials(string $naam): string
 {
     $parts = preg_split('/\s+/', trim($naam));
-    $letters = array_map(fn ($p) => mb_substr($p, 0, 1), array_slice($parts, 0, 2));
+    $letters = array_map(fn($p) => mb_substr($p, 0, 1), array_slice($parts, 0, 2));
     return mb_strtoupper(implode('', $letters)) ?: '?';
 }
 
@@ -26,51 +26,94 @@ $active = $activeModule ?? '';
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><?= htmlspecialchars($pageTitle ?? 'Intranet') ?> · Intranet</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= htmlspecialchars($pageTitle ?? 'Intranet') ?> · Intranet</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/app.css">
+
+    <style>
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            background: #0d6efd;
+            color: #fff;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
 
-<div class="navbar">
-  <div class="nav-left">
-    <div class="nav-brand">Intranet</div>
-    <a class="nav-link<?= navActive('dashboard', $active) ?>" href="/">Dashboard</a>
+<nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-semibold" href="/">Intranet</a>
 
-    <div class="nav-dropdown">
-      <span class="nav-link dropdown-toggle<?= dropdownActive(['tickets', 'verbeterpunten', 'reflecties', 'kennisbank', 'hardware'], $active) ?>">ICT</span>
-      <div class="dropdown-menu">
-        <a class="dropdown-item<?= navActive('tickets', $active) ?>" href="/tickets">Ticket systeem</a>
-        <a class="dropdown-item<?= navActive('verbeterpunten', $active) ?>" href="/verbeterpunten">Verbeterpunten</a>
-        <a class="dropdown-item<?= navActive('reflecties', $active) ?>" href="/reflecties">Reflectie</a>
-        <a class="dropdown-item<?= navActive('kennisbank', $active) ?>" href="/kennisbank">Kennisbank</a>
-        <a class="dropdown-item<?= navActive('hardware', $active) ?>" href="/hardware-uitgaven">Uitgaven hardware</a>
-      </div>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Navigatie openen">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link<?= navActive('dashboard', $active) ?>" href="/">Dashboard</a>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle<?= dropdownActive(['tickets', 'verbeterpunten', 'reflecties', 'kennisbank', 'hardware'], $active) ?>"
+                       href="#"
+                       id="ictDropdown"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        ICT
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="ictDropdown">
+                        <li><a class="dropdown-item<?= navActive('tickets', $active) ?>" href="/tickets">Ticket systeem</a></li>
+                        <li><a class="dropdown-item<?= navActive('verbeterpunten', $active) ?>" href="/verbeterpunten">Verbeterpunten</a></li>
+                        <li><a class="dropdown-item<?= navActive('reflecties', $active) ?>" href="/reflecties">Reflectie</a></li>
+                        <li><a class="dropdown-item<?= navActive('kennisbank', $active) ?>" href="/kennisbank">Kennisbank</a></li>
+                        <li><a class="dropdown-item<?= navActive('hardware', $active) ?>" href="/hardware-uitgaven">Uitgaven hardware</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle<?= dropdownActive(['medewerkers'], $active) ?>"
+                       href="#"
+                       id="crmDropdown"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        CRM
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="crmDropdown">
+                        <li><a class="dropdown-item<?= navActive('medewerkers', $active) ?>" href="/medewerkers">Medewerkers</a></li>
+                    </ul>
+                </li>
+            </ul>
+
+            <?php if ($currentUser): ?>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-muted small"><?= htmlspecialchars($currentUser['naam']) ?></span>
+                    <div class="avatar"><?= htmlspecialchars(initials($currentUser['naam'])) ?></div>
+                    <form method="post" action="/logout" class="m-0">
+                        <button class="btn btn-outline-secondary btn-sm" type="submit">Uitloggen</button>
+                    </form>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
+</nav>
 
-    <div class="nav-dropdown">
-      <span class="nav-link dropdown-toggle<?= dropdownActive(['medewerkers'], $active) ?>">CRM</span>
-      <div class="dropdown-menu">
-        <a class="dropdown-item<?= navActive('medewerkers', $active) ?>" href="/medewerkers">Medewerkers</a>
-      </div>
-    </div>
-  </div>
+<main class="container-fluid py-4">
+    <?= $content ?>
+</main>
 
-  <div class="nav-right">
-    <?php if ($currentUser): ?>
-      <span style="font-size:13px;color:var(--color-text-secondary)"><?= htmlspecialchars($currentUser['naam']) ?></span>
-      <div class="avatar"><?= htmlspecialchars(initials($currentUser['naam'])) ?></div>
-      <form method="post" action="/logout" style="margin:0">
-        <button class="btn" type="submit" style="padding:5px 10px;font-size:12px">Uitloggen</button>
-      </form>
-    <?php endif; ?>
-  </div>
-</div>
-
-<div class="main">
-  <?= $content ?>
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
