@@ -54,22 +54,14 @@ $statussen = ['open' => 'Open', 'in_behandeling' => 'In behandeling', 'wacht_op_
             <label class="form-label">Opmerking toevoegen</label>
             <textarea name="opmerking" placeholder="Beschrijf wat je gedaan hebt of vraag om meer informatie..."></textarea>
           </div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <select name="status" style="width:auto">
-              <option value="">Status ongewijzigd</option>
-              <?php foreach ($statussen as $val => $label): ?>
-                <option value="<?= $val ?>" <?= $item['status'] === $val ? 'selected' : '' ?>><?= $label ?></option>
-              <?php endforeach; ?>
-            </select>
-            <button class="btn btn-primary" type="submit">Opslaan</button>
-          </div>
+          <button class="btn btn-primary" type="submit">Opslaan</button>
         </form>
       </div>
     </div>
   </div>
 
   <div>
-    <div class="card">
+    <div class="card" style="margin-bottom:16px">
       <div class="card-header"><span class="card-title">Details</span></div>
       <div style="padding:0 16px">
         <div class="meta-row"><span class="meta-key">Opdrachtgever</span><span><?= htmlspecialchars($item['opdrachtgever_naam']) ?></span></div>
@@ -80,6 +72,22 @@ $statussen = ['open' => 'Open', 'in_behandeling' => 'In behandeling', 'wacht_op_
         <div class="meta-row"><span class="meta-key">Behandelaar</span><span><?= htmlspecialchars($item['behandelaar_naam'] ?? '—') ?></span></div>
         <div class="meta-row"><span class="meta-key">Datum aangemaakt</span><span><?= formatDatum($item['created_at']) ?></span></div>
         <div class="meta-row"><span class="meta-key">Deadline</span><span><?= formatDatum($item['deadline']) ?></span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-title">Status wijzigen</span></div>
+      <div style="padding:16px">
+        <form method="post" action="/tickets/<?= $item['id'] ?>/log">
+          <div class="form-group">
+            <select name="status" style="width:100%">
+              <?php foreach ($statussen as $val => $label): ?>
+                <option value="<?= $val ?>" <?= $item['status'] === $val ? 'selected' : '' ?>><?= $label ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <button class="btn btn-primary" type="submit" style="width:100%;justify-content:center">Status bijwerken</button>
+        </form>
       </div>
     </div>
   </div>
