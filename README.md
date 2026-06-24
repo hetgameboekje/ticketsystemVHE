@@ -1,8 +1,8 @@
 # Intranet
 
-Plain-PHP intranet (geen framework) met PostgreSQL. Het ticketsysteem (`/tickets`) is de
-volledig uitgewerkte module; de navigatie is opgezet zodat verdere onderdelen er als losse
-modules naast komen te staan.
+Plain-PHP intranet (geen framework) met MySQL/MariaDB (Laragon). Het ticketsysteem (`/tickets`)
+is de volledig uitgewerkte module; de navigatie is opgezet zodat verdere onderdelen er als
+losse modules naast komen te staan.
 
 Navigatie:
 - **IT** — Ticket systeem, Verbeterpunten, Reflectie, Kennisbank, Uitgaven hardware
@@ -25,27 +25,29 @@ public/
   .htaccess    Voor Apache
 ```
 
-## Setup
+## Setup (Laragon)
 
-1. Database aanmaken en schema laden:
-   ```
-   createdb intranet
-   psql -U postgres -d intranet -f database/schema.sql
-   ```
-2. Verbindingsgegevens staan in `config/config.php` (standaard: localhost:5432,
-   gebruiker `postgres`, wachtwoord `postgres`, database `intranet`). Aanpassen kan
+1. Database `vhe` aanmaken (bijv. in HeidiSQL: rechtsklik → Create new → Database) en
+   `database/schema.sql` erop uitvoeren (open het bestand als query-tab in HeidiSQL en
+   voer uit, of via de `mysql`-CLI: `mysql -u root vhe < database/schema.sql`).
+2. Verbindingsgegevens staan in `config/config.php` (standaard: Laragon-defaults —
+   `127.0.0.1:3306`, gebruiker `root`, geen wachtwoord, database `vhe`). Aanpassen kan
    ook via environment variables `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`.
-3. Vereist de PHP-extensie `pdo_pgsql` (in `php.ini`: `extension=pdo_pgsql`).
+3. Vereist de PHP-extensie `pdo_mysql` (in Laragon meestal al actief; te checken via
+   rechtsklik Laragon-tray → PHP → Extensions).
 4. Demo-gebruikers aanmaken:
    ```
    php database/seed.php
    ```
    Dit maakt 3 gebruikers met wachtwoord `wachtwoord123`.
-5. Server starten:
-   ```
-   php -S localhost:8000 -t public public/router.php
-   ```
-   en open http://localhost:8000 — log in met `admin@intranet.local` / `wachtwoord123`.
+5. Toegang tot de site:
+   - **Via Laragon's auto-vhost**: zet dit project in Laragon's `www`-map, start Apache +
+     MySQL, en open de gegenereerde `*.test`-URL (bijv. `http://ticketsystemvhe.test`).
+     De root-`.htaccess` stuurt het verkeer automatisch door naar `public/`.
+   - **Via PHP's eigen server** (geen Apache nodig):
+     ```
+     php -S localhost:8000 -t public public/router.php
+     ```
+     en open http://localhost:8000.
 
-   Draai je liever via Apache/XAMPP? Zet de `public/`-map als document root, de
-   meegeleverde `.htaccess` regelt dan de pretty URLs.
+   Log in met `admin@intranet.local` / `wachtwoord123`.

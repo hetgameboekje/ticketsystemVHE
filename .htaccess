@@ -1,0 +1,5 @@
+RewriteEngine On
+
+# Stuur alles door naar de public/ map, die zelf weer alles naar index.php routeert.
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ public/$1 [L]

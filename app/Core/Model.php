@@ -28,16 +28,16 @@ abstract class Model
         $placeholders = array_map(fn (string $c) => ':' . $c, $columns);
 
         $sql = sprintf(
-            'INSERT INTO %s (%s) VALUES (%s) RETURNING id',
+            'INSERT INTO %s (%s) VALUES (%s)',
             static::$table,
             implode(', ', $columns),
             implode(', ', $placeholders)
         );
 
-        $stmt = Database::pdo()->prepare($sql);
-        $stmt->execute($data);
+        $pdo = Database::pdo();
+        $pdo->prepare($sql)->execute($data);
 
-        return (int) $stmt->fetchColumn();
+        return (int) $pdo->lastInsertId();
     }
 
     public static function update(int $id, array $data): void

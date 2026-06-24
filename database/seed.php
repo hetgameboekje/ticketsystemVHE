@@ -17,8 +17,7 @@ $gebruikers = [
 ];
 
 $stmt = $pdo->prepare(
-    'INSERT INTO users (naam, email, wachtwoord_hash, rol) VALUES (:naam, :email, :hash, :rol)
-     ON CONFLICT (email) DO NOTHING'
+    'INSERT IGNORE INTO users (naam, email, wachtwoord_hash, rol) VALUES (:naam, :email, :hash, :rol)'
 );
 
 foreach ($gebruikers as [$naam, $email, $rol]) {
