@@ -3,6 +3,8 @@
 /** @var array $logs */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 $statussen = ['open' => 'Open', 'in_behandeling' => 'In behandeling', 'wacht_op_info' => 'Wacht op info', 'opgelost' => 'Opgelost', 'gesloten' => 'Gesloten'];
+$statusLogs = array_values(array_filter($logs, fn ($log) => $log['status_naar'] !== null));
+$opmerkingen = array_values(array_filter($logs, fn ($log) => $log['status_naar'] === null));
 ?>
 <div class="page-header">
   <div style="display:flex;align-items:center;gap:12px">
@@ -25,23 +27,16 @@ $statussen = ['open' => 'Open', 'in_behandeling' => 'In behandeling', 'wacht_op_
     </div>
 
     <div class="card">
-      <div class="card-header"><span class="card-title">Statuslogboek &amp; opmerkingen</span></div>
+      <div class="card-header"><span class="card-title">Opmerkingen</span></div>
 
-      <?php if (empty($logs)): ?>
+      <?php if (empty($opmerkingen)): ?>
         <div class="empty-state">Nog geen opmerkingen.</div>
       <?php else: ?>
-        <?php foreach ($logs as $log): ?>
+        <?php foreach ($opmerkingen as $log): ?>
         <div class="log-item">
           <div class="log-meta">
             <span class="log-user"><?= htmlspecialchars($log['user_naam'] ?? 'Onbekend') ?></span>
             <span class="log-time"><?= formatDatumTijd($log['created_at']) ?></span>
-            <?php if ($log['status_naar']): ?>
-              <span class="status-change">
-                <span class="badge badge-<?= htmlspecialchars($log['status_van']) ?>" style="padding:2px 6px;font-size:10px"><?= statusLabel($log['status_van']) ?></span>
-                &rarr;
-                <span class="badge badge-<?= htmlspecialchars($log['status_naar']) ?>" style="padding:2px 6px;font-size:10px"><?= statusLabel($log['status_naar']) ?></span>
-              </span>
-            <?php endif; ?>
           </div>
           <div class="log-text"><?= nl2br(htmlspecialchars($log['opmerking'])) ?></div>
         </div>
@@ -75,7 +70,7 @@ $statussen = ['open' => 'Open', 'in_behandeling' => 'In behandeling', 'wacht_op_
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" style="margin-bottom:16px">
       <div class="card-header"><span class="card-title">Status wijzigen</span></div>
       <div style="padding:16px">
         <form method="post" action="/tickets/<?= $item['id'] ?>/log">
@@ -89,6 +84,28 @@ $statussen = ['open' => 'Open', 'in_behandeling' => 'In behandeling', 'wacht_op_
           <button class="btn btn-primary" type="submit" style="width:100%;justify-content:center">Status bijwerken</button>
         </form>
       </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><span class="card-title">Statuslogboek</span></div>
+
+      <?php if (empty($statusLogs)): ?>
+        <div class="empty-state">Nog geen statuswijzigingen.</div>
+      <?php else: ?>
+        <?php foreach ($statusLogs as $log): ?>
+        <div class="log-item">
+          <div class="log-meta">
+            <span class="log-user"><?= htmlspecialchars($log['user_naam'] ?? 'Onbekend') ?></span>
+            <span class="log-time"><?= formatDatumTijd($log['created_at']) ?></span>
+            <span class="status-change">
+              <span class="badge badge-<?= htmlspecialchars($log['status_van']) ?>" style="padding:2px 6px;font-size:10px"><?= statusLabel($log['status_van']) ?></span>
+              &rarr;
+              <span class="badge badge-<?= htmlspecialchars($log['status_naar']) ?>" style="padding:2px 6px;font-size:10px"><?= statusLabel($log['status_naar']) ?></span>
+            </span>
+          </div>
+        </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
     </div>
   </div>
 </div>
