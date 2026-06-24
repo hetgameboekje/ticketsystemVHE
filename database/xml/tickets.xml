@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="tickets" engine="InnoDB">
+  <columns>
+    <column name="id" type="INT" primary="true" auto_increment="true"/>
+    <column name="titel" type="VARCHAR" length="255" nullable="false"/>
+    <column name="omschrijving" type="TEXT" nullable="false"/>
+    <column name="opdrachtgever_naam" type="VARCHAR" length="150" nullable="false"/>
+    <column name="afdeling_id" type="INT" references="afdelingen.id"/>
+    <column name="prioriteit" type="VARCHAR" length="20" nullable="false" default="'normaal'"/>
+    <column name="impact" type="VARCHAR" length="100" nullable="false" default="'Normaal'"/>
+    <column name="schatting_minuten" type="INT"/>
+    <column name="deadline" type="DATE"/>
+    <column name="behandelaar_id" type="INT" references="users.id"/>
+    <column name="status" type="VARCHAR" length="30" nullable="false" default="'open'"/>
+    <column name="aangemaakt_door_id" type="INT" references="users.id"/>
+    <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
+    <column name="updated_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP" on_update="CURRENT_TIMESTAMP"/>
+  </columns>
+</table>

@@ -36,7 +36,10 @@ app/
     layouts/               app.php (navbar + dropdowns), guest.php
     auth/, dashboard/, partials/   gedeelde/globale views
 database/
-  schema.sql   Tabellen + seed-afdelingen
+  xml/         Tabel-ontwerp per tabel (1 .xml per tabel) — bron voor het schema
+  parse.php    Genereert database/.parsed/schema.sql uit database/xml/*.xml
+  .parsed/     Output van parse.php (niet handmatig bewerken, niet in git)
+  schema.sql   Handmatig schema (huidige stand van de database; kan vervangen worden door .parsed/schema.sql)
   seed.php     Maakt demo-gebruikers aan (wachtwoord_hash via password_hash())
 public/
   index.php    Front controller + routes
@@ -49,6 +52,10 @@ public/
 1. Database `vhe` aanmaken (bijv. in HeidiSQL: rechtsklik → Create new → Database) en
    `database/schema.sql` erop uitvoeren (open het bestand als query-tab in HeidiSQL en
    voer uit, of via de `mysql`-CLI: `mysql -u root vhe < database/schema.sql`).
+
+   Een veld toevoegen aan een tabel? Bewerk het bijbehorende bestand in `database/xml/`
+   (zie `database/xml/README.md` voor het formaat), draai `php database/parse.php`, en
+   voer het resultaat (`database/.parsed/schema.sql`) uit op je database.
 2. Verbindingsgegevens staan in `config/config.php` (standaard: Laragon-defaults —
    `127.0.0.1:3306`, gebruiker `root`, geen wachtwoord, database `vhe`). Aanpassen kan
    ook via environment variables `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`.

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="users" engine="InnoDB">
+  <columns>
+    <column name="id" type="INT" primary="true" auto_increment="true"/>
+    <column name="naam" type="VARCHAR" length="150" nullable="false"/>
+    <column name="email" type="VARCHAR" length="150" nullable="false" unique="true"/>
+    <column name="wachtwoord_hash" type="VARCHAR" length="255" nullable="false"/>
+    <column name="rol" type="VARCHAR" length="50" nullable="false" default="'medewerker'"/>
+    <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
+  </columns>
+</table>

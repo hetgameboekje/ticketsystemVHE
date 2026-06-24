@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="afdelingen" engine="InnoDB">
+  <columns>
+    <column name="id" type="INT" primary="true" auto_increment="true"/>
+    <column name="naam" type="VARCHAR" length="100" nullable="false" unique="true"/>
+  </columns>
+  <seed>
+    <row><value column="naam">ICT</value></row>
+    <row><value column="naam">HR</value></row>
+    <row><value column="naam">Finance</value></row>
+    <row><value column="naam">Facilitair</value></row>
+  </seed>
+</table>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="reflecties" engine="InnoDB">
+  <columns>
+    <column name="id" type="INT" primary="true" auto_increment="true"/>
+    <column name="titel" type="VARCHAR" length="255" nullable="false"/>
+    <column name="periode" type="VARCHAR" length="100" nullable="false"/>
+    <column name="inhoud" type="TEXT" nullable="false"/>
+    <column name="gebruiker_id" type="INT" references="users.id"/>
+    <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
+    <column name="updated_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP" on_update="CURRENT_TIMESTAMP"/>
+  </columns>
+</table>
