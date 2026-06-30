@@ -3,10 +3,29 @@
 /** @var string|null $sort */
 /** @var string $dir */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
+
+$flashSuccess = $_SESSION['flash_success'] ?? null;
+$flashError = $_SESSION['flash_error'] ?? null;
+unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 ?>
 <div class="page-header">
   <div class="page-title">Alle tickets</div>
   <a class="btn btn-primary" href="/tickets/create">+ Nieuw ticket</a>
+</div>
+
+<?php if ($flashSuccess): ?>
+  <div class="alert alert-success"><?= htmlspecialchars($flashSuccess) ?></div>
+<?php endif; ?>
+<?php if ($flashError): ?>
+  <div class="alert alert-error"><?= htmlspecialchars($flashError) ?></div>
+<?php endif; ?>
+
+<div class="filters" style="margin-bottom:14px">
+  <a class="btn" href="/tickets/export">Exporteren naar Excel</a>
+  <form method="post" action="/tickets/import" enctype="multipart/form-data" class="filters">
+    <input type="file" name="bestand" accept=".xlsx" required>
+    <button class="btn" type="submit">Importeren vanuit Excel</button>
+  </form>
 </div>
 
 <?= activeFilterChip('tickets') ?>

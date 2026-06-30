@@ -41,5 +41,7 @@ foreach ($modules as $routeBase => $controller) {
 }
 
 $router->post('/tickets/{id}/log', [TicketLogController::class, 'store']);
+$router->get('/tickets/export', [TicketController::class, 'export']);
+$router->post('/tickets/import', [TicketController::class, 'import']);
 
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

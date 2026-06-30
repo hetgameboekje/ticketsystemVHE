@@ -36,6 +36,44 @@ class TicketController extends CrudController
         ]);
     }
 
+    public function export(): void
+    {
+        $this->requireAuth();
+
+        $content = TicketExcel::export();
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="tickets-export-' . date('Y-m-d') . '.xlsx"');
+        header('Content-Length: ' . strlen($content));
+        echo $content;
+    }
+
+    public function import(): void
+    {
+        $this->requireAuth();
+
+        if (empty($_FILES['bestand']['tmp_name']) || $_FILES['bestand']['error'] !== UPLOAD_ERR_OK) {
+            $_SESSION['flash_error'] = 'Geen geldig Excel-bestand ontvangen.';
+            $this->redirect('/tickets');
+        }
+
+        $extension = strtolower(pathinfo($_FILES['bestand']['name'], PATHINFO_EXTENSION));
+        if ($extension !== 'xlsx') {
+            $_SESSION['flash_error'] = 'Alleen .xlsx-bestanden worden ondersteund.';
+            $this->redirect('/tickets');
+        }
+
+        try {
+            $result = TicketExcel::import($_FILES['bestand']['tmp_name'], (int) $this->currentUserId());
+        } catch (\RuntimeException $e) {
+            $_SESSION['flash_error'] = $e->getMessage();
+            $this->redirect('/tickets');
+        }
+
+        $_SESSION['flash_success'] = "Import voltooid: {$result['created']} ticket(s) aangemaakt, {$result['skipped']} rij(en) overgeslagen (geen taaknaam).";
+        $this->redirect('/tickets');
+    }
+
     protected function formData(): array
     {
         return [

@@ -48,4 +48,47 @@ class TicketModel extends Model
         $stmt->execute([$status]);
         return (int) $stmt->fetchColumn();
     }
+
+    public static function setCreatedAt(int $id, string $date): void
+    {
+        $stmt = Database::pdo()->prepare('UPDATE tickets SET created_at = ? WHERE id = ?');
+        $stmt->execute([$date . ' 00:00:00', $id]);
+    }
+
+    public static function existsByTitelEnOpdrachtgever(string $titel, string $opdrachtgever): bool
+    {
+        $stmt = Database::pdo()->prepare(
+            'SELECT 1 FROM tickets WHERE LOWER(titel) = LOWER(?) AND LOWER(opdrachtgever_naam) = LOWER(?) LIMIT 1'
+        );
+        $stmt->execute([trim($titel), trim($opdrachtgever)]);
+        return $stmt->fetchColumn() !== false;
+    }
+
+    public static function findDuplicateGroups(): array
+    {
+        $sql = "
+            SELECT LOWER(TRIM(titel)) AS titel_key, LOWER(TRIM(opdrachtgever_naam)) AS opdrachtgever_key, COUNT(*) AS aantal
+            FROM tickets
+            GROUP BY titel_key, opdrachtgever_key
+            HAVING COUNT(*) > 1
+        ";
+        return Database::pdo()->query($sql)->fetchAll();
+    }
+
+    public static function findByTitelEnOpdrachtgeverKey(string $titelKey, string $opdrachtgeverKey): array
+    {
+        $stmt = Database::pdo()->prepare("
+            SELECT t.*, (SELECT COUNT(*) FROM ticket_logs l WHERE l.ticket_id = t.id) AS log_count
+            FROM tickets t
+            WHERE LOWER(TRIM(t.titel)) = ? AND LOWER(TRIM(t.opdrachtgever_naam)) = ?
+            ORDER BY t.id ASC
+        ");
+        $stmt->execute([$titelKey, $opdrachtgeverKey]);
+        return $stmt->fetchAll();
+    }
+
+    public static function delete(int $id): void
+    {
+        parent::delete($id);
+    }
 }
