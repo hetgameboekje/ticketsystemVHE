@@ -110,7 +110,7 @@ $active = $activeModule ?? '';
     </div>
 </nav>
 
-<main class="container-fluid py-4">
+<main class="main">
     <?= $content ?>
 </main>
 

@@ -9,10 +9,10 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 </div>
 
 <div class="stats">
-  <div class="stat"><div class="stat-label">Open tickets</div><div class="stat-val" style="color:var(--color-text-info)"><?= $stats['tickets_open'] ?></div></div>
-  <div class="stat"><div class="stat-label">In behandeling</div><div class="stat-val" style="color:var(--color-text-warning)"><?= $stats['tickets_in_behandeling'] ?></div></div>
-  <div class="stat"><div class="stat-label">Verbeterpunten</div><div class="stat-val"><?= $stats['verbeterpunten'] ?></div></div>
-  <div class="stat"><div class="stat-label">Medewerkers</div><div class="stat-val"><?= $stats['medewerkers'] ?></div></div>
+  <div class="stat" style="border-top:2px solid var(--color-text-info)"><div class="stat-label">Open tickets</div><div class="stat-val" style="color:var(--color-text-info)"><?= $stats['tickets_open'] ?></div></div>
+  <div class="stat" style="border-top:2px solid var(--color-text-warning)"><div class="stat-label">In behandeling</div><div class="stat-val" style="color:var(--color-text-warning)"><?= $stats['tickets_in_behandeling'] ?></div></div>
+  <div class="stat" style="border-top:2px solid var(--color-text-success)"><div class="stat-label">Verbeterpunten</div><div class="stat-val"><?= $stats['verbeterpunten'] ?></div></div>
+  <div class="stat" style="border-top:2px solid var(--color-border-secondary)"><div class="stat-label">Medewerkers</div><div class="stat-val"><?= $stats['medewerkers'] ?></div></div>
 </div>
 
 <div class="card">
