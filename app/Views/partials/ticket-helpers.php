@@ -60,3 +60,46 @@ if (!function_exists('formatDatumTijd')) {
         return date('d-m-Y H:i', strtotime($datum));
     }
 }
+
+if (!function_exists('sortLink')) {
+    function sortLink(string $column, string $label, ?string $currentSort, string $currentDir): string
+    {
+        $nextDir = ($currentSort === $column && $currentDir === 'asc') ? 'desc' : 'asc';
+
+        $params = $_GET;
+        unset($params['sort'], $params['dir']);
+        $params['sort'] = $column;
+        $params['dir'] = $nextDir;
+
+        $arrow = '';
+        if ($currentSort === $column) {
+            $arrow = '<span class="sort-arrow">' . ($currentDir === 'asc' ? '&uarr;' : '&darr;') . '</span>';
+        }
+
+        return '<a class="th-sort" href="?' . htmlspecialchars(http_build_query($params)) . '">'
+            . htmlspecialchars($label) . $arrow . '</a>';
+    }
+}
+
+if (!function_exists('activeFilterChip')) {
+    function activeFilterChip(string $routeBase): string
+    {
+        $filters = array_diff_key($_GET, ['sort' => null, 'dir' => null]);
+        $filters = array_filter($filters, fn ($v) => is_scalar($v) && $v !== '');
+
+        if (empty($filters)) {
+            return '';
+        }
+
+        $parts = [];
+        foreach ($filters as $key => $value) {
+            $displayValue = ($key === 'status' && function_exists('statusLabel'))
+                ? statusLabel((string) $value)
+                : (string) $value;
+            $parts[] = htmlspecialchars(ucfirst((string) $key)) . ': ' . htmlspecialchars($displayValue);
+        }
+
+        return '<a class="filter-chip" href="/' . htmlspecialchars($routeBase) . '">'
+            . implode(', ', $parts) . ' &times;</a>';
+    }
+}

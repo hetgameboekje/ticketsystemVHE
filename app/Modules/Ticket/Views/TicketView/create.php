@@ -11,7 +11,7 @@
 
 <div class="card">
   <form class="new-form" method="post" action="/tickets">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="form-grid">
       <div class="form-group"><label class="form-label">Opdrachtgever</label><input type="text" name="opdrachtgever_naam" required></div>
       <div class="form-group">
         <label class="form-label">Afdeling</label>

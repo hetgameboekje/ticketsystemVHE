@@ -1,5 +1,7 @@
 <?php
 /** @var array $items */
+/** @var string|null $sort */
+/** @var string $dir */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 ?>
 <div class="page-header">
@@ -7,20 +9,27 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
   <a class="btn btn-primary" href="/hardware-uitgaven/create">+ Nieuwe uitgave</a>
 </div>
 
+<?= activeFilterChip('hardware-uitgaven') ?>
+
 <div class="card">
   <?php if (empty($items)): ?>
     <div class="empty-state">Nog geen hardware-uitgaven geregistreerd.</div>
   <?php else: ?>
+  <div class="table-wrap">
   <table>
     <thead><tr>
-      <th class="col-1">#</th><th>Omschrijving</th><th class="col-2">Leverancier</th>
-      <th class="col-1">Bedrag</th><th class="col-2">Afdeling</th><th class="col-2">Status</th>
+      <th class="col-1"><?= sortLink('id', '#', $sort, $dir) ?></th>
+      <th><?= sortLink('omschrijving', 'Omschrijving', $sort, $dir) ?></th>
+      <th class="col-2"><?= sortLink('leverancier', 'Leverancier', $sort, $dir) ?></th>
+      <th class="col-1"><?= sortLink('bedrag', 'Bedrag', $sort, $dir) ?></th>
+      <th class="col-2"><?= sortLink('afdeling_naam', 'Afdeling', $sort, $dir) ?></th>
+      <th class="col-2"><?= sortLink('status', 'Status', $sort, $dir) ?></th>
     </tr></thead>
     <tbody>
       <?php foreach ($items as $h): ?>
       <tr onclick="window.location='/hardware-uitgaven/<?= $h['id'] ?>'">
         <td style="color:var(--color-text-tertiary)">#<?= $h['id'] ?></td>
-        <td><?= htmlspecialchars($h['omschrijving']) ?></td>
+        <td><span class="text-truncate d-block" title="<?= htmlspecialchars($h['omschrijving']) ?>"><?= htmlspecialchars($h['omschrijving']) ?></span></td>
         <td><?= htmlspecialchars($h['leverancier'] ?? '—') ?></td>
         <td>&euro; <?= number_format((float) $h['bedrag'], 2, ',', '.') ?></td>
         <td><?= htmlspecialchars($h['afdeling_naam'] ?? '—') ?></td>
@@ -29,5 +38,6 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
       <?php endforeach; ?>
     </tbody>
   </table>
+  </div>
   <?php endif; ?>
 </div>

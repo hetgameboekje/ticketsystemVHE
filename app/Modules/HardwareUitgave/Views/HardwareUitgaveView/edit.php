@@ -11,7 +11,7 @@ $statussen = ['aangevraagd' => 'Aangevraagd', 'goedgekeurd' => 'Goedgekeurd', 'a
 </div>
 <div class="card">
   <form class="new-form" method="post" action="/hardware-uitgaven/<?= $item['id'] ?>">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="form-grid">
       <div class="form-group" style="grid-column:1/-1"><label class="form-label">Omschrijving</label><input type="text" name="omschrijving" value="<?= htmlspecialchars($item['omschrijving']) ?>" required></div>
       <div class="form-group"><label class="form-label">Leverancier</label><input type="text" name="leverancier" value="<?= htmlspecialchars($item['leverancier'] ?? '') ?>"></div>
       <div class="form-group"><label class="form-label">Bedrag (&euro;)</label><input type="number" step="0.01" name="bedrag" value="<?= htmlspecialchars((string) $item['bedrag']) ?>" required></div>

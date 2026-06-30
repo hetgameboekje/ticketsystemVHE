@@ -14,12 +14,15 @@ abstract class CrudController extends Controller
     {
         $this->requireAuth();
         $items = ($this->modelClass)::allWithRelations();
+        $items = TableQuery::apply($items, $_GET);
 
         $this->render("{$this->viewDir}/index", [
             'items' => $items,
             'activeModule' => $this->activeModule,
             'pageTitle' => $this->pageTitle,
             'routeBase' => $this->routeBase,
+            'sort' => $_GET['sort'] ?? null,
+            'dir' => ($_GET['dir'] ?? 'asc') === 'desc' ? 'desc' : 'asc',
         ]);
     }
 

@@ -10,7 +10,7 @@
 </div>
 <div class="card">
   <form class="new-form" method="post" action="/medewerkers/<?= $item['id'] ?>">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="form-grid">
       <div class="form-group"><label class="form-label">Voornaam</label><input type="text" name="voornaam" value="<?= htmlspecialchars($item['voornaam']) ?>" required></div>
       <div class="form-group"><label class="form-label">Achternaam</label><input type="text" name="achternaam" value="<?= htmlspecialchars($item['achternaam']) ?>" required></div>
       <div class="form-group"><label class="form-label">E-mail</label><input type="email" name="email" value="<?= htmlspecialchars($item['email'] ?? '') ?>"></div>

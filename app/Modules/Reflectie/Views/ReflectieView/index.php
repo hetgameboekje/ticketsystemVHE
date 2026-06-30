@@ -1,5 +1,7 @@
 <?php
 /** @var array $items */
+/** @var string|null $sort */
+/** @var string $dir */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 ?>
 <div class="page-header">
@@ -7,22 +9,31 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
   <a class="btn btn-primary" href="/reflecties/create">+ Nieuwe reflectie</a>
 </div>
 
+<?= activeFilterChip('reflecties') ?>
+
 <div class="card">
   <?php if (empty($items)): ?>
     <div class="empty-state">Nog geen reflecties geschreven.</div>
   <?php else: ?>
+  <div class="table-wrap">
   <table>
-    <thead><tr><th class="col-1">#</th><th>Titel</th><th class="col-2">Periode</th><th class="col-2">Gebruiker</th></tr></thead>
+    <thead><tr>
+      <th class="col-1"><?= sortLink('id', '#', $sort, $dir) ?></th>
+      <th><?= sortLink('titel', 'Titel', $sort, $dir) ?></th>
+      <th class="col-2"><?= sortLink('periode', 'Periode', $sort, $dir) ?></th>
+      <th class="col-2"><?= sortLink('gebruiker_naam', 'Gebruiker', $sort, $dir) ?></th>
+    </tr></thead>
     <tbody>
       <?php foreach ($items as $r): ?>
       <tr onclick="window.location='/reflecties/<?= $r['id'] ?>'">
         <td style="color:var(--color-text-tertiary)">#<?= $r['id'] ?></td>
-        <td><?= htmlspecialchars($r['titel']) ?></td>
+        <td><span class="text-truncate d-block" title="<?= htmlspecialchars($r['titel']) ?>"><?= htmlspecialchars($r['titel']) ?></span></td>
         <td><?= htmlspecialchars($r['periode']) ?></td>
         <td><?= htmlspecialchars($r['gebruiker_naam'] ?? '—') ?></td>
       </tr>
       <?php endforeach; ?>
     </tbody>
   </table>
+  </div>
   <?php endif; ?>
 </div>

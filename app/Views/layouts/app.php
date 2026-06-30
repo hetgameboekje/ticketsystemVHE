@@ -32,21 +32,6 @@ $active = $activeModule ?? '';
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/app.css">
-
-    <style>
-        .avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            background: #0d6efd;
-            color: #fff;
-            font-size: 14px;
-        }
-    </style>
 </head>
 <body>
 
@@ -59,6 +44,7 @@ $active = $activeModule ?? '';
         </button>
 
         <div class="collapse navbar-collapse" id="mainNavbar">
+            <button type="button" class="nav-close d-lg-none" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-label="Navigatie sluiten">&times;</button>
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
                     <a class="nav-link<?= navActive('dashboard', $active) ?>" href="/">Dashboard</a>
@@ -115,5 +101,10 @@ $active = $activeModule ?? '';
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    var mainNavbar = document.getElementById('mainNavbar');
+    mainNavbar.addEventListener('show.bs.collapse', function () { document.body.classList.add('nav-open'); });
+    mainNavbar.addEventListener('hidden.bs.collapse', function () { document.body.classList.remove('nav-open'); });
+</script>
 </body>
 </html>
