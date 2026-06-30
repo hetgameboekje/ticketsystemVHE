@@ -86,9 +86,4 @@ class TicketModel extends Model
         $stmt->execute([$titelKey, $opdrachtgeverKey]);
         return $stmt->fetchAll();
     }
-
-    public static function delete(int $id): void
-    {
-        parent::delete($id);
-    }
 }

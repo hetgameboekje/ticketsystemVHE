@@ -84,7 +84,7 @@ if (!function_exists('sortLink')) {
 if (!function_exists('activeFilterChip')) {
     function activeFilterChip(string $routeBase): string
     {
-        $filters = array_diff_key($_GET, ['sort' => null, 'dir' => null]);
+        $filters = array_diff_key($_GET, ['sort' => null, 'dir' => null, 'q' => null, 'page' => null]);
         $filters = array_filter($filters, fn ($v) => is_scalar($v) && $v !== '');
 
         if (empty($filters)) {
@@ -101,5 +101,65 @@ if (!function_exists('activeFilterChip')) {
 
         return '<a class="filter-chip" href="/' . htmlspecialchars($routeBase) . '">'
             . implode(', ', $parts) . ' &times;</a>';
+    }
+}
+
+if (!function_exists('filterSelect')) {
+    function filterSelect(string $name, string $allLabel, array $options): string
+    {
+        $current = $_GET[$name] ?? '';
+
+        $html = '<select name="' . htmlspecialchars($name) . '" onchange="this.form.submit()">';
+        $html .= '<option value="">' . htmlspecialchars($allLabel) . '</option>';
+        foreach ($options as $value => $label) {
+            $selected = ((string) $value === (string) $current) ? ' selected' : '';
+            $html .= '<option value="' . htmlspecialchars((string) $value) . '"' . $selected . '>'
+                . htmlspecialchars($label) . '</option>';
+        }
+        $html .= '</select>';
+
+        return $html;
+    }
+}
+
+if (!function_exists('paginationLinks')) {
+    function paginationLinks(array $pagination): string
+    {
+        if ($pagination['totalPages'] <= 1) {
+            return '';
+        }
+
+        $page = $pagination['page'];
+        $totalPages = $pagination['totalPages'];
+        $perPage = $pagination['perPage'];
+        $total = $pagination['total'];
+
+        $linkFor = function (int $p): string {
+            $params = $_GET;
+            $params['page'] = $p;
+            return '?' . htmlspecialchars(http_build_query($params));
+        };
+
+        $html = '<div class="pagination">';
+        $html .= $page > 1
+            ? '<a class="page-link" href="' . $linkFor($page - 1) . '">&larr;</a>'
+            : '<span class="page-link page-link-disabled">&larr;</span>';
+
+        for ($p = 1; $p <= $totalPages; $p++) {
+            $start = ($p - 1) * $perPage + 1;
+            $end = min($p * $perPage, $total);
+            $label = $start . '-' . $end;
+
+            $html .= $p === $page
+                ? '<span class="page-link page-link-active">' . $label . '</span>'
+                : '<a class="page-link" href="' . $linkFor($p) . '">' . $label . '</a>';
+        }
+
+        $html .= $page < $totalPages
+            ? '<a class="page-link" href="' . $linkFor($page + 1) . '">&rarr;</a>'
+            : '<span class="page-link page-link-disabled">&rarr;</span>';
+        $html .= '</div>';
+
+        return $html;
     }
 }

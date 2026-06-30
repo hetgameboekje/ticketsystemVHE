@@ -4,11 +4,31 @@ namespace App\Core;
 
 class TableQuery
 {
-    private const RESERVED = ['sort', 'dir'];
+    private const RESERVED = ['sort', 'dir', 'q', 'page'];
+    private const PER_PAGE = 25;
 
-    public static function apply(array $items, array $params): array
+    public static function apply(array $items, array $params, ?string $searchColumn = null): array
     {
-        return self::sort(self::filter($items, $params), $params);
+        $items = self::filter($items, $params);
+        $items = self::search($items, $params, $searchColumn);
+
+        return self::sort($items, $params);
+    }
+
+    public static function paginate(array $items, array $params, int $perPage = self::PER_PAGE): array
+    {
+        $total = count($items);
+        $totalPages = max(1, (int) ceil($total / $perPage));
+        $page = max(1, min((int) ($params['page'] ?? 1), $totalPages));
+        $offset = ($page - 1) * $perPage;
+
+        return [
+            'items' => array_slice($items, $offset, $perPage),
+            'page' => $page,
+            'perPage' => $perPage,
+            'totalPages' => $totalPages,
+            'total' => $total,
+        ];
     }
 
     private static function filter(array $items, array $params): array
@@ -27,6 +47,19 @@ class TableQuery
         }
 
         return $items;
+    }
+
+    private static function search(array $items, array $params, ?string $column): array
+    {
+        $q = trim((string) ($params['q'] ?? ''));
+        if ($q === '' || $column === null) {
+            return $items;
+        }
+
+        return array_values(array_filter(
+            $items,
+            fn (array $row) => array_key_exists($column, $row) && stripos((string) $row[$column], $q) !== false
+        ));
     }
 
     private static function sort(array $items, array $params): array

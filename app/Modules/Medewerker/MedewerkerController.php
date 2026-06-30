@@ -13,6 +13,7 @@ class MedewerkerController extends CrudController
     protected string $routeBase = 'medewerkers';
     protected string $activeModule = 'medewerkers';
     protected string $pageTitle = 'Medewerkers';
+    protected ?string $searchColumn = 'achternaam';
 
     protected function formData(): array
     {

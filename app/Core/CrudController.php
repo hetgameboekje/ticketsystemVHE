@@ -9,21 +9,39 @@ abstract class CrudController extends Controller
     protected string $routeBase;
     protected string $activeModule;
     protected string $pageTitle;
+    protected ?string $searchColumn = 'titel';
 
     public function index(): void
     {
         $this->requireAuth();
-        $items = ($this->modelClass)::allWithRelations();
-        $items = TableQuery::apply($items, $_GET);
+        $allItems = ($this->modelClass)::allWithRelations();
+        $filterOptions = $this->filterOptions($allItems);
+
+        $items = $this->applyDefaultFilters($allItems);
+        $items = TableQuery::apply($items, $_GET, $this->searchColumn);
+        $pagination = TableQuery::paginate($items, $_GET);
 
         $this->render("{$this->viewDir}/index", [
-            'items' => $items,
+            'items' => $pagination['items'],
+            'pagination' => $pagination,
+            'filterOptions' => $filterOptions,
+            'search' => $_GET['q'] ?? '',
             'activeModule' => $this->activeModule,
             'pageTitle' => $this->pageTitle,
             'routeBase' => $this->routeBase,
             'sort' => $_GET['sort'] ?? null,
             'dir' => ($_GET['dir'] ?? 'asc') === 'desc' ? 'desc' : 'asc',
         ]);
+    }
+
+    protected function filterOptions(array $allItems): array
+    {
+        return [];
+    }
+
+    protected function applyDefaultFilters(array $items): array
+    {
+        return $items;
     }
 
     public function create(): void

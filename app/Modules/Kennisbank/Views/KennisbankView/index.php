@@ -1,5 +1,7 @@
 <?php
 /** @var array $items */
+/** @var array $pagination */
+/** @var string $search */
 /** @var string|null $sort */
 /** @var string $dir */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
@@ -9,11 +11,16 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
   <a class="btn btn-primary" href="/kennisbank/create">+ Nieuw artikel</a>
 </div>
 
+<form method="get" action="/kennisbank" class="filters" style="margin-bottom:14px">
+  <input type="text" name="q" value="<?= htmlspecialchars($search) ?>" placeholder="Zoeken op titel...">
+  <button class="btn btn-primary" type="submit">Zoeken</button>
+</form>
+
 <?= activeFilterChip('kennisbank') ?>
 
 <div class="card">
   <?php if (empty($items)): ?>
-    <div class="empty-state">Nog geen artikelen geschreven.</div>
+    <div class="empty-state">Geen artikelen gevonden.</div>
   <?php else: ?>
   <div class="table-wrap">
   <table>
@@ -35,5 +42,6 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
     </tbody>
   </table>
   </div>
+  <?= paginationLinks($pagination) ?>
   <?php endif; ?>
 </div>

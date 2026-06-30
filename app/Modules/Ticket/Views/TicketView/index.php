@@ -1,5 +1,8 @@
 <?php
 /** @var array $items */
+/** @var array $pagination */
+/** @var array $filterOptions */
+/** @var string $search */
 /** @var string|null $sort */
 /** @var string $dir */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
@@ -28,11 +31,24 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
   </form>
 </div>
 
+<form method="get" action="/tickets" class="filters" style="margin-bottom:14px">
+  <input type="text" name="q" value="<?= htmlspecialchars($search) ?>" placeholder="Zoeken op taak...">
+  <?= filterSelect('status', 'Alle statussen (zonder opgelost)', $filterOptions['status']) ?>
+  <?= filterSelect('prioriteit', 'Alle prioriteiten', $filterOptions['prioriteit']) ?>
+  <?= filterSelect('afdeling_naam', 'Alle afdelingen', $filterOptions['afdeling_naam']) ?>
+  <?= filterSelect('behandelaar_naam', 'Alle behandelaars', $filterOptions['behandelaar_naam']) ?>
+  <button class="btn btn-primary" type="submit">Zoeken</button>
+  <?php if ($sort): ?>
+    <input type="hidden" name="sort" value="<?= htmlspecialchars($sort) ?>">
+    <input type="hidden" name="dir" value="<?= htmlspecialchars($dir) ?>">
+  <?php endif; ?>
+</form>
+
 <?= activeFilterChip('tickets') ?>
 
 <div class="card">
   <?php if (empty($items)): ?>
-    <div class="empty-state">Nog geen tickets aangemaakt.</div>
+    <div class="empty-state">Geen tickets gevonden.</div>
   <?php else: ?>
   <div class="table-wrap">
   <table>
@@ -62,5 +78,6 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
     </tbody>
   </table>
   </div>
+  <?= paginationLinks($pagination) ?>
   <?php endif; ?>
 </div>

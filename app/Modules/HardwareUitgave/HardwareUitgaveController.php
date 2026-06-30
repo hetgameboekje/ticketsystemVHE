@@ -13,6 +13,7 @@ class HardwareUitgaveController extends CrudController
     protected string $routeBase = 'hardware-uitgaven';
     protected string $activeModule = 'hardware';
     protected string $pageTitle = 'Uitgaven hardware';
+    protected ?string $searchColumn = 'omschrijving';
 
     protected function formData(): array
     {

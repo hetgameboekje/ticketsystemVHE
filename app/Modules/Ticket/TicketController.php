@@ -16,6 +16,46 @@ class TicketController extends CrudController
     protected string $activeModule = 'tickets';
     protected string $pageTitle = 'Tickets';
 
+    private const STATUS_LABELS = [
+        'open' => 'Open',
+        'in_behandeling' => 'In behandeling',
+        'wacht_op_info' => 'Wacht op info',
+        'opgelost' => 'Opgelost',
+        'gesloten' => 'Gesloten',
+    ];
+
+    private const PRIORITEIT_LABELS = [
+        'laag' => 'Laag',
+        'normaal' => 'Normaal',
+        'hoog' => 'Hoog',
+        'kritiek' => 'Kritiek',
+    ];
+
+    protected function filterOptions(array $allItems): array
+    {
+        $afdelingen = array_values(array_unique(array_filter(array_column($allItems, 'afdeling_naam'))));
+        sort($afdelingen);
+
+        $behandelaars = array_values(array_unique(array_filter(array_column($allItems, 'behandelaar_naam'))));
+        sort($behandelaars);
+
+        return [
+            'status' => self::STATUS_LABELS,
+            'prioriteit' => self::PRIORITEIT_LABELS,
+            'afdeling_naam' => array_combine($afdelingen, $afdelingen),
+            'behandelaar_naam' => array_combine($behandelaars, $behandelaars),
+        ];
+    }
+
+    protected function applyDefaultFilters(array $items): array
+    {
+        if (($_GET['status'] ?? '') === '') {
+            return array_values(array_filter($items, fn (array $t) => $t['status'] !== 'opgelost'));
+        }
+
+        return $items;
+    }
+
     public function show(int $id): void
     {
         $this->requireAuth();
@@ -70,7 +110,9 @@ class TicketController extends CrudController
             $this->redirect('/tickets');
         }
 
-        $_SESSION['flash_success'] = "Import voltooid: {$result['created']} ticket(s) aangemaakt, {$result['skipped']} rij(en) overgeslagen (geen taaknaam).";
+        $_SESSION['flash_success'] = "Import voltooid: {$result['created']} ticket(s) aangemaakt, "
+            . "{$result['duplicates']} overgeslagen als duplicaat (zelfde taak + opdrachtgever bestond al), "
+            . "{$result['skipped']} rij(en) overgeslagen (geen taaknaam).";
         $this->redirect('/tickets');
     }
 

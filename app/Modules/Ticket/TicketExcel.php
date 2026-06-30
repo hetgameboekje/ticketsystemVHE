@@ -64,12 +64,20 @@ class TicketExcel
 
         $created = 0;
         $skipped = 0;
+        $duplicates = 0;
         $errors = [];
 
         foreach ($sheet['rows'] as $rowNum => $row) {
             $titel = $get($row, 'Taak');
             if ($titel === '') {
                 $skipped++;
+                continue;
+            }
+
+            $opdrachtgever = $get($row, 'Opdrachtgever') ?: 'Onbekend';
+
+            if (TicketModel::existsByTitelEnOpdrachtgever($titel, $opdrachtgever)) {
+                $duplicates++;
                 continue;
             }
 
@@ -123,7 +131,7 @@ class TicketExcel
             $id = TicketModel::create([
                 'titel' => $titel,
                 'omschrijving' => $omschrijving !== '' ? $omschrijving : '(geen omschrijving)',
-                'opdrachtgever_naam' => $get($row, 'Opdrachtgever') ?: 'Onbekend',
+                'opdrachtgever_naam' => $opdrachtgever,
                 'afdeling_id' => $afdelingId,
                 'prioriteit' => $prioriteit,
                 'impact' => $get($row, 'Impact') ?: 'Normaal',
@@ -145,6 +153,6 @@ class TicketExcel
             $created++;
         }
 
-        return ['created' => $created, 'skipped' => $skipped, 'errors' => $errors];
+        return ['created' => $created, 'skipped' => $skipped, 'duplicates' => $duplicates, 'errors' => $errors];
     }
 }

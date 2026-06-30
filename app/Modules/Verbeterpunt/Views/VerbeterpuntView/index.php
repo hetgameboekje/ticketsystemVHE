@@ -1,5 +1,7 @@
 <?php
 /** @var array $items */
+/** @var array $pagination */
+/** @var string $search */
 /** @var string|null $sort */
 /** @var string $dir */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
@@ -9,11 +11,16 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
   <a class="btn btn-primary" href="/verbeterpunten/create">+ Nieuw verbeterpunt</a>
 </div>
 
+<form method="get" action="/verbeterpunten" class="filters" style="margin-bottom:14px">
+  <input type="text" name="q" value="<?= htmlspecialchars($search) ?>" placeholder="Zoeken op titel...">
+  <button class="btn btn-primary" type="submit">Zoeken</button>
+</form>
+
 <?= activeFilterChip('verbeterpunten') ?>
 
 <div class="card">
   <?php if (empty($items)): ?>
-    <div class="empty-state">Nog geen verbeterpunten ingediend.</div>
+    <div class="empty-state">Geen verbeterpunten gevonden.</div>
   <?php else: ?>
   <div class="table-wrap">
   <table>
@@ -37,5 +44,6 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
     </tbody>
   </table>
   </div>
+  <?= paginationLinks($pagination) ?>
   <?php endif; ?>
 </div>
