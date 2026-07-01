@@ -34,22 +34,37 @@ class MedewerkerModel extends Model
         return $row === false ? null : $row;
     }
 
-    /** Actieve logins die nog aan geen (andere) medewerker gekoppeld zijn, plus optioneel de huidige koppeling zelf. */
-    public static function beschikbareGebruikers(?int $huidigeUserId = null): array
+    /**
+     * 'gevonden' — actieve login met dit e-mailadres bestaat en is nog aan geen (andere) medewerker gekoppeld.
+     * 'bezet' — de login bestaat, maar is al aan een andere medewerker gekoppeld.
+     * 'niet_gevonden' — geen actieve login met dit e-mailadres.
+     */
+    public static function loginStatusVoorEmail(string $email, ?int $exceptMedewerkerId = null): string
     {
-        $sql = 'SELECT u.* FROM users u
-                WHERE u.deleted_at IS NULL
-                AND (u.id NOT IN (SELECT user_id FROM medewerkers WHERE user_id IS NOT NULL AND deleted_at IS NULL)';
-        $params = [];
-        if ($huidigeUserId !== null) {
-            $sql .= ' OR u.id = ?';
-            $params[] = $huidigeUserId;
+        $userId = self::userIdVoorEmail($email);
+        if ($userId === null) {
+            return 'niet_gevonden';
         }
-        $sql .= ') ORDER BY u.naam ASC';
+
+        $sql = 'SELECT 1 FROM medewerkers WHERE user_id = ? AND deleted_at IS NULL';
+        $params = [$userId];
+        if ($exceptMedewerkerId !== null) {
+            $sql .= ' AND id != ?';
+            $params[] = $exceptMedewerkerId;
+        }
 
         $stmt = Database::pdo()->prepare($sql);
         $stmt->execute($params);
-        return $stmt->fetchAll();
+
+        return $stmt->fetchColumn() !== false ? 'bezet' : 'gevonden';
+    }
+
+    public static function userIdVoorEmail(string $email): ?int
+    {
+        $stmt = Database::pdo()->prepare('SELECT id FROM users WHERE LOWER(email) = LOWER(?) AND deleted_at IS NULL');
+        $stmt->execute([$email]);
+        $id = $stmt->fetchColumn();
+        return $id === false ? null : (int) $id;
     }
 
     public static function searchNamen(string $q): array

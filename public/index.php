@@ -59,6 +59,8 @@ $router->post('/tickets/import', [TicketController::class, 'import']);
 
 $router->get('/voorraad/{id}/barcode', [VoorraadController::class, 'barcode']);
 
+$router->get('/medewerkers/login-check', [MedewerkerController::class, 'loginCheck']);
+
 $router->get('/uitgiften', [UitgifteController::class, 'index']);
 $router->get('/uitgiften/namen', [UitgifteController::class, 'namen']);
 $router->get('/uitgiften/items', [UitgifteController::class, 'items']);
@@ -80,6 +82,7 @@ $router->post('/account', [AccountController::class, 'bijwerken']);
 $router->get('/beheer', [BeheerController::class, 'index']);
 $router->post('/beheer/git-pull', [BeheerController::class, 'gitPull']);
 $router->post('/beheer/database-parsen', [BeheerController::class, 'databaseParsen']);
+$router->post('/beheer/database-toepassen', [BeheerController::class, 'databaseToepassen']);
 
 $router->get('/beheer/rechten', [RechtenController::class, 'index']);
 $router->get('/beheer/rechten/nieuw', [RechtenController::class, 'aanmaken']);

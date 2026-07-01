@@ -72,4 +72,33 @@ class BeheerController extends Controller
 
         $this->redirect('/beheer');
     }
+
+    /**
+     * Genereert de schema-SQL en voert 'm direct uit tegen de database: CREATE TABLE IF NOT EXISTS,
+     * INSERT IGNORE-seeds, en ALTER TABLE ... ADD COLUMN voor kolommen die in database/xml/*.xml staan
+     * maar nog op tabellen ontbreken. Idempotent — bestaande tabellen/kolommen/rijen blijven ongewijzigd.
+     */
+    public function databaseToepassen(): void
+    {
+        $this->requireAdmin();
+
+        try {
+            $sql = SchemaParser::generateSql();
+            $result = SchemaParser::applyToDatabase($sql);
+
+            $log = "Schema toegepast op de database.\n";
+            $log .= "Uitgevoerd: {$result['applied']}, overgeslagen: {$result['skipped']}.\n";
+            if ($result['errors'] !== []) {
+                $log .= "\nFoutmeldingen (meestal onschuldig — bv. tabel/kolom bestond al):\n- " . implode("\n- ", $result['errors']);
+            }
+
+            $_SESSION['beheer_output'] = $log;
+            $_SESSION['flash_success'] = "Database bijgewerkt: {$result['applied']} statement(s) uitgevoerd.";
+        } catch (\Throwable $e) {
+            $_SESSION['beheer_output'] = 'Fout: ' . $e->getMessage();
+            $_SESSION['flash_error'] = 'Database toepassen is mislukt — zie de uitvoer hieronder.';
+        }
+
+        $this->redirect('/beheer');
+    }
 }

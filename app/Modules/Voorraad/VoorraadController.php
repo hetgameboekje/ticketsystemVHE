@@ -48,20 +48,41 @@ class VoorraadController extends CrudController
         }
 
         $variant = trim($_POST['variant'] ?? '') ?: null;
-        $serienummer = trim($_POST['serienummer'] ?? '') ?: null;
         $locatie = trim($_POST['locatie'] ?? '') ?: null;
         $opmerking = trim($_POST['opmerking'] ?? '') ?: null;
         $aantal = max(1, (int) ($_POST['aantal'] ?? 1));
 
-        if ($serienummer !== null && $aantal > 1) {
-            $_SESSION['flash_error'] = 'Met een serienummer kan je maar 1 item tegelijk toevoegen (een serienummer is uniek per stuk).';
+        $serienummers = array_map(
+            fn (string $s) => trim($s) ?: null,
+            $_POST['serienummers'] ?? []
+        );
+        $serienummers = array_filter($serienummers, fn (?string $s) => $s !== null);
+
+        if ($serienummers !== [] && count($serienummers) !== $aantal) {
+            $_SESSION['flash_error'] = "Vul voor alle {$aantal} items een serienummer in, of laat ze allemaal leeg.";
             $this->redirect('/voorraad/create');
         }
 
-        $barcode = self::buildBarcode($type['code'], $variant, $serienummer);
+        if (count($serienummers) !== count(array_unique($serienummers))) {
+            $_SESSION['flash_error'] = 'Je hebt hetzelfde serienummer meerdere keren ingevuld — een serienummer is uniek per stuk.';
+            $this->redirect('/voorraad/create');
+        }
+
+        foreach ($serienummers as $serienummer) {
+            if (VoorraadItemModel::serienummerExists($serienummer)) {
+                $_SESSION['flash_error'] = "Serienummer {$serienummer} bestaat al bij een ander item.";
+                $this->redirect('/voorraad/create');
+            }
+        }
+
+        $serienummers = array_values($serienummers);
 
         $lastId = null;
+        $barcode = null;
         for ($i = 0; $i < $aantal; $i++) {
+            $serienummer = $serienummers[$i] ?? null;
+            $barcode = self::buildBarcode($type['code'], $variant, $serienummer);
+
             $lastId = VoorraadItemModel::create([
                 'type_id' => $typeId,
                 'variant' => $variant,
@@ -74,7 +95,7 @@ class VoorraadController extends CrudController
         }
 
         $_SESSION['flash_success'] = $aantal > 1
-            ? "{$aantal} items toegevoegd met barcode {$barcode}."
+            ? "{$aantal} items toegevoegd."
             : "Item toegevoegd met barcode {$barcode}.";
         $this->redirect("/voorraad/{$lastId}");
     }
@@ -102,6 +123,11 @@ class VoorraadController extends CrudController
         $serienummer = trim($_POST['serienummer'] ?? '') ?: null;
         $locatie = trim($_POST['locatie'] ?? '') ?: null;
         $opmerking = trim($_POST['opmerking'] ?? '') ?: null;
+
+        if ($serienummer !== null && VoorraadItemModel::serienummerExists($serienummer, $id)) {
+            $_SESSION['flash_error'] = "Serienummer {$serienummer} bestaat al bij een ander item.";
+            $this->redirect("/voorraad/{$id}/edit");
+        }
 
         $barcode = self::buildBarcode($type['code'], $variant, $serienummer);
 

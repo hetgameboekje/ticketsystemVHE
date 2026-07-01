@@ -48,12 +48,19 @@
       <div class="card-header"><span class="card-title">Database</span></div>
       <div style="padding:16px">
         <p style="font-size:13px;color:var(--color-text-secondary);margin-top:0">
-          Zet de tabel-definities in <code>database/xml/*.xml</code> om naar <code>database/.parsed/schema.sql</code>.
-          Dit wordt <strong>niet</strong> automatisch uitgevoerd op de database — je past het zelf handmatig toe.
-          De SQL is idempotent (CREATE TABLE IF NOT EXISTS), dus bestaande tabellen en data blijven ongewijzigd.
+          Zet de tabel-definities in <code>database/xml/*.xml</code> om naar <code>database/.parsed/schema.sql</code>
+          en toont de SQL, zonder deze uit te voeren.
         </p>
-        <form method="post" action="/beheer/database-parsen">
-          <button class="btn btn-primary" type="submit">Database parsen</button>
+        <form method="post" action="/beheer/database-parsen" style="margin-bottom:16px">
+          <button class="btn" type="submit">Database parsen (alleen tonen)</button>
+        </form>
+        <p style="font-size:13px;color:var(--color-text-secondary)">
+          Voert diezelfde SQL direct uit tegen de database: nieuwe tabellen worden aangemaakt (<code>CREATE TABLE IF NOT EXISTS</code>),
+          ontbrekende kolommen op bestaande tabellen worden toegevoegd (<code>ALTER TABLE ... ADD COLUMN</code>), en seed-data
+          wordt ingevoegd (<code>INSERT IGNORE</code>). Idempotent: bestaande tabellen, kolommen en rijen blijven ongewijzigd.
+        </p>
+        <form method="post" action="/beheer/database-toepassen" onsubmit="return confirm('Schema direct toepassen op de live database? Dit maakt ontbrekende tabellen/kolommen aan.')">
+          <button class="btn btn-primary" type="submit">Toepassen op database</button>
         </form>
       </div>
     </div>

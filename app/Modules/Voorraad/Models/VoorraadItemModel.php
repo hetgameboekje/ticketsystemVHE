@@ -68,6 +68,20 @@ class VoorraadItemModel extends Model
         return $row === false ? null : $row;
     }
 
+    public static function serienummerExists(string $serienummer, ?int $exceptId = null): bool
+    {
+        $sql = 'SELECT 1 FROM voorraad_items WHERE serienummer = ? AND deleted_at IS NULL';
+        $params = [$serienummer];
+        if ($exceptId !== null) {
+            $sql .= ' AND id != ?';
+            $params[] = $exceptId;
+        }
+
+        $stmt = Database::pdo()->prepare($sql . ' LIMIT 1');
+        $stmt->execute($params);
+        return $stmt->fetchColumn() !== false;
+    }
+
     public static function setStatus(int $id, string $status): void
     {
         $stmt = Database::pdo()->prepare('UPDATE voorraad_items SET status = ? WHERE id = ?');
