@@ -9,11 +9,13 @@ class KennisbankModel extends Model
 {
     protected static string $table = 'kennisbank_artikelen';
     protected static array $fillable = ['titel', 'categorie', 'inhoud', 'auteur_id'];
+    protected static bool $softDeletes = true;
 
     private const SELECT = "
         SELECT k.*, u.naam AS auteur_naam
         FROM kennisbank_artikelen k
         LEFT JOIN users u ON u.id = k.auteur_id
+        WHERE k.deleted_at IS NULL
     ";
 
     public static function allWithRelations(): array
@@ -23,7 +25,7 @@ class KennisbankModel extends Model
 
     public static function findWithRelations(int $id): ?array
     {
-        $stmt = Database::pdo()->prepare(self::SELECT . ' WHERE k.id = ?');
+        $stmt = Database::pdo()->prepare(self::SELECT . ' AND k.id = ?');
         $stmt->execute([$id]);
         $row = $stmt->fetch();
         return $row === false ? null : $row;

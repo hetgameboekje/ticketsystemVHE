@@ -14,6 +14,7 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => $log['status_naar']
   </div>
   <div style="display:flex;gap:8px">
     <a class="btn" href="/tickets/<?= $item['id'] ?>/edit">Bewerken</a>
+    <?= deleteButton('tickets', $item['id']) ?>
   </div>
 </div>
 

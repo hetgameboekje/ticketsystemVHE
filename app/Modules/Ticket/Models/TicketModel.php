@@ -12,12 +12,14 @@ class TicketModel extends Model
         'titel', 'omschrijving', 'opdrachtgever_naam', 'afdeling_id', 'prioriteit',
         'impact', 'schatting_minuten', 'deadline', 'behandelaar_id', 'status', 'aangemaakt_door_id',
     ];
+    protected static bool $softDeletes = true;
 
     private const SELECT = "
         SELECT t.*, a.naam AS afdeling_naam, b.naam AS behandelaar_naam
         FROM tickets t
         LEFT JOIN afdelingen a ON a.id = t.afdeling_id
         LEFT JOIN users b ON b.id = t.behandelaar_id
+        WHERE t.deleted_at IS NULL
     ";
 
     public static function allWithRelations(): array
@@ -36,7 +38,7 @@ class TicketModel extends Model
 
     public static function findWithRelations(int $id): ?array
     {
-        $stmt = Database::pdo()->prepare(self::SELECT . ' WHERE t.id = ?');
+        $stmt = Database::pdo()->prepare(self::SELECT . ' AND t.id = ?');
         $stmt->execute([$id]);
         $row = $stmt->fetch();
         return $row === false ? null : $row;
@@ -44,7 +46,7 @@ class TicketModel extends Model
 
     public static function countByStatus(string $status): int
     {
-        $stmt = Database::pdo()->prepare('SELECT COUNT(*) FROM tickets WHERE status = ?');
+        $stmt = Database::pdo()->prepare('SELECT COUNT(*) FROM tickets WHERE status = ? AND deleted_at IS NULL');
         $stmt->execute([$status]);
         return (int) $stmt->fetchColumn();
     }
@@ -58,7 +60,7 @@ class TicketModel extends Model
     public static function existsByTitelEnOpdrachtgever(string $titel, string $opdrachtgever): bool
     {
         $stmt = Database::pdo()->prepare(
-            'SELECT 1 FROM tickets WHERE LOWER(titel) = LOWER(?) AND LOWER(opdrachtgever_naam) = LOWER(?) LIMIT 1'
+            'SELECT 1 FROM tickets WHERE LOWER(titel) = LOWER(?) AND LOWER(opdrachtgever_naam) = LOWER(?) AND deleted_at IS NULL LIMIT 1'
         );
         $stmt->execute([trim($titel), trim($opdrachtgever)]);
         return $stmt->fetchColumn() !== false;
@@ -69,6 +71,7 @@ class TicketModel extends Model
         $sql = "
             SELECT LOWER(TRIM(titel)) AS titel_key, LOWER(TRIM(opdrachtgever_naam)) AS opdrachtgever_key, COUNT(*) AS aantal
             FROM tickets
+            WHERE deleted_at IS NULL
             GROUP BY titel_key, opdrachtgever_key
             HAVING COUNT(*) > 1
         ";
@@ -80,7 +83,7 @@ class TicketModel extends Model
         $stmt = Database::pdo()->prepare("
             SELECT t.*, (SELECT COUNT(*) FROM ticket_logs l WHERE l.ticket_id = t.id) AS log_count
             FROM tickets t
-            WHERE LOWER(TRIM(t.titel)) = ? AND LOWER(TRIM(t.opdrachtgever_naam)) = ?
+            WHERE LOWER(TRIM(t.titel)) = ? AND LOWER(TRIM(t.opdrachtgever_naam)) = ? AND t.deleted_at IS NULL
             ORDER BY t.id ASC
         ");
         $stmt->execute([$titelKey, $opdrachtgeverKey]);

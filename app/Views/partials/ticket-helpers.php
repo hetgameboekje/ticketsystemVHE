@@ -122,6 +122,16 @@ if (!function_exists('filterSelect')) {
     }
 }
 
+if (!function_exists('deleteButton')) {
+    function deleteButton(string $routeBase, int $id, string $label = 'Verwijderen'): string
+    {
+        return '<form method="post" action="/' . htmlspecialchars($routeBase) . '/' . $id . '/verwijderen" '
+            . 'onsubmit="return confirm(\'Weet je zeker dat je dit item wilt verwijderen? Het blijft bewaard in de database, maar verdwijnt uit het overzicht.\')">'
+            . '<button class="btn btn-danger" type="submit">' . htmlspecialchars($label) . '</button>'
+            . '</form>';
+    }
+}
+
 if (!function_exists('paginationLinks')) {
     function paginationLinks(array $pagination): string
     {

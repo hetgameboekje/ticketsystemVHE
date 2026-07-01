@@ -10,6 +10,7 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
   </div>
   <div style="display:flex;gap:8px">
     <a class="btn" href="/hardware-uitgaven/<?= $item['id'] ?>/edit">Bewerken</a>
+    <?= deleteButton('hardware-uitgaven', $item['id']) ?>
   </div>
 </div>
 

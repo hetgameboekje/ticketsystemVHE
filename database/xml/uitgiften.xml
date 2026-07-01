@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="uitgiften" engine="InnoDB">
+  <columns>
+    <column name="id" type="INT" primary="true" auto_increment="true"/>
+    <column name="voorraad_item_id" type="INT" nullable="false"/>
+    <column name="medewerker_naam" type="VARCHAR" length="150" nullable="false"/>
+    <column name="uitgegeven_op" type="DATE" nullable="false"/>
+    <column name="teruggegeven_op" type="DATE"/>
+    <column name="retour_opmerking" type="TEXT"/>
+    <column name="opmerking" type="TEXT"/>
+    <column name="uitgegeven_door_id" type="INT"/>
+    <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
+  </columns>
+</table>

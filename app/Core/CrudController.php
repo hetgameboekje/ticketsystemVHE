@@ -21,7 +21,7 @@ abstract class CrudController extends Controller
         $items = TableQuery::apply($items, $_GET, $this->searchColumn);
         $pagination = TableQuery::paginate($items, $_GET);
 
-        $this->render("{$this->viewDir}/index", [
+        $this->render("{$this->viewDir}/index", array_merge([
             'items' => $pagination['items'],
             'pagination' => $pagination,
             'filterOptions' => $filterOptions,
@@ -31,7 +31,7 @@ abstract class CrudController extends Controller
             'routeBase' => $this->routeBase,
             'sort' => $_GET['sort'] ?? null,
             'dir' => ($_GET['dir'] ?? 'asc') === 'desc' ? 'desc' : 'asc',
-        ]);
+        ], $this->extraViewData($allItems)));
     }
 
     protected function filterOptions(array $allItems): array
@@ -42,6 +42,11 @@ abstract class CrudController extends Controller
     protected function applyDefaultFilters(array $items): array
     {
         return $items;
+    }
+
+    protected function extraViewData(array $allItems): array
+    {
+        return [];
     }
 
     public function create(): void
@@ -111,6 +116,7 @@ abstract class CrudController extends Controller
     {
         $this->requireAuth();
         ($this->modelClass)::delete($id);
+        $_SESSION['flash_success'] = 'Item is inactief gezet en niet meer zichtbaar in het overzicht.';
         $this->redirect("/{$this->routeBase}");
     }
 

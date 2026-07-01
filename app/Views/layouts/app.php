@@ -51,7 +51,7 @@ $active = $activeModule ?? '';
                 </li>
 
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle<?= dropdownActive(['tickets', 'verbeterpunten', 'reflecties', 'kennisbank', 'hardware'], $active) ?>"
+                    <a class="nav-link dropdown-toggle<?= dropdownActive(['tickets', 'verbeterpunten', 'reflecties', 'kennisbank', 'voorraad', 'uitgiften'], $active) ?>"
                        href="#"
                        id="ictDropdown"
                        role="button"
@@ -64,7 +64,8 @@ $active = $activeModule ?? '';
                         <li><a class="dropdown-item<?= navActive('verbeterpunten', $active) ?>" href="/verbeterpunten">Verbeterpunten</a></li>
                         <li><a class="dropdown-item<?= navActive('reflecties', $active) ?>" href="/reflecties">Reflectie</a></li>
                         <li><a class="dropdown-item<?= navActive('kennisbank', $active) ?>" href="/kennisbank">Kennisbank</a></li>
-                        <li><a class="dropdown-item<?= navActive('hardware', $active) ?>" href="/hardware-uitgaven">Uitgaven hardware</a></li>
+                        <li><a class="dropdown-item<?= navActive('voorraad', $active) ?>" href="/voorraad">Voorraad</a></li>
+                        <li><a class="dropdown-item<?= navActive('uitgiften', $active) ?>" href="/uitgiften">Uitgifte</a></li>
                     </ul>
                 </li>
 

@@ -9,7 +9,9 @@ use App\Modules\Medewerker\MedewerkerController;
 use App\Modules\Reflectie\ReflectieController;
 use App\Modules\Ticket\TicketController;
 use App\Modules\Ticket\TicketLogController;
+use App\Modules\Uitgifte\UitgifteController;
 use App\Modules\Verbeterpunt\VerbeterpuntController;
+use App\Modules\Voorraad\VoorraadController;
 use App\Shared\Auth\AuthController;
 use App\Shared\Dashboard\DashboardController;
 
@@ -28,6 +30,7 @@ $modules = [
     'kennisbank' => KennisbankController::class,
     'hardware-uitgaven' => HardwareUitgaveController::class,
     'medewerkers' => MedewerkerController::class,
+    'voorraad' => VoorraadController::class,
 ];
 
 foreach ($modules as $routeBase => $controller) {
@@ -43,5 +46,15 @@ foreach ($modules as $routeBase => $controller) {
 $router->post('/tickets/{id}/log', [TicketLogController::class, 'store']);
 $router->get('/tickets/export', [TicketController::class, 'export']);
 $router->post('/tickets/import', [TicketController::class, 'import']);
+
+$router->get('/voorraad/{id}/barcode', [VoorraadController::class, 'barcode']);
+
+$router->get('/uitgiften', [UitgifteController::class, 'index']);
+$router->get('/uitgiften/namen', [UitgifteController::class, 'namen']);
+$router->get('/uitgiften/items', [UitgifteController::class, 'items']);
+$router->get('/uitgiften/create', [UitgifteController::class, 'create']);
+$router->post('/uitgiften', [UitgifteController::class, 'store']);
+$router->get('/uitgiften/{id}', [UitgifteController::class, 'show']);
+$router->post('/uitgiften/{id}/retour', [UitgifteController::class, 'retour']);
 
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

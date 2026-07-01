@@ -15,5 +15,6 @@
     <column name="aangemaakt_door_id" type="INT" references="users.id"/>
     <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
     <column name="updated_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP" on_update="CURRENT_TIMESTAMP"/>
+    <column name="deleted_at" type="TIMESTAMP"/>
   </columns>
 </table>

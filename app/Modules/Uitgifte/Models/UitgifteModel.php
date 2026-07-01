@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Modules\Uitgifte\Models;
+
+use App\Core\Database;
+use App\Core\Model;
+
+class UitgifteModel extends Model
+{
+    protected static string $table = 'uitgiften';
+    protected static array $fillable = [
+        'voorraad_item_id', 'medewerker_naam', 'uitgegeven_op', 'teruggegeven_op', 'opmerking', 'uitgegeven_door_id',
+    ];
+
+    private const SELECT = "
+        SELECT u.*, vi.barcode, vi.variant, vi.serienummer, vt.naam AS type_naam,
+               (CASE WHEN u.teruggegeven_op IS NULL THEN 'uitgegeven' ELSE 'geretourneerd' END) AS status
+        FROM uitgiften u
+        LEFT JOIN voorraad_items vi ON vi.id = u.voorraad_item_id
+        LEFT JOIN voorraad_types vt ON vt.id = vi.type_id
+    ";
+
+    public static function allWithRelations(): array
+    {
+        return Database::pdo()->query(self::SELECT . ' ORDER BY u.created_at DESC')->fetchAll();
+    }
+
+    public static function findWithRelations(int $id): ?array
+    {
+        $stmt = Database::pdo()->prepare(self::SELECT . ' WHERE u.id = ?');
+        $stmt->execute([$id]);
+        $row = $stmt->fetch();
+        return $row === false ? null : $row;
+    }
+
+    public static function setTeruggegeven(int $id, string $datum, ?string $opmerking = null): void
+    {
+        $stmt = Database::pdo()->prepare('UPDATE uitgiften SET teruggegeven_op = ?, retour_opmerking = ? WHERE id = ?');
+        $stmt->execute([$datum, $opmerking, $id]);
+    }
+}

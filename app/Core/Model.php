@@ -7,15 +7,20 @@ abstract class Model
     protected static string $table = '';
     protected static array $fillable = [];
 
+    /** Als true: destroy() zet deleted_at i.p.v. de rij te verwijderen, en all()/find() verbergen verwijderde rijen. */
+    protected static bool $softDeletes = false;
+
     public static function all(string $orderBy = 'id DESC'): array
     {
-        $sql = sprintf('SELECT * FROM %s ORDER BY %s', static::$table, $orderBy);
+        $where = static::$softDeletes ? ' WHERE deleted_at IS NULL' : '';
+        $sql = sprintf('SELECT * FROM %s%s ORDER BY %s', static::$table, $where, $orderBy);
         return Database::pdo()->query($sql)->fetchAll();
     }
 
     public static function find(int $id): ?array
     {
-        $stmt = Database::pdo()->prepare(sprintf('SELECT * FROM %s WHERE id = ?', static::$table));
+        $where = static::$softDeletes ? ' AND deleted_at IS NULL' : '';
+        $stmt = Database::pdo()->prepare(sprintf('SELECT * FROM %s WHERE id = ?%s', static::$table, $where));
         $stmt->execute([$id]);
         $row = $stmt->fetch();
         return $row === false ? null : $row;
@@ -57,7 +62,20 @@ abstract class Model
 
     public static function delete(int $id): void
     {
-        $stmt = Database::pdo()->prepare(sprintf('DELETE FROM %s WHERE id = ?', static::$table));
+        if (static::$softDeletes) {
+            $stmt = Database::pdo()->prepare(sprintf('UPDATE %s SET deleted_at = NOW() WHERE id = ?', static::$table));
+        } else {
+            $stmt = Database::pdo()->prepare(sprintf('DELETE FROM %s WHERE id = ?', static::$table));
+        }
+        $stmt->execute([$id]);
+    }
+
+    public static function restore(int $id): void
+    {
+        if (!static::$softDeletes) {
+            return;
+        }
+        $stmt = Database::pdo()->prepare(sprintf('UPDATE %s SET deleted_at = NULL WHERE id = ?', static::$table));
         $stmt->execute([$id]);
     }
 }

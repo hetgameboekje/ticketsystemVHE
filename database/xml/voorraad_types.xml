@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="voorraad_types" engine="InnoDB">
+  <columns>
+    <column name="id" type="INT" primary="true" auto_increment="true"/>
+    <column name="naam" type="VARCHAR" length="100" nullable="false" unique="true"/>
+    <column name="code" type="VARCHAR" length="10" nullable="false" unique="true"/>
+  </columns>
+  <seed>
+    <row><value column="naam">Muis (draadloos)</value><value column="code">MUD</value></row>
+    <row><value column="naam">Muis (bedraad)</value><value column="code">MUB</value></row>
+    <row><value column="naam">Toetsenbord</value><value column="code">TOE</value></row>
+    <row><value column="naam">Scherm</value><value column="code">SCH</value></row>
+    <row><value column="naam">Laptop</value><value column="code">LAP</value></row>
+    <row><value column="naam">Stroomkabel</value><value column="code">STK</value></row>
+    <row><value column="naam">Laptop oplader</value><value column="code">LOP</value></row>
+    <row><value column="naam">Stekkerblok</value><value column="code">STB</value></row>
+    <row><value column="naam">Wifi antenne</value><value column="code">WFA</value></row>
+    <row><value column="naam">Wifi USB</value><value column="code">WFU</value></row>
+    <row><value column="naam">HDMI kabel</value><value column="code">HDM</value></row>
+    <row><value column="naam">Ethernet kabel</value><value column="code">ETH</value></row>
+    <row><value column="naam">USB-C kabel (docking)</value><value column="code">USC</value></row>
+    <row><value column="naam">Docking station</value><value column="code">DOC</value></row>
+    <row><value column="naam">Koptelefoon</value><value column="code">KPT</value></row>
+    <row><value column="naam">Printer</value><value column="code">PRN</value></row>
+    <row><value column="naam">Telefoon</value><value column="code">TEL</value></row>
+  </seed>
+</table>

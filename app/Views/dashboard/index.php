@@ -1,6 +1,7 @@
 <?php
 /** @var array $stats */
 /** @var array $recenteTickets */
+/** @var array $voorraadOverview */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 ?>
 
@@ -176,7 +177,7 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
       <table>
         <thead>
           <tr>
-            <th style="width:60px">#</th>
+            <th style="width:90px">#</th>
             <th>Taak</th>
             <th style="width:100px">Afdeling</th>
             <th style="width:100px">Prioriteit</th>
@@ -186,7 +187,7 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
         <tbody>
           <?php foreach ($recenteTickets as $t): ?>
             <tr onclick="window.location='/tickets/<?= (int) $t['id'] ?>'">
-              <td style="color:var(--color-text-tertiary)">#<?= (int) $t['id'] ?></td>
+              <td style="color:var(--color-text-tertiary);white-space:nowrap">#<?= (int) $t['id'] ?></td>
               <td>
                 <span class="text-truncate d-block" title="<?= htmlspecialchars($t['titel']) ?>">
                   <?= htmlspecialchars($t['titel']) ?>
@@ -195,6 +196,40 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
               <td><?= htmlspecialchars($t['afdeling_naam'] ?? '—') ?></td>
               <td><?= prioBadge($t['prioriteit']) ?></td>
               <td><?= statusBadge($t['status']) ?></td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+  <?php endif; ?>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Beschikbare hardware</span>
+    <a class="btn" href="/voorraad" style="font-size:12px">Voorraad beheren &rarr;</a>
+  </div>
+
+  <?php if (empty($voorraadOverview)): ?>
+    <div class="empty-state">Nog geen voorraadtypen aangemaakt.</div>
+  <?php else: ?>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th style="width:80px">Code</th>
+            <th style="width:110px">Beschikbaar</th>
+            <th style="width:90px">Totaal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($voorraadOverview as $t): ?>
+            <tr onclick="window.location='/voorraad?type_naam=<?= urlencode($t['naam']) ?>'">
+              <td><?= htmlspecialchars($t['naam']) ?></td>
+              <td style="color:var(--color-text-secondary)"><?= htmlspecialchars($t['code']) ?></td>
+              <td><?= (int) $t['beschikbaar'] ?></td>
+              <td style="color:var(--color-text-secondary)"><?= (int) $t['totaal'] ?></td>
             </tr>
           <?php endforeach; ?>
         </tbody>

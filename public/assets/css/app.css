@@ -97,6 +97,8 @@ a.page-link:hover{background:var(--color-background-secondary);color:var(--color
 .prio-laag .prio-dot{background:#888780}
 
 .detail-layout{display:grid;grid-template-columns:1fr 280px;gap:16px}
+.barcode-wrap{overflow-x:auto}
+.barcode-wrap svg{display:block;margin:0 auto}
 @media (max-width:800px){.detail-layout{grid-template-columns:1fr}}
 
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}

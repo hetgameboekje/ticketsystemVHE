@@ -10,6 +10,7 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
   </div>
   <div style="display:flex;gap:8px">
     <a class="btn" href="/verbeterpunten/<?= $item['id'] ?>/edit">Bewerken</a>
+    <?= deleteButton('verbeterpunten', $item['id']) ?>
   </div>
 </div>
 

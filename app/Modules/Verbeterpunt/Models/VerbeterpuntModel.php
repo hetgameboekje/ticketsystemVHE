@@ -9,12 +9,14 @@ class VerbeterpuntModel extends Model
 {
     protected static string $table = 'verbeterpunten';
     protected static array $fillable = ['titel', 'omschrijving', 'afdeling_id', 'ingediend_door_id', 'status'];
+    protected static bool $softDeletes = true;
 
     private const SELECT = "
         SELECT v.*, a.naam AS afdeling_naam, u.naam AS ingediend_door_naam
         FROM verbeterpunten v
         LEFT JOIN afdelingen a ON a.id = v.afdeling_id
         LEFT JOIN users u ON u.id = v.ingediend_door_id
+        WHERE v.deleted_at IS NULL
     ";
 
     public static function allWithRelations(): array
@@ -24,7 +26,7 @@ class VerbeterpuntModel extends Model
 
     public static function findWithRelations(int $id): ?array
     {
-        $stmt = Database::pdo()->prepare(self::SELECT . ' WHERE v.id = ?');
+        $stmt = Database::pdo()->prepare(self::SELECT . ' AND v.id = ?');
         $stmt->execute([$id]);
         $row = $stmt->fetch();
         return $row === false ? null : $row;

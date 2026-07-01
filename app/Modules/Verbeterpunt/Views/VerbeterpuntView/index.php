@@ -5,11 +5,22 @@
 /** @var string|null $sort */
 /** @var string $dir */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
+
+$flashSuccess = $_SESSION['flash_success'] ?? null;
+$flashError = $_SESSION['flash_error'] ?? null;
+unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 ?>
 <div class="page-header">
   <div class="page-title">Verbeterpunten</div>
   <a class="btn btn-primary" href="/verbeterpunten/create">+ Nieuw verbeterpunt</a>
 </div>
+
+<?php if ($flashSuccess): ?>
+  <div class="alert alert-success"><?= htmlspecialchars($flashSuccess) ?></div>
+<?php endif; ?>
+<?php if ($flashError): ?>
+  <div class="alert alert-error"><?= htmlspecialchars($flashError) ?></div>
+<?php endif; ?>
 
 <form method="get" action="/verbeterpunten" class="filters" style="margin-bottom:14px">
   <input type="text" name="q" value="<?= htmlspecialchars($search) ?>" placeholder="Zoeken op titel...">
