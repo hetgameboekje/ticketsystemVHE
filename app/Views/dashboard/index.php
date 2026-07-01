@@ -57,23 +57,27 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
     }
 </style>
 
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
     <h1 class="h3 mb-0">Dashboard</h1>
 
-    <div class="d-flex gap-2">
+    <div class="ms-auto d-flex gap-2">
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#dashTicketModal">
             <i class="bi bi-plus-circle"></i> Nieuw ticket
         </button>
+
         <button type="button" class="btn btn-outline-secondary position-relative" data-bs-toggle="modal" data-bs-target="#dashRisicoModal">
             <i class="bi bi-shield-exclamation"></i> Risico melden
             <?php if ($cyberrisicosOpen > 0): ?>
-                <span class="badge rounded-pill text-bg-danger">
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-bg-danger">
                     <?= (int) $cyberrisicosOpen ?>
                 </span>
             <?php endif; ?>
         </button>
     </div>
 </div>
+
+
+
 
 <div class="row g-3 mb-3">
     <div class="col-12 col-sm-6 col-xl-3">
