@@ -5,395 +5,282 @@
 /** @var int $cyberrisicosOpen */
 /** @var array $cyberrisicosPerDag */
 /** @var array $cyberrisicosByDate */
+
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 
-$chartDates = array_map(fn (array $d) => $d['datum'], $cyberrisicosPerDag);
-$chartLabels = array_map(fn (array $d) => date('d-m', strtotime($d['datum'])), $cyberrisicosPerDag);
-$chartData = array_map(fn (array $d) => $d['aantal'], $cyberrisicosPerDag);
+$chartDates  = array_map(fn(array $d) => $d['datum'], $cyberrisicosPerDag);
+$chartLabels = array_map(fn(array $d) => date('d-m', strtotime($d['datum'])), $cyberrisicosPerDag);
+$chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
 ?>
 
 <style>
-  .page-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-  }
-
-  .page-title {
-    margin: 0;
-    font-size: 28px;
-    font-weight: 700;
-    line-height: 1.2;
-  }
-
-  .dashboard-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .row.g-2 > [class*="col-"] {
-    display: flex;
-  }
-
-  .stat {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 4px;
-    width: 100%;
-    height: 100%;
-    min-height: 96px;
-    padding: 16px;
-    background: var(--color-surface, #fff);
-    border: 1px solid var(--color-border, #e5e7eb);
-    border-radius: 12px;
-    text-decoration: none;
-    color: inherit;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-  }
-
-  .stat:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-    text-decoration: none;
-    color: inherit;
-  }
-
-  .stat-label {
-    display: block;
-    margin: 0;
-    font-size: 13px;
-    line-height: 1.2;
-    color: var(--color-text-secondary, #6b7280);
-  }
-
-  .stat-val {
-    display: block;
-    margin: 0;
-    font-size: 28px;
-    font-weight: 700;
-    line-height: 1;
-    color: var(--color-text, #111827);
-  }
-
-  .card {
-    background: var(--color-surface, #fff);
-    border: 1px solid var(--color-border, #e5e7eb);
-    border-radius: 12px;
-    overflow: hidden;
-    margin-bottom: 16px;
-  }
-
-  .card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--color-border, #e5e7eb);
-    flex-wrap: wrap;
-  }
-
-  .card-title {
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 1.2;
-  }
-
-  .table-wrap {
-    overflow-x: auto;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  th,
-  td {
-    padding: 14px 20px;
-    text-align: left;
-    vertical-align: middle;
-    border-bottom: 1px solid var(--color-border, #e5e7eb);
-  }
-
-  thead th {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--color-text-secondary, #6b7280);
-    white-space: nowrap;
-  }
-
-  tbody tr {
-    cursor: pointer;
-    transition: background-color .15s ease;
-  }
-
-  tbody tr:hover {
-    background: rgba(0, 0, 0, 0.02);
-  }
-
-  .text-truncate {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .empty-state {
-    padding: 24px 20px;
-    color: var(--color-text-secondary, #6b7280);
-  }
-
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 20px;
-    height: 20px;
-    padding: 0 6px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 1;
-  }
-
-  @media (max-width: 576px) {
-    .page-title {
-      font-size: 24px;
+    .stat-card {
+        transition: transform .15s ease, box-shadow .15s ease;
     }
 
-    .stat {
-      min-height: 88px;
+    .stat-card:hover {
+        transform: translateY(-2px);
     }
 
-    .stat-val {
-      font-size: 24px;
+    .stat-card .card-body {
+        min-height: 110px;
     }
 
-    th,
-    td {
-      padding: 12px 14px;
+    .cursor-pointer {
+        cursor: pointer;
     }
-  }
+
+    .agenda-item:hover {
+        background-color: rgba(var(--bs-secondary-rgb), .08);
+    }
+
+    .chart-wrap {
+        position: relative;
+        height: 220px;
+    }
+
+    .text-truncate-1 {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    @media (max-width: 575.98px) {
+        .chart-wrap {
+            height: 200px;
+        }
+    }
 </style>
 
-<div class="page-header">
-  <div class="page-title">Dashboard</div>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">Dashboard</h1>
 
-  <div class="dashboard-actions">
-    <a class="btn btn-primary" href="/tickets/create">+ Nieuw ticket</a>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-primary" href="/tickets/create">+ Nieuw ticket</a>
 
-    <a class="btn" href="/cyberrisicos/create" title="Cyberrisico melden">
-      <i class="bi bi-shield-exclamation"></i> Risico melden
-      <?php if ($cyberrisicosOpen > 0): ?>
-        <span class="badge" style="background:#FBEAEA;color:#b3261e">
-          <?= (int) $cyberrisicosOpen ?>
-        </span>
-      <?php endif; ?>
-    </a>
-  </div>
+        <a class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" href="/cyberrisicos/create" title="Cyberrisico melden">
+            <i class="bi bi-shield-exclamation"></i>
+            <span>Risico melden</span>
+            <?php if ($cyberrisicosOpen > 0): ?>
+                <span class="badge rounded-pill text-bg-danger">
+                    <?= (int) $cyberrisicosOpen ?>
+                </span>
+            <?php endif; ?>
+        </a>
+    </div>
 </div>
 
-<div class="row g-2 mb-3">
-  <div class="col-12 col-sm-6 col-md-3">
-    <a class="stat" href="/tickets?status=open" style="border-top:2px solid var(--color-text-info)">
-      <div class="stat-label">Open tickets</div>
-      <div class="stat-val" style="color:var(--color-text-info)">
-        <?= (int) $stats['tickets_open'] ?>
-      </div>
-    </a>
-  </div>
+<div class="row g-3 mb-3">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a class="card shadow-sm h-100 text-decoration-none stat-card" href="/tickets?status=open">
+            <div class="card-body d-flex flex-column justify-content-center">
+                <div class="text-body-secondary small mb-1">Open tickets</div>
+                <div class="fs-2 fw-bold text-info">
+                    <?= (int) $stats['tickets_open'] ?>
+                </div>
+            </div>
+        </a>
+    </div>
 
-  <div class="col-12 col-sm-6 col-md-3">
-    <a class="stat" href="/tickets?status=in_behandeling" style="border-top:2px solid var(--color-text-warning)">
-      <div class="stat-label">In behandeling</div>
-      <div class="stat-val" style="color:var(--color-text-warning)">
-        <?= (int) $stats['tickets_in_behandeling'] ?>
-      </div>
-    </a>
-  </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a class="card shadow-sm h-100 text-decoration-none stat-card" href="/tickets?status=in_behandeling">
+            <div class="card-body d-flex flex-column justify-content-center">
+                <div class="text-body-secondary small mb-1">In behandeling</div>
+                <div class="fs-2 fw-bold text-warning">
+                    <?= (int) $stats['tickets_in_behandeling'] ?>
+                </div>
+            </div>
+        </a>
+    </div>
 
-  <div class="col-12 col-sm-6 col-md-3">
-    <a class="stat" href="/verbeterpunten" style="border-top:2px solid var(--color-text-success)">
-      <div class="stat-label">Verbeterpunten</div>
-      <div class="stat-val">
-        <?= (int) $stats['verbeterpunten'] ?>
-      </div>
-    </a>
-  </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a class="card shadow-sm h-100 text-decoration-none stat-card" href="/verbeterpunten">
+            <div class="card-body d-flex flex-column justify-content-center">
+                <div class="text-body-secondary small mb-1">Verbeterpunten</div>
+                <div class="fs-2 fw-bold">
+                    <?= (int) $stats['verbeterpunten'] ?>
+                </div>
+            </div>
+        </a>
+    </div>
 
-  <div class="col-12 col-sm-6 col-md-3">
-    <a class="stat" href="/medewerkers" style="border-top:2px solid var(--color-border-secondary)">
-      <div class="stat-label">Medewerkers</div>
-      <div class="stat-val">
-        <?= (int) $stats['medewerkers'] ?>
-      </div>
-    </a>
-  </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a class="card shadow-sm h-100 text-decoration-none stat-card" href="/medewerkers">
+            <div class="card-body d-flex flex-column justify-content-center">
+                <div class="text-body-secondary small mb-1">Medewerkers</div>
+                <div class="fs-2 fw-bold">
+                    <?= (int) $stats['medewerkers'] ?>
+                </div>
+            </div>
+        </a>
+    </div>
 </div>
 
-<div class="row g-2 mb-3 align-items-stretch">
-  <div class="col-12 col-md-6 d-flex">
-    <div class="card" style="margin-bottom:0;height:100%;width:100%;display:flex;flex-direction:column">
-      <div class="card-header">
-        <span class="card-title">Gemelde cyberrisico's — laatste 30 dagen</span>
-        <a class="btn" href="/cyberrisicos" style="font-size:12px">Alle risico's &rarr;</a>
-      </div>
-      <div style="padding:16px;flex:1;display:flex;flex-direction:column;justify-content:center">
-        <div style="position:relative;height:220px">
-          <canvas id="cyberrisicoChart"></canvas>
+<div class="row g-3 mb-3">
+    <div class="col-12 col-lg-6 d-flex">
+        <div class="card shadow-sm w-100 h-100">
+            <div class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <span class="fw-semibold">Gemelde cyberrisico's — laatste 30 dagen</span>
+                <a class="btn btn-sm btn-outline-secondary" href="/cyberrisicos">Alle risico's &rarr;</a>
+            </div>
+            <div class="card-body">
+                <div class="chart-wrap">
+                    <canvas id="cyberrisicoChart"></canvas>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 
-  <div class="col-12 col-md-6 d-flex">
-    <div class="card" style="margin-bottom:0;height:100%;width:100%;display:flex;flex-direction:column">
-      <div class="card-header">
-        <span class="card-title">Mijn agenda</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <input type="date" id="dashAgendaDatum" style="width:auto;padding:5px 8px;font-size:13px">
-          <button class="btn btn-primary" type="button" id="dashAgendaNieuwBtn" style="font-size:12px;padding:5px 10px">+ Toevoegen</button>
+    <div class="col-12 col-lg-6 d-flex">
+        <div class="card shadow-sm w-100 h-100">
+            <div class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <span class="fw-semibold">Mijn agenda</span>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <input type="date" id="dashAgendaDatum" class="form-control form-control-sm" style="width:auto;">
+                    <button class="btn btn-sm btn-primary" type="button" id="dashAgendaNieuwBtn">+ Toevoegen</button>
+                </div>
+            </div>
+
+            <div class="card-body py-2" id="dashAgendaLijst">
+                <div class="text-body-secondary">Laden...</div>
+            </div>
+
+            <div class="card-footer bg-body border-top-0 pt-0">
+                <a class="btn btn-sm btn-outline-secondary" href="/agenda">Volledige agenda &rarr;</a>
+            </div>
         </div>
-      </div>
-      <div style="padding:8px 16px;flex:1;overflow:auto" id="dashAgendaLijst">
-        <div class="empty-state">Laden...</div>
-      </div>
-      <div style="padding:0 16px 16px">
-        <a class="btn" href="/agenda" style="font-size:12px">Volledige agenda &rarr;</a>
-      </div>
     </div>
-  </div>
 </div>
 
 <div class="modal fade" id="dashAgendaModal" tabindex="-1" aria-labelledby="dashAgendaModalTitel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="dashAgendaModalTitel">Nieuwe afspraak</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" id="dashAgendaId" value="">
-        <div class="form-group">
-          <label class="form-label">Titel</label>
-          <input type="text" id="dashAgendaTitel" required>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dashAgendaModalTitel">Nieuwe afspraak</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="dashAgendaId" value="">
+
+                <div class="mb-3">
+                    <label class="form-label" for="dashAgendaTitel">Titel</label>
+                    <input type="text" id="dashAgendaTitel" class="form-control" required>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-6">
+                        <label class="form-label" for="dashAgendaStart">Start</label>
+                        <input type="time" id="dashAgendaStart" class="form-control" value="09:00">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" for="dashAgendaEind">Einde</label>
+                        <input type="time" id="dashAgendaEind" class="form-control" value="10:00">
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <label class="form-label" for="dashAgendaLocatie">Locatie</label>
+                    <input type="text" id="dashAgendaLocatie" class="form-control">
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger d-none" id="dashAgendaVerwijderBtn">Verwijderen</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+                <button type="button" class="btn btn-primary" id="dashAgendaOpslaanBtn">Opslaan</button>
+            </div>
         </div>
-        <div class="form-grid" style="grid-template-columns:1fr 1fr">
-          <div class="form-group">
-            <label class="form-label">Start</label>
-            <input type="time" id="dashAgendaStart" value="09:00">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Einde</label>
-            <input type="time" id="dashAgendaEind" value="10:00">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Locatie</label>
-          <input type="text" id="dashAgendaLocatie">
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger d-none" id="dashAgendaVerwijderBtn">Verwijderen</button>
-        <button type="button" class="btn" data-bs-dismiss="modal">Annuleren</button>
-        <button type="button" class="btn btn-primary" id="dashAgendaOpslaanBtn">Opslaan</button>
-      </div>
     </div>
-  </div>
 </div>
 
 <div class="modal fade" id="incidentDayModal" tabindex="-1" aria-labelledby="incidentDayModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="incidentDayModalLabel">Incidenten</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
-      </div>
-      <div class="modal-body">
-        <div id="incidentDayModalList"></div>
-      </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="incidentDayModalLabel">Incidenten</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+            </div>
+            <div class="modal-body">
+                <div id="incidentDayModalList"></div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
-<div class="card">
-  <div class="card-header">
-    <span class="card-title">Recente tickets</span>
-    <a class="btn" href="/tickets" style="font-size:12px">Alle tickets &rarr;</a>
-  </div>
-
-  <?php if (empty($recenteTickets)): ?>
-    <div class="empty-state">Nog geen tickets aangemaakt.</div>
-  <?php else: ?>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th style="width:90px">#</th>
-            <th>Taak</th>
-            <th style="width:100px">Afdeling</th>
-            <th style="width:100px">Prioriteit</th>
-            <th style="width:130px">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($recenteTickets as $t): ?>
-            <tr onclick="window.location='/tickets/<?= (int) $t['id'] ?>'">
-              <td style="color:var(--color-text-tertiary);white-space:nowrap">#<?= (int) $t['id'] ?></td>
-              <td>
-                <span class="text-truncate d-block" title="<?= htmlspecialchars($t['titel']) ?>">
-                  <?= htmlspecialchars($t['titel']) ?>
-                </span>
-              </td>
-              <td><?= htmlspecialchars($t['afdeling_naam'] ?? '—') ?></td>
-              <td><?= prioBadge($t['prioriteit']) ?></td>
-              <td><?= statusBadge($t['status']) ?></td>
-            </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
+<div class="card shadow-sm mb-3">
+    <div class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span class="fw-semibold">Recente tickets</span>
+        <a class="btn btn-sm btn-outline-secondary" href="/tickets">Alle tickets &rarr;</a>
     </div>
-  <?php endif; ?>
+
+    <?php if (empty($recenteTickets)): ?>
+        <div class="card-body text-body-secondary">Nog geen tickets aangemaakt.</div>
+    <?php else: ?>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 90px;">#</th>
+                        <th>Taak</th>
+                        <th style="width: 140px;">Afdeling</th>
+                        <th style="width: 120px;">Prioriteit</th>
+                        <th style="width: 140px;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($recenteTickets as $t): ?>
+                        <tr class="cursor-pointer" onclick="window.location='/tickets/<?= (int) $t['id'] ?>'">
+                            <td class="text-body-secondary text-nowrap">#<?= (int) $t['id'] ?></td>
+                            <td>
+                                <span class="text-truncate-1" title="<?= htmlspecialchars($t['titel']) ?>">
+                                    <?= htmlspecialchars($t['titel']) ?>
+                                </span>
+                            </td>
+                            <td><?= htmlspecialchars($t['afdeling_naam'] ?? '—') ?></td>
+                            <td><?= prioBadge($t['prioriteit']) ?></td>
+                            <td><?= statusBadge($t['status']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
 </div>
 
-<div class="card">
-  <div class="card-header">
-    <span class="card-title">Beschikbare hardware</span>
-    <a class="btn" href="/voorraad" style="font-size:12px">Voorraad beheren &rarr;</a>
-  </div>
-
-  <?php if (empty($voorraadOverview)): ?>
-    <div class="empty-state">Nog geen voorraadtypen aangemaakt.</div>
-  <?php else: ?>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th style="width:80px">Code</th>
-            <th style="width:110px">Beschikbaar</th>
-            <th style="width:90px">Totaal</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($voorraadOverview as $t): ?>
-            <tr onclick="window.location='/voorraad?type_naam=<?= urlencode($t['naam']) ?>'">
-              <td><?= htmlspecialchars($t['naam']) ?></td>
-              <td style="color:var(--color-text-secondary)"><?= htmlspecialchars($t['code']) ?></td>
-              <td><?= (int) $t['beschikbaar'] ?></td>
-              <td style="color:var(--color-text-secondary)"><?= (int) $t['totaal'] ?></td>
-            </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
+<div class="card shadow-sm">
+    <div class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span class="fw-semibold">Beschikbare hardware</span>
+        <a class="btn btn-sm btn-outline-secondary" href="/voorraad">Voorraad beheren &rarr;</a>
     </div>
-  <?php endif; ?>
+
+    <?php if (empty($voorraadOverview)): ?>
+        <div class="card-body text-body-secondary">Nog geen voorraadtypen aangemaakt.</div>
+    <?php else: ?>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Type</th>
+                        <th style="width: 100px;">Code</th>
+                        <th style="width: 130px;">Beschikbaar</th>
+                        <th style="width: 100px;">Totaal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($voorraadOverview as $t): ?>
+                        <tr class="cursor-pointer" onclick="window.location='/voorraad?type_naam=<?= urlencode($t['naam']) ?>'">
+                            <td><?= htmlspecialchars($t['naam']) ?></td>
+                            <td class="text-body-secondary"><?= htmlspecialchars($t['code']) ?></td>
+                            <td><?= (int) $t['beschikbaar'] ?></td>
+                            <td class="text-body-secondary"><?= (int) $t['totaal'] ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
 </div>
 
 <script>
@@ -413,7 +300,13 @@ document.addEventListener('DOMContentLoaded', function () {
         opgelost: 'Opgelost',
         geaccepteerd: 'Geaccepteerd risico'
     };
-    var PRIORITEIT_LABELS = { laag: 'Laag', middel: 'Middel', hoog: 'Hoog', kritiek: 'Kritiek' };
+
+    var PRIORITEIT_LABELS = {
+        laag: 'Laag',
+        middel: 'Middel',
+        hoog: 'Hoog',
+        kritiek: 'Kritiek'
+    };
 
     function escapeHtml(text) {
         var div = document.createElement('div');
@@ -426,6 +319,27 @@ document.addEventListener('DOMContentLoaded', function () {
         return parts[2] + '-' + parts[1] + '-' + parts[0];
     }
 
+    function badgeClassForStatus(status) {
+        switch (status) {
+            case 'nieuw': return 'text-bg-primary';
+            case 'in_onderzoek': return 'text-bg-warning';
+            case 'bevestigd': return 'text-bg-danger';
+            case 'opgelost': return 'text-bg-success';
+            case 'geaccepteerd': return 'text-bg-secondary';
+            default: return 'text-bg-light';
+        }
+    }
+
+    function badgeClassForPrio(prio) {
+        switch (prio) {
+            case 'laag': return 'text-bg-secondary';
+            case 'middel': return 'text-bg-warning';
+            case 'hoog': return 'text-bg-danger';
+            case 'kritiek': return 'text-bg-dark';
+            default: return 'text-bg-light';
+        }
+    }
+
     function showIncidentsForDate(date) {
         var incidents = incidentsByDate[date] || [];
 
@@ -435,21 +349,29 @@ document.addEventListener('DOMContentLoaded', function () {
         list.innerHTML = '';
 
         if (incidents.length === 0) {
-            list.innerHTML = '<div class="empty-state">Geen incidenten gemeld op deze dag.</div>';
+            list.innerHTML = '<div class="text-body-secondary">Geen incidenten gemeld op deze dag.</div>';
         } else {
+            var wrapper = document.createElement('div');
+            wrapper.className = 'list-group list-group-flush';
+
             incidents.forEach(function (inc) {
                 var a = document.createElement('a');
                 a.href = '/cyberrisicos/' + inc.id;
-                a.className = 'log-item';
-                a.style.display = 'block';
+                a.className = 'list-group-item list-group-item-action';
+
                 a.innerHTML =
-                    '<div class="log-meta" style="flex-wrap:wrap">' +
-                    '<span class="log-user">' + escapeHtml(inc.titel) + '</span>' +
-                    '<span class="badge badge-' + inc.status + '">' + (STATUS_LABELS[inc.status] || inc.status) + '</span>' +
-                    '<span class="prio prio-' + inc.prioriteit + '"><span class="prio-dot"></span>' + (PRIORITEIT_LABELS[inc.prioriteit] || inc.prioriteit) + '</span>' +
+                    '<div class="d-flex flex-wrap justify-content-between align-items-center gap-2">' +
+                        '<div class="fw-medium">' + escapeHtml(inc.titel) + '</div>' +
+                        '<div class="d-flex flex-wrap gap-2">' +
+                            '<span class="badge rounded-pill ' + badgeClassForStatus(inc.status) + '">' + (STATUS_LABELS[inc.status] || inc.status) + '</span>' +
+                            '<span class="badge rounded-pill ' + badgeClassForPrio(inc.prioriteit) + '">' + (PRIORITEIT_LABELS[inc.prioriteit] || inc.prioriteit) + '</span>' +
+                        '</div>' +
                     '</div>';
-                list.appendChild(a);
+
+                wrapper.appendChild(a);
             });
+
+            list.appendChild(wrapper);
         }
 
         var modalEl = document.getElementById('incidentDayModal');
@@ -467,7 +389,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 label: 'Gemelde incidenten',
                 data: <?= json_encode($chartData) ?>,
                 backgroundColor: '#9cc3e8',
-                borderRadius: 3,
+                borderRadius: 4,
                 maxBarThickness: 18
             }]
         },
@@ -498,9 +420,11 @@ document.addEventListener('DOMContentLoaded', function () {
     var datumInput = document.getElementById('dashAgendaDatum');
     var lijst = document.getElementById('dashAgendaLijst');
     var modalEl = document.getElementById('dashAgendaModal');
+
     if (!datumInput || !modalEl) {
         return;
     }
+
     var modal = new bootstrap.Modal(modalEl);
 
     function vandaagStr() {
@@ -520,28 +444,40 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function laadDag() {
         var datum = datumInput.value || vandaagStr();
-        lijst.innerHTML = '<div class="empty-state">Laden...</div>';
+        lijst.innerHTML = '<div class="text-body-secondary">Laden...</div>';
 
         fetch('/agenda/events?start=' + datum + 'T00:00:00&end=' + volgendeDagStr(datum) + 'T00:00:00')
             .then(function (r) { return r.json(); })
             .then(function (events) {
                 if (!events.length) {
-                    lijst.innerHTML = '<div class="empty-state">Geen afspraken op deze dag.</div>';
+                    lijst.innerHTML = '<div class="text-body-secondary">Geen afspraken op deze dag.</div>';
                     return;
                 }
+
                 lijst.innerHTML = '';
+                var wrapper = document.createElement('div');
+                wrapper.className = 'list-group list-group-flush';
+
                 events.forEach(function (ev) {
-                    var row = document.createElement('div');
-                    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--color-border-tertiary);cursor:pointer';
+                    var row = document.createElement('button');
+                    row.type = 'button';
+                    row.className = 'list-group-item list-group-item-action agenda-item';
+
                     row.innerHTML =
-                        '<span style="width:8px;height:8px;border-radius:50%;background:' + ev.color + ';flex-shrink:0"></span>' +
-                        '<span style="font-size:12px;color:var(--color-text-secondary);white-space:nowrap">' + tijd(ev.start) + '&ndash;' + tijd(ev.end) + '</span>' +
-                        '<span class="text-truncate d-block" style="font-size:13px">' + ev.title.replace(/</g, '&lt;') + '</span>';
+                        '<div class="d-flex align-items-center gap-3">' +
+                            '<span class="rounded-circle flex-shrink-0" style="width:10px;height:10px;background:' + ev.color + ';"></span>' +
+                            '<span class="small text-body-secondary flex-shrink-0">' + tijd(ev.start) + '–' + tijd(ev.end) + '</span>' +
+                            '<span class="text-truncate">' + ev.title.replace(/</g, '&lt;') + '</span>' +
+                        '</div>';
+
                     row.addEventListener('click', function () {
                         openBewerken(ev);
                     });
-                    lijst.appendChild(row);
+
+                    wrapper.appendChild(row);
                 });
+
+                lijst.appendChild(wrapper);
             });
     }
 
@@ -588,16 +524,20 @@ document.addEventListener('DOMContentLoaded', function () {
             eind_op: datum + 'T' + eind,
             locatie: document.getElementById('dashAgendaLocatie').value
         };
+
         if (!id) {
             payload.type = 'afspraak';
         }
 
         var url = id ? '/agenda/' + id : '/agenda';
+
         fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
-        }).then(function (r) { return r.json(); }).then(function (res) {
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
             if (res.success) {
                 modal.hide();
                 laadDag();
@@ -612,6 +552,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!id || !window.confirm('Deze afspraak verwijderen?')) {
             return;
         }
+
         fetch('/agenda/' + id + '/verwijderen', { method: 'POST' })
             .then(function (r) { return r.json(); })
             .then(function () {
