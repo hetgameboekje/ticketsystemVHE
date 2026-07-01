@@ -2,6 +2,7 @@
   --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   --border-radius-md:6px;
   --border-radius-lg:10px;
+  color-scheme:light;
 
   --color-text-primary:#1c1c1a;
   --color-text-secondary:#6b6a64;
@@ -21,6 +22,41 @@
   --color-text-warning:#8a5a00;
   --color-text-success:#27500A;
   --color-text-danger:#b3261e;
+
+  /* Aliassen voor losse view-specifieke <style>-blokken met net iets andere naamgeving
+     (bv. dashboard), zodat die automatisch meedoen met het thema i.p.v. hardcoded
+     fallbackkleuren te gebruiken. */
+  --color-surface:var(--color-background-primary);
+  --color-border:var(--color-border-tertiary);
+  --color-text:var(--color-text-primary);
+}
+
+[data-bs-theme="dark"]{
+  color-scheme:dark;
+
+  --color-text-primary:#eeece6;
+  --color-text-secondary:#a7a49c;
+  --color-text-tertiary:#7d7a72;
+
+  --color-background-primary:#232220;
+  --color-background-secondary:#2c2b28;
+  --color-background-tertiary:#181715;
+
+  --color-border-secondary:#423f3a;
+  --color-border-tertiary:#35332f;
+
+  --color-background-info:#16283a;
+  --color-text-info:#7fb8ec;
+  --color-border-info:#2c4f70;
+
+  --color-text-warning:#e2a94a;
+  --color-text-success:#7ecb57;
+  --color-text-danger:#ea766d;
+}
+
+[data-bs-theme="dark"] .card,
+[data-bs-theme="dark"] .stat{
+  box-shadow:0 1px 3px rgba(0,0,0,.35);
 }
 
 *{box-sizing:border-box;margin:0;padding:0}

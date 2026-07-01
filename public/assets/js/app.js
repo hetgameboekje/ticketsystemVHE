@@ -91,3 +91,35 @@ document.addEventListener('click', function (e) {
             showCopyFeedback(btn, false);
         });
 });
+
+// Donkere modus: voorkeur wordt bewaard in localStorage en toegepast via het
+// data-bs-theme-attribuut op <html> (Bootstrap 5.3+ herkent dit ook voor eigen componenten).
+(function () {
+    function updateThemeIcon(theme) {
+        var btn = document.getElementById('themeToggleBtn');
+        if (!btn) {
+            return;
+        }
+        var icon = btn.querySelector('i');
+        if (icon) {
+            icon.className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        updateThemeIcon(document.documentElement.getAttribute('data-bs-theme'));
+
+        var btn = document.getElementById('themeToggleBtn');
+        if (!btn) {
+            return;
+        }
+
+        btn.addEventListener('click', function () {
+            var current = document.documentElement.getAttribute('data-bs-theme');
+            var next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-bs-theme', next);
+            localStorage.setItem('theme', next);
+            updateThemeIcon(next);
+        });
+    });
+})();
