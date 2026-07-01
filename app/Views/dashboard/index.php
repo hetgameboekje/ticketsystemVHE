@@ -1,4 +1,5 @@
 <?php
+/** @var array $mag */
 /** @var array $stats */
 /** @var array $recenteTickets */
 /** @var array $voorraadOverview */
@@ -61,10 +62,13 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
     <h1 class="h3 mb-0">Dashboard</h1>
 
     <div class="ms-auto d-flex gap-2">
+        <?php if ($mag['tickets']['schrijven']): ?>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#dashTicketModal">
             <i class="bi bi-plus-circle"></i> Nieuw ticket
         </button>
+        <?php endif; ?>
 
+        <?php if ($mag['cyberrisicos']['schrijven']): ?>
         <button type="button" class="btn btn-outline-secondary position-relative" data-bs-toggle="modal" data-bs-target="#dashRisicoModal">
             <i class="bi bi-shield-exclamation"></i> Risico melden
             <?php if ($cyberrisicosOpen > 0): ?>
@@ -73,6 +77,7 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
                 </span>
             <?php endif; ?>
         </button>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -80,6 +85,7 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
 
 
 <div class="row g-3 mb-3">
+    <?php if ($mag['tickets']['lezen']): ?>
     <div class="col-12 col-sm-6 col-xl-3">
         <a class="card shadow-sm h-100 text-decoration-none stat-card" href="/tickets?status=open">
             <div class="card-body d-flex flex-column justify-content-center">
@@ -101,7 +107,9 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
             </div>
         </a>
     </div>
+    <?php endif; ?>
 
+    <?php if ($mag['verbeterpunten']['lezen']): ?>
     <div class="col-12 col-sm-6 col-xl-3">
         <a class="card shadow-sm h-100 text-decoration-none stat-card" href="/verbeterpunten">
             <div class="card-body d-flex flex-column justify-content-center">
@@ -112,7 +120,9 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
             </div>
         </a>
     </div>
+    <?php endif; ?>
 
+    <?php if ($mag['medewerkers']['lezen']): ?>
     <div class="col-12 col-sm-6 col-xl-3">
         <a class="card shadow-sm h-100 text-decoration-none stat-card" href="/medewerkers">
             <div class="card-body d-flex flex-column justify-content-center">
@@ -123,9 +133,11 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
             </div>
         </a>
     </div>
+    <?php endif; ?>
 </div>
 
 <div class="row g-3 mb-3">
+    <?php if ($mag['cyberrisicos']['lezen']): ?>
     <div class="col-12 col-lg-6 d-flex">
         <div class="card shadow-sm w-100 h-100">
             <div class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -139,14 +151,18 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
             </div>
         </div>
     </div>
+    <?php endif; ?>
 
+    <?php if ($mag['agenda']['lezen']): ?>
     <div class="col-12 col-lg-6 d-flex">
         <div class="card shadow-sm w-100 h-100">
             <div class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <a class="fw-semibold text-decoration-none" href="/agenda">Mijn agenda</a>
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                     <input type="date" id="dashAgendaDatum" class="form-control form-control-sm" style="width:auto;">
+                    <?php if ($mag['agenda']['schrijven']): ?>
                     <button class="btn btn-sm btn-primary" type="button" id="dashAgendaNieuwBtn">+ Toevoegen</button>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -155,8 +171,10 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
             </div>
         </div>
     </div>
+    <?php endif; ?>
 </div>
 
+<?php if ($mag['tickets']['schrijven']): ?>
 <div class="modal fade" id="dashTicketModal" tabindex="-1" aria-labelledby="dashTicketModalTitel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -235,7 +253,9 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
         </div>
     </div>
 </div>
+<?php endif; ?>
 
+<?php if ($mag['cyberrisicos']['schrijven']): ?>
 <div class="modal fade" id="dashRisicoModal" tabindex="-1" aria-labelledby="dashRisicoModalTitel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -315,7 +335,9 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
         </div>
     </div>
 </div>
+<?php endif; ?>
 
+<?php if ($mag['agenda']['lezen']): ?>
 <div class="modal fade" id="dashAgendaModal" tabindex="-1" aria-labelledby="dashAgendaModalTitel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -350,14 +372,20 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
             </div>
 
             <div class="modal-footer">
+                <?php if ($mag['agenda']['schrijven']): ?>
                 <button type="button" class="btn btn-danger d-none" id="dashAgendaVerwijderBtn">Verwijderen</button>
+                <?php endif; ?>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+                <?php if ($mag['agenda']['schrijven']): ?>
                 <button type="button" class="btn btn-primary" id="dashAgendaOpslaanBtn">Opslaan</button>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 </div>
+<?php endif; ?>
 
+<?php if ($mag['cyberrisicos']['lezen']): ?>
 <div class="modal fade" id="incidentDayModal" tabindex="-1" aria-labelledby="incidentDayModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -371,7 +399,9 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
         </div>
     </div>
 </div>
+<?php endif; ?>
 
+<?php if ($mag['tickets']['lezen']): ?>
 <div class="card shadow-sm mb-3">
     <div class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2">
         <span class="fw-semibold">Recente tickets</span>
@@ -411,7 +441,9 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
         </div>
     <?php endif; ?>
 </div>
+<?php endif; ?>
 
+<?php if ($mag['voorraad']['lezen']): ?>
 <div class="card shadow-sm">
     <div class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2">
         <span class="fw-semibold">Beschikbare hardware</span>
@@ -445,6 +477,7 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
         </div>
     <?php endif; ?>
 </div>
+<?php endif; ?>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -644,6 +677,10 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
+    var verwijderBtn = document.getElementById('dashAgendaVerwijderBtn');
+    var opslaanBtn = document.getElementById('dashAgendaOpslaanBtn');
+    var magSchrijven = !!opslaanBtn;
+
     function openNieuw() {
         document.getElementById('dashAgendaModalTitel').textContent = 'Nieuwe afspraak';
         document.getElementById('dashAgendaId').value = '';
@@ -651,25 +688,36 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('dashAgendaLocatie').value = '';
         document.getElementById('dashAgendaStart').value = '09:00';
         document.getElementById('dashAgendaEind').value = '10:00';
-        document.getElementById('dashAgendaVerwijderBtn').classList.add('d-none');
+        if (verwijderBtn) {
+            verwijderBtn.classList.add('d-none');
+        }
         modal.show();
     }
 
     function openBewerken(ev) {
+        if (!magSchrijven) {
+            return;
+        }
         document.getElementById('dashAgendaModalTitel').textContent = 'Afspraak bewerken';
         document.getElementById('dashAgendaId').value = ev.id;
         document.getElementById('dashAgendaTitel').value = ev.title;
         document.getElementById('dashAgendaLocatie').value = ev.extendedProps.locatie || '';
         document.getElementById('dashAgendaStart').value = tijd(ev.start);
         document.getElementById('dashAgendaEind').value = tijd(ev.end);
-        document.getElementById('dashAgendaVerwijderBtn').classList.remove('d-none');
+        if (verwijderBtn) {
+            verwijderBtn.classList.remove('d-none');
+        }
         modal.show();
     }
 
-    document.getElementById('dashAgendaNieuwBtn').addEventListener('click', openNieuw);
+    var nieuwBtn = document.getElementById('dashAgendaNieuwBtn');
+    if (nieuwBtn) {
+        nieuwBtn.addEventListener('click', openNieuw);
+    }
     datumInput.addEventListener('change', laadDag);
 
-    document.getElementById('dashAgendaOpslaanBtn').addEventListener('click', function () {
+    if (opslaanBtn) {
+    opslaanBtn.addEventListener('click', function () {
         var datum = datumInput.value || vandaagStr();
         var id = document.getElementById('dashAgendaId').value;
         var titel = document.getElementById('dashAgendaTitel').value.trim();
@@ -709,8 +757,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+    }
 
-    document.getElementById('dashAgendaVerwijderBtn').addEventListener('click', function () {
+    if (verwijderBtn) {
+    verwijderBtn.addEventListener('click', function () {
         var id = document.getElementById('dashAgendaId').value;
         if (!id || !window.confirm('Deze afspraak verwijderen?')) {
             return;
@@ -723,6 +773,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 laadDag();
             });
     });
+    }
 
     datumInput.value = vandaagStr();
     laadDag();

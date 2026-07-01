@@ -3,6 +3,7 @@
 namespace App\Modules\Beheer;
 
 use App\Core\Controller;
+use App\Core\Table;
 use App\Shared\Rechten\Models\RechtenModel;
 use App\Shared\User\Models\UserModel;
 
@@ -12,10 +13,22 @@ class RechtenController extends Controller
     {
         $this->requireAdmin();
 
-        $this->render('Modules/Beheer/Views/RechtenView/index', [
+        $gebruikers = UserModel::all('naam ASC');
+
+        $table = (new Table())
+            ->emptyText('Geen gebruikers gevonden.')
+            ->rowUrl(fn (array $g) => $g['rol'] === 'admin' ? 'javascript:void(0)' : '/beheer/rechten/' . (int) $g['id'])
+            ->column('naam', 'Naam', fn (array $g) => htmlspecialchars($g['naam']), ['class' => 'col-3', 'sortable' => false])
+            ->column('email', 'E-mailadres', fn (array $g) => htmlspecialchars($g['email']), ['sortable' => false])
+            ->column('rol', 'Rol', fn (array $g) => htmlspecialchars(ucfirst($g['rol'])), ['class' => 'col-2', 'sortable' => false])
+            ->rows($gebruikers);
+
+        $content = '<div class="page-header"><div class="page-title">Rechten</div></div>'
+            . '<div class="card">' . $table->render() . '</div>';
+
+        $this->renderContent($content, [
             'activeModule' => 'beheer',
             'pageTitle' => 'Rechten',
-            'gebruikers' => UserModel::all('naam ASC'),
         ]);
     }
 

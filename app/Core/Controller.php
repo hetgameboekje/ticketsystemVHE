@@ -20,6 +20,17 @@ abstract class Controller
         $content = ob_get_clean();
 
         $currentUser = $this->currentUser();
+        $navRechten = $this->navRechten();
+        require APP_ROOT . '/app/Views/layouts/app.php';
+    }
+
+    /** Zoals render(), maar met kant-en-klare HTML in plaats van een view-bestand. */
+    protected function renderContent(string $content, array $data = []): void
+    {
+        extract($data);
+
+        $currentUser = $this->currentUser();
+        $navRechten = $this->navRechten();
         require APP_ROOT . '/app/Views/layouts/app.php';
     }
 
@@ -70,6 +81,36 @@ abstract class Controller
         if (!RechtenModel::has((int) $this->currentUserId(), $module, $actie)) {
             $this->forbidden();
         }
+    }
+
+    /** Niet-blokkerende variant van requirePermission(), voor UI die rechten moet filteren i.p.v. afdwingen. */
+    protected function hasRecht(string $module, string $actie = 'lezen'): bool
+    {
+        if (($this->currentUser()['rol'] ?? '') === 'admin') {
+            return true;
+        }
+
+        $userId = $this->currentUserId();
+        if ($userId === null) {
+            return false;
+        }
+
+        return RechtenModel::has($userId, $module, $actie);
+    }
+
+    /** @return array<string, bool> module => mag lezen, gebruikt om navigatie en dashboard te filteren. */
+    protected function navRechten(): array
+    {
+        if ($this->currentUser() === null) {
+            return [];
+        }
+
+        $out = [];
+        foreach (RechtenModel::MODULES as $module => $label) {
+            $out[$module] = $this->hasRecht($module, 'lezen');
+        }
+
+        return $out;
     }
 
     protected function forbidden(): void
