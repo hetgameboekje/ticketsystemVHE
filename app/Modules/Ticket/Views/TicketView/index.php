@@ -7,6 +7,8 @@
 /** @var string $dir */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 
+use App\Core\Table;
+
 $flashSuccess = $_SESSION['flash_success'] ?? null;
 $flashError = $_SESSION['flash_error'] ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
@@ -65,37 +67,21 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 <?= activeFilterChip('tickets') ?>
 
 <div class="card">
-  <?php if (empty($items)): ?>
-    <div class="empty-state">Geen tickets gevonden.</div>
-  <?php else: ?>
-  <div class="table-wrap">
-  <table>
-    <thead><tr>
-      <th class="col-1"><?= sortLink('id', '#', $sort, $dir) ?></th>
-      <th><?= sortLink('titel', 'Taak', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('opdrachtgever_naam', 'Opdrachtgever', $sort, $dir) ?></th>
-      <th class="col-1"><?= sortLink('afdeling_naam', 'Afdeling', $sort, $dir) ?></th>
-      <th class="col-1"><?= sortLink('prioriteit', 'Prioriteit', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('status', 'Status', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('behandelaar_naam', 'Behandelaar', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('deadline', 'Deadline', $sort, $dir) ?></th>
-    </tr></thead>
-    <tbody>
-      <?php foreach ($items as $t): ?>
-      <tr onclick="window.location='/tickets/<?= $t['id'] ?>'">
-        <td style="color:var(--color-text-tertiary)">#<?= $t['id'] ?></td>
-        <td><span class="text-truncate d-block" title="<?= htmlspecialchars($t['titel']) ?>"><?= htmlspecialchars($t['titel']) ?></span></td>
-        <td><?= htmlspecialchars($t['opdrachtgever_naam']) ?></td>
-        <td><?= htmlspecialchars($t['afdeling_naam'] ?? '—') ?></td>
-        <td><?= prioBadge($t['prioriteit']) ?></td>
-        <td><?= statusBadge($t['status']) ?></td>
-        <td><?= htmlspecialchars($t['behandelaar_naam'] ?? '—') ?></td>
-        <td><?= formatDatum($t['deadline']) ?></td>
-      </tr>
-      <?php endforeach; ?>
-    </tbody>
-  </table>
-  </div>
+  <?php
+  $table = (new Table())
+      ->emptyText('Geen tickets gevonden.')
+      ->sortState($sort, $dir)
+      ->rowUrl(fn (array $t) => "/tickets/{$t['id']}")
+      ->column('id', '#', fn (array $t) => '#' . $t['id'], ['class' => 'col-1', 'cellStyle' => 'color:var(--color-text-tertiary)'])
+      ->column('titel', 'Taak', fn (array $t) => '<span class="text-truncate d-block" title="' . htmlspecialchars($t['titel']) . '">' . htmlspecialchars($t['titel']) . '</span>')
+      ->column('opdrachtgever_naam', 'Opdrachtgever', fn (array $t) => htmlspecialchars($t['opdrachtgever_naam']), ['class' => 'col-2'])
+      ->column('afdeling_naam', 'Afdeling', fn (array $t) => htmlspecialchars($t['afdeling_naam'] ?? '—'), ['class' => 'col-1'])
+      ->column('prioriteit', 'Prioriteit', fn (array $t) => prioBadge($t['prioriteit']), ['class' => 'col-1'])
+      ->column('status', 'Status', fn (array $t) => statusBadge($t['status']), ['class' => 'col-2'])
+      ->column('behandelaar_naam', 'Behandelaar', fn (array $t) => htmlspecialchars($t['behandelaar_naam'] ?? '—'), ['class' => 'col-2'])
+      ->column('deadline', 'Deadline', fn (array $t) => formatDatum($t['deadline']), ['class' => 'col-2'])
+      ->rows($items);
+  echo $table->render();
+  ?>
   <?= paginationLinks($pagination) ?>
-  <?php endif; ?>
 </div>

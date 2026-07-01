@@ -77,3 +77,50 @@ public/
      en open http://localhost:8000.
 
    Log in met `admin@intranet.local` / `wachtwoord123`.
+
+## Omgevingsinstellingen (.env)
+
+`config/config.php` leest DB-credentials en twee gedragsvlaggen via `getenv()`, met
+Laragon-defaults als fallback. Kopieer `.env.example` naar `.env` (staat in `.gitignore`,
+wordt dus nooit gecommit) om dit per omgeving te overschrijven zonder `config/config.php`
+aan te passen:
+
+- `APP_DEV` — `true` (lokaal/dev): bij het laden van `/login` wordt automatisch `git pull`
+  gedaan en het databaseschema geparsed + toegepast (zie `App\Core\DevSync`). `false`
+  (productie): dit gebeurt alleen nog handmatig via de Beheer-pagina.
+- `APP_GIT_PULL_ENABLED` — `true` op servers met shell/exec-toegang (Docker/VPS). `false`
+  op servers zonder shell-toegang (zoals Hostnet shared webhosting) — schakelt de
+  "Git pull"-knop en het git-onderdeel van dev-sync uit; database parsen blijft werken
+  (gebruikt alleen PDO, geen shell).
+
+## Deployen naar Hostnet
+
+**Standaard Hostnet shared webhosting (cPanel/DirectAdmin, geen SSH):**
+
+1. Zet `APP_DEV=false` en `APP_GIT_PULL_ENABLED=false` in `.env` op de server — er is geen
+   shell-toegang, dus `exec('git pull')` zou daar toch nooit werken (en kan zelfs een PHP-
+   waarschuwing geven als `exec()` in `disable_functions` staat).
+2. Upload de code via SFTP/FTP (of de bestandsbeheerder in het Hostnet-paneel). Omdat er
+   geen SSH is, kun je hier niet `git pull` op de server draaien — bij elke wijziging moet
+   je opnieuw uploaden, of de repo lokaal clonen/updaten en dan syncen.
+3. Zorg dat de domeinroot naar de map met dit project wijst; de root-`.htaccess` stuurt
+   verkeer automatisch door naar `public/`. Zet de webroot dus **niet** direct op `public/`
+   zelf, tenzij het Hostnet-paneel dat toestaat — beide werkt met de meegeleverde `.htaccess`.
+4. Maak een MySQL-database + gebruiker aan via het Hostnet-paneel, en zet die gegevens in
+   `.env` (`DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` — Hostnet's MySQL-host is
+   meestal niet `127.0.0.1`, check het paneel).
+5. Draai `php database/parse.php` lokaal, en voer het resulterende
+   `database/.parsed/schema.sql` uit via phpMyAdmin op Hostnet (of gebruik de "Database
+   parsen"-knop op de Beheer-pagina nadat je bent ingelogd — die gebruikt alleen PDO, geen
+   shell, en werkt dus ook zonder SSH).
+6. Zorg dat `pdo_mysql` actief staat in de PHP-versie die je in het Hostnet-paneel kiest.
+7. Zorg dat `public/uploads/` beschrijfbaar is voor de webserver (profielfoto's).
+8. Zet **HTTPS aan** (Hostnet biedt gratis Let's Encrypt in het paneel) — het inlogformulier
+   verstuurt wachtwoorden, dit hoort niet onbeveiligd over HTTP te gaan.
+
+**Persoonlijke/Docker-hosting (met shell-toegang):**
+
+Hier kan `APP_GIT_PULL_ENABLED=true` blijven staan en werkt de "Git pull"-knop op de
+Beheer-pagina echt. Zorg dat de container/VM een geconfigureerde git-remote heeft (met
+toegang tot de repo — SSH deploy key aanbevolen boven een token in de remote-URL) en dat
+`git` binnen de PHP-proces-omgeving (dezelfde user als de webserver) uitvoerbaar is.

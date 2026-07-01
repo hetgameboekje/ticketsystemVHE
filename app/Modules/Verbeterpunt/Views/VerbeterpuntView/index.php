@@ -6,6 +6,8 @@
 /** @var string $dir */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 
+use App\Core\Table;
+
 $flashSuccess = $_SESSION['flash_success'] ?? null;
 $flashError = $_SESSION['flash_error'] ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
@@ -30,31 +32,18 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 <?= activeFilterChip('verbeterpunten') ?>
 
 <div class="card">
-  <?php if (empty($items)): ?>
-    <div class="empty-state">Geen verbeterpunten gevonden.</div>
-  <?php else: ?>
-  <div class="table-wrap">
-  <table>
-    <thead><tr>
-      <th class="col-1"><?= sortLink('id', '#', $sort, $dir) ?></th>
-      <th><?= sortLink('titel', 'Titel', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('afdeling_naam', 'Afdeling', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('ingediend_door_naam', 'Ingediend door', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('status', 'Status', $sort, $dir) ?></th>
-    </tr></thead>
-    <tbody>
-      <?php foreach ($items as $v): ?>
-      <tr onclick="window.location='/verbeterpunten/<?= $v['id'] ?>'">
-        <td style="color:var(--color-text-tertiary)">#<?= $v['id'] ?></td>
-        <td><span class="text-truncate d-block" title="<?= htmlspecialchars($v['titel']) ?>"><?= htmlspecialchars($v['titel']) ?></span></td>
-        <td><?= htmlspecialchars($v['afdeling_naam'] ?? '—') ?></td>
-        <td><?= htmlspecialchars($v['ingediend_door_naam'] ?? '—') ?></td>
-        <td><?= statusBadge($v['status']) ?></td>
-      </tr>
-      <?php endforeach; ?>
-    </tbody>
-  </table>
-  </div>
+  <?php
+  $table = (new Table())
+      ->emptyText('Geen verbeterpunten gevonden.')
+      ->sortState($sort, $dir)
+      ->rowUrl(fn (array $v) => "/verbeterpunten/{$v['id']}")
+      ->column('id', '#', fn (array $v) => '#' . $v['id'], ['class' => 'col-1', 'cellStyle' => 'color:var(--color-text-tertiary)'])
+      ->column('titel', 'Titel', fn (array $v) => '<span class="text-truncate d-block" title="' . htmlspecialchars($v['titel']) . '">' . htmlspecialchars($v['titel']) . '</span>')
+      ->column('afdeling_naam', 'Afdeling', fn (array $v) => htmlspecialchars($v['afdeling_naam'] ?? '—'), ['class' => 'col-2'])
+      ->column('ingediend_door_naam', 'Ingediend door', fn (array $v) => htmlspecialchars($v['ingediend_door_naam'] ?? '—'), ['class' => 'col-2'])
+      ->column('status', 'Status', fn (array $v) => statusBadge($v['status']), ['class' => 'col-2'])
+      ->rows($items);
+  echo $table->render();
+  ?>
   <?= paginationLinks($pagination) ?>
-  <?php endif; ?>
 </div>

@@ -3,6 +3,7 @@
 namespace App\Modules\Beheer;
 
 use App\Core\Controller;
+use App\Core\DevSync;
 use App\Core\SchemaParser;
 
 class BeheerController extends Controller
@@ -19,12 +20,20 @@ class BeheerController extends Controller
             'pageTitle' => 'Beheer',
             'output' => $output,
             'gitBeschikbaar' => is_dir(APP_ROOT . '/.git'),
+            'devModus' => DevSync::isEnabled(),
+            'gitPullEnabled' => DevSync::isGitPullEnabled(),
         ]);
     }
 
     public function gitPull(): void
     {
         $this->requireAdmin();
+
+        if (!DevSync::isGitPullEnabled()) {
+            $_SESSION['flash_error'] = 'Git pull staat uit voor deze server (gitPullEnabled = false — '
+                . 'bedoeld voor hosts zonder shell-toegang, zoals Hostnet shared webhosting).';
+            $this->redirect('/beheer');
+        }
 
         $huidigeMap = getcwd();
         chdir(APP_ROOT);

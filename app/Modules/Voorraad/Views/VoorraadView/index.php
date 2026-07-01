@@ -7,6 +7,8 @@
 /** @var string $dir */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 
+use App\Core\Table;
+
 $flashSuccess = $_SESSION['flash_success'] ?? null;
 $flashError = $_SESSION['flash_error'] ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
@@ -33,35 +35,20 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 <?= activeFilterChip('voorraad') ?>
 
 <div class="card">
-  <?php if (empty($items)): ?>
-    <div class="empty-state">Geen voorraaditems gevonden.</div>
-  <?php else: ?>
-  <div class="table-wrap">
-  <table>
-    <thead><tr>
-      <th class="col-1"><?= sortLink('id', '#', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('barcode', 'Barcode', $sort, $dir) ?></th>
-      <th><?= sortLink('type_naam', 'Type', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('variant', 'Variant', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('serienummer', 'Serienummer', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('status', 'Status', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('locatie', 'Locatie', $sort, $dir) ?></th>
-    </tr></thead>
-    <tbody>
-      <?php foreach ($items as $i): ?>
-      <tr onclick="window.location='/voorraad/<?= $i['id'] ?>'">
-        <td style="color:var(--color-text-tertiary)">#<?= $i['id'] ?></td>
-        <td><?= htmlspecialchars($i['barcode']) ?></td>
-        <td><?= htmlspecialchars($i['type_naam'] ?? '—') ?></td>
-        <td><?= htmlspecialchars($i['variant'] ?? '—') ?></td>
-        <td><?= htmlspecialchars($i['serienummer'] ?? '—') ?></td>
-        <td><span class="badge badge-<?= $i['status'] === 'op_voorraad' ? 'open' : 'gesloten' ?>"><?= $i['status'] === 'op_voorraad' ? 'Op voorraad' : 'Uitgegeven' ?></span></td>
-        <td><?= htmlspecialchars($i['locatie'] ?? '—') ?></td>
-      </tr>
-      <?php endforeach; ?>
-    </tbody>
-  </table>
-  </div>
+  <?php
+  $table = (new Table())
+      ->emptyText('Geen voorraaditems gevonden.')
+      ->sortState($sort, $dir)
+      ->rowUrl(fn (array $i) => "/voorraad/{$i['id']}")
+      ->column('id', '#', fn (array $i) => '#' . $i['id'], ['class' => 'col-1', 'cellStyle' => 'color:var(--color-text-tertiary)'])
+      ->column('barcode', 'Barcode', null, ['class' => 'col-2'])
+      ->column('type_naam', 'Type', fn (array $i) => htmlspecialchars($i['type_naam'] ?? '—'))
+      ->column('variant', 'Variant', fn (array $i) => htmlspecialchars($i['variant'] ?? '—'), ['class' => 'col-2'])
+      ->column('serienummer', 'Serienummer', fn (array $i) => htmlspecialchars($i['serienummer'] ?? '—'), ['class' => 'col-2'])
+      ->column('status', 'Status', fn (array $i) => '<span class="badge badge-' . ($i['status'] === 'op_voorraad' ? 'open' : 'gesloten') . '">' . ($i['status'] === 'op_voorraad' ? 'Op voorraad' : 'Uitgegeven') . '</span>', ['class' => 'col-2'])
+      ->column('locatie', 'Locatie', fn (array $i) => htmlspecialchars($i['locatie'] ?? '—'), ['class' => 'col-2'])
+      ->rows($items);
+  echo $table->render();
+  ?>
   <?= paginationLinks($pagination) ?>
-  <?php endif; ?>
 </div>

@@ -6,6 +6,8 @@
 /** @var string $dir */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 
+use App\Core\Table;
+
 $flashSuccess = $_SESSION['flash_success'] ?? null;
 $flashError = $_SESSION['flash_error'] ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
@@ -30,29 +32,17 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 <?= activeFilterChip('kennisbank') ?>
 
 <div class="card">
-  <?php if (empty($items)): ?>
-    <div class="empty-state">Geen artikelen gevonden.</div>
-  <?php else: ?>
-  <div class="table-wrap">
-  <table>
-    <thead><tr>
-      <th class="col-1"><?= sortLink('id', '#', $sort, $dir) ?></th>
-      <th><?= sortLink('titel', 'Titel', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('categorie', 'Categorie', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('auteur_naam', 'Auteur', $sort, $dir) ?></th>
-    </tr></thead>
-    <tbody>
-      <?php foreach ($items as $k): ?>
-      <tr onclick="window.location='/kennisbank/<?= $k['id'] ?>'">
-        <td style="color:var(--color-text-tertiary)">#<?= $k['id'] ?></td>
-        <td><span class="text-truncate d-block" title="<?= htmlspecialchars($k['titel']) ?>"><?= htmlspecialchars($k['titel']) ?></span></td>
-        <td><?= htmlspecialchars($k['categorie']) ?></td>
-        <td><?= htmlspecialchars($k['auteur_naam'] ?? '—') ?></td>
-      </tr>
-      <?php endforeach; ?>
-    </tbody>
-  </table>
-  </div>
+  <?php
+  $table = (new Table())
+      ->emptyText('Geen artikelen gevonden.')
+      ->sortState($sort, $dir)
+      ->rowUrl(fn (array $k) => "/kennisbank/{$k['id']}")
+      ->column('id', '#', fn (array $k) => '#' . $k['id'], ['class' => 'col-1', 'cellStyle' => 'color:var(--color-text-tertiary)'])
+      ->column('titel', 'Titel', fn (array $k) => '<span class="text-truncate d-block" title="' . htmlspecialchars($k['titel']) . '">' . htmlspecialchars($k['titel']) . '</span>')
+      ->column('categorie', 'Categorie', fn (array $k) => htmlspecialchars($k['categorie']), ['class' => 'col-2'])
+      ->column('auteur_naam', 'Auteur', fn (array $k) => htmlspecialchars($k['auteur_naam'] ?? '—'), ['class' => 'col-2'])
+      ->rows($items);
+  echo $table->render();
+  ?>
   <?= paginationLinks($pagination) ?>
-  <?php endif; ?>
 </div>

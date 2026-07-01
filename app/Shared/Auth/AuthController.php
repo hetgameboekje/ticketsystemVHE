@@ -3,12 +3,23 @@
 namespace App\Shared\Auth;
 
 use App\Core\Controller;
+use App\Core\DevSync;
 use App\Shared\User\Models\UserModel;
 
 class AuthController extends Controller
 {
     public function showLogin(): void
     {
+        if (DevSync::isEnabled()) {
+            try {
+                foreach (DevSync::run() as $line) {
+                    error_log('[DevSync] ' . $line);
+                }
+            } catch (\Throwable $e) {
+                error_log('[DevSync] mislukt: ' . $e->getMessage());
+            }
+        }
+
         if (!empty($_SESSION['user'])) {
             $this->redirect('/');
         }

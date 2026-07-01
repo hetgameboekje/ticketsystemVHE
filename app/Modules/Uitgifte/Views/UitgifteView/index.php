@@ -7,6 +7,8 @@
 /** @var string $dir */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 
+use App\Core\Table;
+
 $flashSuccess = $_SESSION['flash_success'] ?? null;
 $flashError = $_SESSION['flash_error'] ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
@@ -32,44 +34,29 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 <?= activeFilterChip('uitgiften') ?>
 
 <div class="card">
-  <?php if (empty($items)): ?>
-    <div class="empty-state">Geen uitgiften gevonden.</div>
-  <?php else: ?>
-  <div class="table-wrap">
-  <table>
-    <thead><tr>
-      <th class="col-1"><?= sortLink('id', '#', $sort, $dir) ?></th>
-      <th><?= sortLink('medewerker_naam', 'Medewerker', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('type_naam', 'Item', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('barcode', 'Barcode', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('uitgegeven_op', 'Uitgegeven op', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('status', 'Status', $sort, $dir) ?></th>
-      <th class="col-1"></th>
-    </tr></thead>
-    <tbody>
-      <?php foreach ($items as $u): ?>
-      <tr onclick="window.location='/uitgiften/<?= $u['id'] ?>'">
-        <td style="color:var(--color-text-tertiary)">#<?= $u['id'] ?></td>
-        <td><?= htmlspecialchars($u['medewerker_naam']) ?></td>
-        <td><?= htmlspecialchars($u['type_naam'] ?? '—') ?><?= $u['variant'] ? ' (' . htmlspecialchars($u['variant']) . ')' : '' ?></td>
-        <td><?= htmlspecialchars($u['barcode'] ?? '—') ?></td>
-        <td><?= formatDatum($u['uitgegeven_op']) ?></td>
-        <td><span class="badge badge-<?= $u['status'] === 'uitgegeven' ? 'in_behandeling' : 'opgelost' ?>"><?= $u['status'] === 'uitgegeven' ? 'Uitgegeven' : 'Geretourneerd' ?></span></td>
-        <td onclick="event.stopPropagation()">
-          <?php if ($u['status'] === 'uitgegeven'): ?>
-            <form method="post" action="/uitgiften/<?= $u['id'] ?>/retour" onsubmit="return retourPrompt(this)">
-              <input type="hidden" name="opmerking" value="">
-              <button class="btn" type="submit" style="font-size:12px">Retour</button>
-            </form>
-          <?php endif; ?>
-        </td>
-      </tr>
-      <?php endforeach; ?>
-    </tbody>
-  </table>
-  </div>
+  <?php
+  $table = (new Table())
+      ->emptyText('Geen uitgiften gevonden.')
+      ->sortState($sort, $dir)
+      ->rowUrl(fn (array $u) => "/uitgiften/{$u['id']}")
+      ->column('id', '#', fn (array $u) => '#' . $u['id'], ['class' => 'col-1', 'cellStyle' => 'color:var(--color-text-tertiary)'])
+      ->column('medewerker_naam', 'Medewerker', fn (array $u) => htmlspecialchars($u['medewerker_naam']))
+      ->column('type_naam', 'Item', fn (array $u) => htmlspecialchars($u['type_naam'] ?? '—') . ($u['variant'] ? ' (' . htmlspecialchars($u['variant']) . ')' : ''), ['class' => 'col-2'])
+      ->column('barcode', 'Barcode', fn (array $u) => htmlspecialchars($u['barcode'] ?? '—'), ['class' => 'col-2'])
+      ->column('uitgegeven_op', 'Uitgegeven op', fn (array $u) => formatDatum($u['uitgegeven_op']), ['class' => 'col-2'])
+      ->column('status', 'Status', fn (array $u) => '<span class="badge badge-' . ($u['status'] === 'uitgegeven' ? 'in_behandeling' : 'opgelost') . '">' . ($u['status'] === 'uitgegeven' ? 'Uitgegeven' : 'Geretourneerd') . '</span>', ['class' => 'col-2'])
+      ->column('acties', '', function (array $u): string {
+          if ($u['status'] !== 'uitgegeven') {
+              return '';
+          }
+          return '<form method="post" action="/uitgiften/' . $u['id'] . '/retour" onsubmit="return retourPrompt(this)">'
+              . '<input type="hidden" name="opmerking" value="">'
+              . '<button class="btn" type="submit" style="font-size:12px">Retour</button></form>';
+      }, ['class' => 'col-1', 'sortable' => false, 'stopPropagation' => true])
+      ->rows($items);
+  echo $table->render();
+  ?>
   <?= paginationLinks($pagination) ?>
-  <?php endif; ?>
 </div>
 
 <script>

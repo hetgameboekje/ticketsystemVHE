@@ -1,9 +1,23 @@
 <?php
 /** @var string|null $output */
 /** @var bool $gitBeschikbaar */
+/** @var bool $devModus */
+/** @var bool $gitPullEnabled */
 ?>
 <div class="page-header">
   <div class="page-title">Beheer</div>
+</div>
+
+<div class="alert <?= $devModus ? 'alert-success' : 'alert-error' ?>" style="margin-bottom:16px">
+  <?php if ($devModus): ?>
+    <strong>Dev-modus actief.</strong> Bij elke keer dat het loginscherm wordt geladen, wordt automatisch
+    <code>git pull</code> gedaan en het databaseschema geparsed &eacute;n toegepast. Zet <code>dev</code> naar
+    <code>false</code> in <code>config/config.php</code> (of <code>APP_DEV=false</code> in <code>.env</code>)
+    voordat je naar productie (bv. Hostnet) deployt.
+  <?php else: ?>
+    <strong>Productiemodus.</strong> Er gebeurt niets automatisch — git pull en database parsen kunnen alleen
+    hieronder handmatig gestart worden.
+  <?php endif; ?>
 </div>
 
 <div class="detail-layout">
@@ -14,7 +28,13 @@
         <p style="font-size:13px;color:var(--color-text-secondary);margin-top:0">
           Haalt de laatste wijzigingen op van de remote repository (<code>git pull</code>) op de server.
         </p>
-        <?php if (!$gitBeschikbaar): ?>
+        <?php if (!$gitPullEnabled): ?>
+          <p style="font-size:13px;color:#b3261e">
+            Uitgeschakeld op deze server (<code>gitPullEnabled = false</code>) — bedoeld voor hosts zonder
+            shell-toegang, zoals Hostnet shared webhosting. Zet dit alleen aan op een server met SSH/exec
+            (bv. Docker/VPS).
+          </p>
+        <?php elseif (!$gitBeschikbaar): ?>
           <p style="font-size:13px;color:#b3261e">Geen .git-map gevonden op de server — dit is waarschijnlijk geen git-checkout.</p>
         <?php else: ?>
           <form method="post" action="/beheer/git-pull" onsubmit="return confirm('Weet je zeker dat je git pull wilt uitvoeren op de live server?')">

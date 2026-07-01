@@ -5,6 +5,8 @@
 /** @var array $ipAdressen */
 /** @var array $filters */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
+
+use App\Core\Table;
 ?>
 <div class="page-header">
   <div class="page-title">Paginabezoeken</div>
@@ -28,33 +30,16 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 </form>
 
 <div class="card">
-  <?php if (empty($bezoeken)): ?>
-    <div class="empty-state">Geen paginabezoeken gevonden.</div>
-  <?php else: ?>
-  <div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th class="col-2">Datum/tijd</th>
-        <th>Gebruiker</th>
-        <th class="col-2">IP-adres</th>
-        <th class="col-2">Methode</th>
-        <th>URL</th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php foreach ($bezoeken as $b): ?>
-        <tr>
-          <td><?= formatDatumTijd($b['created_at']) ?></td>
-          <td><?= htmlspecialchars($b['gebruiker_naam'] ?? '— (niet ingelogd)') ?></td>
-          <td><?= htmlspecialchars($b['ip_adres']) ?></td>
-          <td><?= htmlspecialchars($b['methode']) ?></td>
-          <td><span class="text-truncate d-block" title="<?= htmlspecialchars($b['url']) ?>"><?= htmlspecialchars($b['url']) ?></span></td>
-        </tr>
-      <?php endforeach; ?>
-    </tbody>
-  </table>
-  </div>
+  <?php
+  $table = (new Table())
+      ->emptyText('Geen paginabezoeken gevonden.')
+      ->column('created_at', 'Datum/tijd', fn (array $b) => formatDatumTijd($b['created_at']), ['class' => 'col-2', 'sortable' => false])
+      ->column('gebruiker_naam', 'Gebruiker', fn (array $b) => htmlspecialchars($b['gebruiker_naam'] ?? '— (niet ingelogd)'), ['sortable' => false])
+      ->column('ip_adres', 'IP-adres', fn (array $b) => htmlspecialchars($b['ip_adres']), ['class' => 'col-2', 'sortable' => false])
+      ->column('methode', 'Methode', fn (array $b) => htmlspecialchars($b['methode']), ['class' => 'col-2', 'sortable' => false])
+      ->column('url', 'URL', fn (array $b) => '<span class="text-truncate d-block" title="' . htmlspecialchars($b['url']) . '">' . htmlspecialchars($b['url']) . '</span>', ['sortable' => false])
+      ->rows($bezoeken);
+  echo $table->render();
+  ?>
   <?= paginationLinks($pagination) ?>
-  <?php endif; ?>
 </div>

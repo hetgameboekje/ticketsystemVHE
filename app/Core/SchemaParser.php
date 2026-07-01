@@ -59,6 +59,41 @@ class SchemaParser
         return $path;
     }
 
+    /**
+     * Voert de gegenereerde SQL statement-voor-statement uit tegen de live database.
+     * CREATE TABLE IF NOT EXISTS en INSERT IGNORE zijn idempotent: bestaande tabellen/rijen
+     * blijven ongewijzigd, alleen ontbrekende tabellen/seed-rijen worden toegevoegd.
+     * Wordt alleen aangeroepen vanuit dev-modus (App\Core\DevSync) — de Beheer-knop
+     * "Database parsen" genereert het bestand alleen en voert het bewust niet uit.
+     *
+     * @return array{applied: int, skipped: int, errors: string[]}
+     */
+    public static function applyToDatabase(string $sql): array
+    {
+        $pdo = Database::pdo();
+        $statements = array_filter(array_map('trim', explode(';', $sql)));
+
+        $applied = 0;
+        $skipped = 0;
+        $errors = [];
+
+        foreach ($statements as $statement) {
+            if ($statement === '' || str_starts_with($statement, '--')) {
+                continue;
+            }
+
+            try {
+                $pdo->exec($statement);
+                $applied++;
+            } catch (\PDOException $e) {
+                $skipped++;
+                $errors[] = $e->getMessage();
+            }
+        }
+
+        return ['applied' => $applied, 'skipped' => $skipped, 'errors' => $errors];
+    }
+
     private static function tableDependencies(\SimpleXMLElement $table): array
     {
         $deps = [];

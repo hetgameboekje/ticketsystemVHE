@@ -6,6 +6,8 @@
 /** @var string $dir */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 
+use App\Core\Table;
+
 $flashSuccess = $_SESSION['flash_success'] ?? null;
 $flashError = $_SESSION['flash_error'] ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
@@ -30,33 +32,19 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 <?= activeFilterChip('hardware-uitgaven') ?>
 
 <div class="card">
-  <?php if (empty($items)): ?>
-    <div class="empty-state">Geen hardware-uitgaven gevonden.</div>
-  <?php else: ?>
-  <div class="table-wrap">
-  <table>
-    <thead><tr>
-      <th class="col-1"><?= sortLink('id', '#', $sort, $dir) ?></th>
-      <th><?= sortLink('omschrijving', 'Omschrijving', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('leverancier', 'Leverancier', $sort, $dir) ?></th>
-      <th class="col-1"><?= sortLink('bedrag', 'Bedrag', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('afdeling_naam', 'Afdeling', $sort, $dir) ?></th>
-      <th class="col-2"><?= sortLink('status', 'Status', $sort, $dir) ?></th>
-    </tr></thead>
-    <tbody>
-      <?php foreach ($items as $h): ?>
-      <tr onclick="window.location='/hardware-uitgaven/<?= $h['id'] ?>'">
-        <td style="color:var(--color-text-tertiary)">#<?= $h['id'] ?></td>
-        <td><span class="text-truncate d-block" title="<?= htmlspecialchars($h['omschrijving']) ?>"><?= htmlspecialchars($h['omschrijving']) ?></span></td>
-        <td><?= htmlspecialchars($h['leverancier'] ?? '—') ?></td>
-        <td>&euro; <?= number_format((float) $h['bedrag'], 2, ',', '.') ?></td>
-        <td><?= htmlspecialchars($h['afdeling_naam'] ?? '—') ?></td>
-        <td><?= statusBadge($h['status']) ?></td>
-      </tr>
-      <?php endforeach; ?>
-    </tbody>
-  </table>
-  </div>
+  <?php
+  $table = (new Table())
+      ->emptyText('Geen hardware-uitgaven gevonden.')
+      ->sortState($sort, $dir)
+      ->rowUrl(fn (array $h) => "/hardware-uitgaven/{$h['id']}")
+      ->column('id', '#', fn (array $h) => '#' . $h['id'], ['class' => 'col-1', 'cellStyle' => 'color:var(--color-text-tertiary)'])
+      ->column('omschrijving', 'Omschrijving', fn (array $h) => '<span class="text-truncate d-block" title="' . htmlspecialchars($h['omschrijving']) . '">' . htmlspecialchars($h['omschrijving']) . '</span>')
+      ->column('leverancier', 'Leverancier', fn (array $h) => htmlspecialchars($h['leverancier'] ?? '—'), ['class' => 'col-2'])
+      ->column('bedrag', 'Bedrag', fn (array $h) => '&euro; ' . number_format((float) $h['bedrag'], 2, ',', '.'), ['class' => 'col-1'])
+      ->column('afdeling_naam', 'Afdeling', fn (array $h) => htmlspecialchars($h['afdeling_naam'] ?? '—'), ['class' => 'col-2'])
+      ->column('status', 'Status', fn (array $h) => statusBadge($h['status']), ['class' => 'col-2'])
+      ->rows($items);
+  echo $table->render();
+  ?>
   <?= paginationLinks($pagination) ?>
-  <?php endif; ?>
 </div>
