@@ -67,4 +67,33 @@ class CyberRisicoModel extends Model
 
         return $result;
     }
+
+    /**
+     * Gemelde incidenten van de afgelopen 30 dagen, gegroepeerd per dag — gebruikt om
+     * bij een klik op een balk in de dashboard-grafiek de incidenten van die dag te tonen.
+     * @return array<string, array<int, array{id: int, titel: string, prioriteit: string, status: string}>>
+     */
+    public static function listLast30DaysGrouped(): array
+    {
+        $sql = "
+            SELECT id, titel, prioriteit, status, COALESCE(datum_gemeld, DATE(created_at)) AS dag
+            FROM cyberrisicos
+            WHERE deleted_at IS NULL
+              AND COALESCE(datum_gemeld, DATE(created_at)) >= DATE_SUB(CURDATE(), INTERVAL 29 DAY)
+            ORDER BY dag ASC, id ASC
+        ";
+        $rows = Database::pdo()->query($sql)->fetchAll();
+
+        $grouped = [];
+        foreach ($rows as $row) {
+            $grouped[$row['dag']][] = [
+                'id' => (int) $row['id'],
+                'titel' => $row['titel'],
+                'prioriteit' => $row['prioriteit'],
+                'status' => $row['status'],
+            ];
+        }
+
+        return $grouped;
+    }
 }

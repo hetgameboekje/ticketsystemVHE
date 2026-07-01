@@ -28,6 +28,7 @@ class DashboardController extends Controller
             'voorraadOverview' => VoorraadItemModel::countByType(),
             'cyberrisicosOpen' => CyberRisicoModel::countOpen(),
             'cyberrisicosPerDag' => CyberRisicoModel::countLast30Days(),
+            'cyberrisicosByDate' => CyberRisicoModel::listLast30DaysGrouped(),
         ]);
     }
 }

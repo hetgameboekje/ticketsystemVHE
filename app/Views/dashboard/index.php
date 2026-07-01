@@ -4,8 +4,10 @@
 /** @var array $voorraadOverview */
 /** @var int $cyberrisicosOpen */
 /** @var array $cyberrisicosPerDag */
+/** @var array $cyberrisicosByDate */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 
+$chartDates = array_map(fn (array $d) => $d['datum'], $cyberrisicosPerDag);
 $chartLabels = array_map(fn (array $d) => date('d-m', strtotime($d['datum'])), $cyberrisicosPerDag);
 $chartData = array_map(fn (array $d) => $d['aantal'], $cyberrisicosPerDag);
 ?>
@@ -251,6 +253,20 @@ $chartData = array_map(fn (array $d) => $d['aantal'], $cyberrisicosPerDag);
   </div>
 </div>
 
+<div class="modal fade" id="incidentDayModal" tabindex="-1" aria-labelledby="incidentDayModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="incidentDayModalLabel">Incidenten</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+      </div>
+      <div class="modal-body">
+        <div id="incidentDayModalList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="card">
   <div class="card-header">
     <span class="card-title">Recente tickets</span>
@@ -332,6 +348,62 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
+    var chartDates = <?= json_encode($chartDates) ?>;
+    var incidentsByDate = <?= json_encode($cyberrisicosByDate) ?>;
+
+    var STATUS_LABELS = {
+        nieuw: 'Nieuw',
+        in_onderzoek: 'In onderzoek',
+        bevestigd: 'Bevestigd',
+        opgelost: 'Opgelost',
+        geaccepteerd: 'Geaccepteerd risico'
+    };
+    var PRIORITEIT_LABELS = { laag: 'Laag', middel: 'Middel', hoog: 'Hoog', kritiek: 'Kritiek' };
+
+    function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function formatDatumNl(iso) {
+        var parts = iso.split('-');
+        return parts[2] + '-' + parts[1] + '-' + parts[0];
+    }
+
+    function showIncidentsForDate(date) {
+        var incidents = incidentsByDate[date] || [];
+
+        document.getElementById('incidentDayModalLabel').textContent = 'Incidenten op ' + formatDatumNl(date);
+
+        var list = document.getElementById('incidentDayModalList');
+        list.innerHTML = '';
+
+        if (incidents.length === 0) {
+            list.innerHTML = '<div class="empty-state">Geen incidenten gemeld op deze dag.</div>';
+        } else {
+            incidents.forEach(function (inc) {
+                var a = document.createElement('a');
+                a.href = '/cyberrisicos/' + inc.id;
+                a.className = 'log-item';
+                a.style.display = 'block';
+                a.innerHTML =
+                    '<div class="log-meta" style="flex-wrap:wrap">' +
+                    '<span class="log-user">' + escapeHtml(inc.titel) + '</span>' +
+                    '<span class="badge badge-' + inc.status + '">' + (STATUS_LABELS[inc.status] || inc.status) + '</span>' +
+                    '<span class="prio prio-' + inc.prioriteit + '"><span class="prio-dot"></span>' + (PRIORITEIT_LABELS[inc.prioriteit] || inc.prioriteit) + '</span>' +
+                    '</div>';
+                list.appendChild(a);
+            });
+        }
+
+        var modalEl = document.getElementById('incidentDayModal');
+        var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    }
+
+    canvas.style.cursor = 'pointer';
+
     new Chart(canvas, {
         type: 'bar',
         data: {
@@ -353,6 +425,13 @@ document.addEventListener('DOMContentLoaded', function () {
             scales: {
                 x: { grid: { display: false } },
                 y: { beginAtZero: true, ticks: { precision: 0 } }
+            },
+            onClick: function (evt, elements) {
+                if (!elements.length) {
+                    return;
+                }
+                var index = elements[0].index;
+                showIncidentsForDate(chartDates[index]);
             }
         }
     });
