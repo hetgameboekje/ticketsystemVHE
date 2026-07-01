@@ -7,13 +7,12 @@ require __DIR__ . '/../app/bootstrap.php';
 use App\Core\Database;
 
 $pdo = Database::pdo();
-$wachtwoord = 'wachtwoord123';
+$wachtwoord = 'admin123';
 $hash = password_hash($wachtwoord, PASSWORD_DEFAULT);
 
 $gebruikers = [
-    ['Joey Doe', 'admin@intranet.local', 'admin'],
-    ['M. de Vries', 'mdevries@intranet.local', 'medewerker'],
-    ['R. Mulder', 'rmulder@intranet.local', 'medewerker'],
+    ['Timo Bergthaler', 'timo@bergthaler.nl', 'admin']
+
 ];
 
 $stmt = $pdo->prepare(
