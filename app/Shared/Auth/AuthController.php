@@ -38,6 +38,7 @@ class AuthController extends Controller
             'id' => $user['id'],
             'naam' => $user['naam'],
             'rol' => $user['rol'],
+            'foto' => $user['foto'] ?? null,
         ];
 
         $this->redirect('/');

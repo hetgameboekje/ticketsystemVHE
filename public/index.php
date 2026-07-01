@@ -3,6 +3,10 @@
 require __DIR__ . '/../app/bootstrap.php';
 
 use App\Core\Router;
+use App\Modules\Account\AccountController;
+use App\Modules\Beheer\BeheerController;
+use App\Modules\Beheer\LogController;
+use App\Modules\Beheer\RechtenController;
 use App\Modules\CyberRisico\CyberRisicoController;
 use App\Modules\HardwareUitgave\HardwareUitgaveController;
 use App\Modules\Kennisbank\KennisbankController;
@@ -16,6 +20,7 @@ use App\Modules\Verbeterpunt\VerbeterpuntController;
 use App\Modules\Voorraad\VoorraadController;
 use App\Shared\Auth\AuthController;
 use App\Shared\Dashboard\DashboardController;
+use App\Shared\Legal\LegalController;
 
 $router = new Router();
 
@@ -60,5 +65,21 @@ $router->get('/uitgiften/create', [UitgifteController::class, 'create']);
 $router->post('/uitgiften', [UitgifteController::class, 'store']);
 $router->get('/uitgiften/{id}', [UitgifteController::class, 'show']);
 $router->post('/uitgiften/{id}/retour', [UitgifteController::class, 'retour']);
+
+$router->get('/account', [AccountController::class, 'profiel']);
+$router->get('/account/bewerken', [AccountController::class, 'bewerken']);
+$router->post('/account', [AccountController::class, 'bijwerken']);
+
+$router->get('/beheer', [BeheerController::class, 'index']);
+$router->post('/beheer/git-pull', [BeheerController::class, 'gitPull']);
+$router->post('/beheer/database-parsen', [BeheerController::class, 'databaseParsen']);
+
+$router->get('/beheer/rechten', [RechtenController::class, 'index']);
+$router->get('/beheer/rechten/{id}', [RechtenController::class, 'bewerken']);
+$router->post('/beheer/rechten/{id}', [RechtenController::class, 'bijwerken']);
+
+$router->get('/beheer/log', [LogController::class, 'index']);
+
+$router->get('/privacybeleid', [LegalController::class, 'privacybeleid']);
 
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

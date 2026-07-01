@@ -25,7 +25,7 @@ class UitgifteController extends CrudController
 
     public function create(): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'schrijven');
 
         $this->render("{$this->viewDir}/create", [
             'barcode' => $_GET['barcode'] ?? '',
@@ -37,7 +37,7 @@ class UitgifteController extends CrudController
 
     public function store(): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'schrijven');
 
         $barcode = trim($_POST['barcode'] ?? '');
         $medewerkerNaam = trim($_POST['medewerker_naam'] ?? '');
@@ -71,7 +71,7 @@ class UitgifteController extends CrudController
 
     public function retour(int $id): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'schrijven');
         $uitgifte = UitgifteModel::findWithRelations($id);
 
         if ($uitgifte === null) {
@@ -91,7 +91,7 @@ class UitgifteController extends CrudController
 
     public function namen(): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'lezen');
         $q = trim($_GET['q'] ?? '');
 
         header('Content-Type: application/json');
@@ -100,7 +100,7 @@ class UitgifteController extends CrudController
 
     public function items(): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'lezen');
         $q = trim($_GET['q'] ?? '');
         $items = VoorraadItemModel::searchAvailable($q);
 

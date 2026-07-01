@@ -37,7 +37,7 @@ class VoorraadController extends CrudController
 
     public function store(): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'schrijven');
 
         $typeId = (int) ($_POST['type_id'] ?? 0);
         $type = VoorraadTypeModel::find($typeId);
@@ -81,7 +81,7 @@ class VoorraadController extends CrudController
 
     public function update(int $id): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'schrijven');
         $item = VoorraadItemModel::find($id);
 
         if ($item === null) {
@@ -120,7 +120,7 @@ class VoorraadController extends CrudController
 
     public function show(int $id): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'lezen');
         $item = VoorraadItemModel::findWithRelations($id);
 
         if ($item === null) {
@@ -140,7 +140,7 @@ class VoorraadController extends CrudController
 
     public function barcode(int $id): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'lezen');
         $item = VoorraadItemModel::findWithRelations($id);
 
         if ($item === null) {

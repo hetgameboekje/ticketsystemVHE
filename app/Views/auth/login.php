@@ -16,5 +16,8 @@
       </div>
       <button class="btn btn-primary" type="submit" style="width:100%;justify-content:center">Inloggen</button>
     </form>
+    <div style="text-align:center;margin-top:16px">
+      <a href="/privacybeleid" style="font-size:12px;color:var(--color-text-secondary)">Privacybeleid</a>
+    </div>
   </div>
 </div>

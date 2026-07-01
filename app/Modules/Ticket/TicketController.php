@@ -58,7 +58,7 @@ class TicketController extends CrudController
 
     public function show(int $id): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'lezen');
         $item = TicketModel::findWithRelations($id);
 
         if ($item === null) {
@@ -78,7 +78,7 @@ class TicketController extends CrudController
 
     public function export(): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'lezen');
 
         $content = TicketExcel::export();
 
@@ -90,7 +90,7 @@ class TicketController extends CrudController
 
     public function import(): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'schrijven');
 
         if (empty($_FILES['bestand']['tmp_name']) || $_FILES['bestand']['error'] !== UPLOAD_ERR_OK) {
             $_SESSION['flash_error'] = 'Geen geldig Excel-bestand ontvangen.';

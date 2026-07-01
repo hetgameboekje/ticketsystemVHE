@@ -66,7 +66,7 @@ class CyberRisicoController extends CrudController
 
     public function store(): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'schrijven');
         $data = $this->validatedData($_POST);
 
         if ($data['titel'] === '' || $data['omschrijving'] === '') {
@@ -81,7 +81,7 @@ class CyberRisicoController extends CrudController
 
     public function update(int $id): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'schrijven');
         $data = $this->validatedData($_POST, isUpdate: true);
 
         if ($data['titel'] === '' || $data['omschrijving'] === '') {

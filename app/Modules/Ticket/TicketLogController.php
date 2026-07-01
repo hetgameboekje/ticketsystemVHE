@@ -10,7 +10,7 @@ class TicketLogController extends Controller
 {
     public function store(int $ticketId): void
     {
-        $this->requireAuth();
+        $this->requirePermission('tickets', 'schrijven');
 
         $ticket = TicketModel::find($ticketId);
         if ($ticket === null) {

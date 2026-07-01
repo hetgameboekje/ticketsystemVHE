@@ -2,6 +2,8 @@
 
 namespace App\Core;
 
+use App\Shared\Rechten\Models\RechtenModel;
+
 abstract class Controller
 {
     protected function render(string $view, array $data = []): void
@@ -42,5 +44,41 @@ abstract class Controller
         if (empty($_SESSION['user'])) {
             $this->redirect('/login');
         }
+    }
+
+    /** Alleen toegankelijk voor gebruikers met rol 'admin' — gebruikt door Beheer/Rechten/Log. */
+    protected function requireAdmin(): void
+    {
+        $this->requireAuth();
+        if (($this->currentUser()['rol'] ?? '') !== 'admin') {
+            $this->forbidden();
+        }
+    }
+
+    /**
+     * Controleert de granulaire rechtenmatrix voor een module. Admins hebben altijd
+     * volledige toegang; andere gebruikers hebben expliciet toegekende rechten nodig.
+     */
+    protected function requirePermission(string $module, string $actie): void
+    {
+        $this->requireAuth();
+
+        if (($this->currentUser()['rol'] ?? '') === 'admin') {
+            return;
+        }
+
+        if (!RechtenModel::has((int) $this->currentUserId(), $module, $actie)) {
+            $this->forbidden();
+        }
+    }
+
+    protected function forbidden(): void
+    {
+        http_response_code(403);
+        $this->render('Views/errors/403', [
+            'activeModule' => '',
+            'pageTitle' => 'Geen toegang',
+        ]);
+        exit;
     }
 }

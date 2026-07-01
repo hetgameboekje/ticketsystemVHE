@@ -98,11 +98,32 @@ $active = $activeModule ?? '';
                     <i class="bi bi-moon-stars"></i>
                 </button>
                 <?php if ($currentUser): ?>
-                    <span class="text-muted small"><?= htmlspecialchars($currentUser['naam']) ?></span>
-                    <div class="avatar"><?= htmlspecialchars(initials($currentUser['naam'])) ?></div>
-                    <form method="post" action="/logout" class="m-0">
-                        <button class="btn btn-outline-secondary btn-sm" type="submit">Uitloggen</button>
-                    </form>
+                    <div class="dropdown">
+                        <a class="d-flex align-items-center gap-2 text-decoration-none dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="text-muted small"><?= htmlspecialchars($currentUser['naam']) ?></span>
+                            <?php if (!empty($currentUser['foto'])): ?>
+                                <img src="<?= htmlspecialchars($currentUser['foto']) ?>" alt="" class="avatar" style="object-fit:cover">
+                            <?php else: ?>
+                                <div class="avatar"><?= htmlspecialchars(initials($currentUser['naam'])) ?></div>
+                            <?php endif; ?>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="/account"><i class="bi bi-person me-2"></i>Mijn profiel</a></li>
+                            <?php if (($currentUser['rol'] ?? '') === 'admin'): ?>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/beheer/rechten"><i class="bi bi-shield-lock me-2"></i>Rechten</a></li>
+                                <li><a class="dropdown-item" href="/beheer"><i class="bi bi-gear me-2"></i>Beheer</a></li>
+                                <li><a class="dropdown-item" href="/beheer/log"><i class="bi bi-clock-history me-2"></i>Log</a></li>
+                            <?php endif; ?>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/privacybeleid"><i class="bi bi-file-earmark-text me-2"></i>Privacybeleid</a></li>
+                            <li>
+                                <form method="post" action="/logout" class="m-0">
+                                    <button class="dropdown-item" type="submit"><i class="bi bi-box-arrow-right me-2"></i>Uitloggen</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>

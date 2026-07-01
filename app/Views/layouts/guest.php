@@ -1,12 +1,13 @@
 <?php
 /** @var string $content */
+/** @var string|null $pageTitle */
 ?>
 <!DOCTYPE html>
 <html lang="nl" data-bs-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inloggen · Intranet</title>
+<title><?= htmlspecialchars($pageTitle ?? 'Inloggen') ?> · Intranet</title>
 <script>
     (function () {
         var theme = localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';

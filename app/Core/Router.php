@@ -2,6 +2,8 @@
 
 namespace App\Core;
 
+use App\Shared\Log\PaginaBezoekLogger;
+
 class Router
 {
     private array $routes = [];
@@ -39,6 +41,8 @@ class Router
             if (preg_match($regex, $path, $matches)) {
                 array_shift($matches);
                 $params = array_map('intval', $matches);
+
+                PaginaBezoekLogger::log($method, $path);
 
                 [$class, $action] = $handler;
                 $controller = new $class();

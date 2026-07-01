@@ -13,7 +13,7 @@ abstract class CrudController extends Controller
 
     public function index(): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'lezen');
         $allItems = ($this->modelClass)::allWithRelations();
         $filterOptions = $this->filterOptions($allItems);
 
@@ -51,7 +51,7 @@ abstract class CrudController extends Controller
 
     public function create(): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'schrijven');
 
         $this->render("{$this->viewDir}/create", array_merge($this->formData(), [
             'activeModule' => $this->activeModule,
@@ -62,7 +62,7 @@ abstract class CrudController extends Controller
 
     public function store(): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'schrijven');
         $data = $this->validatedData($_POST);
         $id = ($this->modelClass)::create($data);
         $this->redirect("/{$this->routeBase}/{$id}");
@@ -70,7 +70,7 @@ abstract class CrudController extends Controller
 
     public function show(int $id): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'lezen');
         $item = ($this->modelClass)::findWithRelations($id);
 
         if ($item === null) {
@@ -88,7 +88,7 @@ abstract class CrudController extends Controller
 
     public function edit(int $id): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'schrijven');
         $item = ($this->modelClass)::find($id);
 
         if ($item === null) {
@@ -106,7 +106,7 @@ abstract class CrudController extends Controller
 
     public function update(int $id): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'schrijven');
         $data = $this->validatedData($_POST, isUpdate: true);
         ($this->modelClass)::update($id, $data);
         $this->redirect("/{$this->routeBase}/{$id}");
@@ -114,7 +114,7 @@ abstract class CrudController extends Controller
 
     public function destroy(int $id): void
     {
-        $this->requireAuth();
+        $this->requirePermission($this->activeModule, 'verwijderen');
         ($this->modelClass)::delete($id);
         $_SESSION['flash_success'] = 'Item is inactief gezet en niet meer zichtbaar in het overzicht.';
         $this->redirect("/{$this->routeBase}");
