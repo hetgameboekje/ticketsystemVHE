@@ -5,6 +5,10 @@
 /** @var int $cyberrisicosOpen */
 /** @var array $cyberrisicosPerDag */
 /** @var array $cyberrisicosByDate */
+/** @var array $afdelingen */
+/** @var array $gebruikers */
+/** @var array $cyberCategorieen */
+/** @var array $cyberPrioriteiten */
 
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 
@@ -56,18 +60,18 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <h1 class="h3 mb-0">Dashboard</h1>
 
-    <div class="d-flex flex-wrap gap-2">
-        <a class="btn btn-primary" href="/tickets/create">+ Nieuw ticket</a>
-
-        <a class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" href="/cyberrisicos/create" title="Cyberrisico melden">
-            <i class="bi bi-shield-exclamation"></i>
-            <span>Risico melden</span>
+    <div class="d-flex gap-2">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#dashTicketModal">
+            <i class="bi bi-plus-circle"></i> Nieuw ticket
+        </button>
+        <button type="button" class="btn btn-outline-secondary position-relative" data-bs-toggle="modal" data-bs-target="#dashRisicoModal">
+            <i class="bi bi-shield-exclamation"></i> Risico melden
             <?php if ($cyberrisicosOpen > 0): ?>
                 <span class="badge rounded-pill text-bg-danger">
                     <?= (int) $cyberrisicosOpen ?>
                 </span>
             <?php endif; ?>
-        </a>
+        </button>
     </div>
 </div>
 
@@ -135,7 +139,7 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
     <div class="col-12 col-lg-6 d-flex">
         <div class="card shadow-sm w-100 h-100">
             <div class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <span class="fw-semibold">Mijn agenda</span>
+                <a class="fw-semibold text-decoration-none" href="/agenda">Mijn agenda</a>
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                     <input type="date" id="dashAgendaDatum" class="form-control form-control-sm" style="width:auto;">
                     <button class="btn btn-sm btn-primary" type="button" id="dashAgendaNieuwBtn">+ Toevoegen</button>
@@ -145,10 +149,165 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
             <div class="card-body py-2" id="dashAgendaLijst">
                 <div class="text-body-secondary">Laden...</div>
             </div>
+        </div>
+    </div>
+</div>
 
-            <div class="card-footer bg-body border-top-0 pt-0">
-                <a class="btn btn-sm btn-outline-secondary" href="/agenda">Volledige agenda &rarr;</a>
-            </div>
+<div class="modal fade" id="dashTicketModal" tabindex="-1" aria-labelledby="dashTicketModalTitel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="post" action="/tickets">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dashTicketModalTitel">Nieuw ticket</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Opdrachtgever</label>
+                            <input type="text" class="form-control" name="opdrachtgever_naam" required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Afdeling</label>
+                            <select class="form-select" name="afdeling_id">
+                                <option value="">— Selecteer afdeling —</option>
+                                <?php foreach ($afdelingen as $a): ?>
+                                    <option value="<?= $a['id'] ?>"><?= htmlspecialchars($a['naam']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Taak (korte titel)</label>
+                            <input type="text" class="form-control" name="titel" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Omschrijving</label>
+                            <textarea class="form-control" name="omschrijving" style="min-height:100px"></textarea>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Prioriteit</label>
+                            <select class="form-select" name="prioriteit">
+                                <option value="laag">Laag</option>
+                                <option value="normaal" selected>Normaal</option>
+                                <option value="hoog">Hoog</option>
+                                <option value="kritiek">Kritiek</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Impact</label>
+                            <select class="form-select" name="impact">
+                                <option>Laag</option>
+                                <option selected>Normaal</option>
+                                <option>Hoog — afdeling</option>
+                                <option>Kritiek — productie</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Schatting (minuten)</label>
+                            <input type="number" class="form-control" step="1" name="schatting_minuten">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Deadline</label>
+                            <input type="date" class="form-control" name="deadline">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Behandelaar</label>
+                            <select class="form-select" name="behandelaar_id">
+                                <option value="">— Niet toegewezen —</option>
+                                <?php foreach ($gebruikers as $g): ?>
+                                    <option value="<?= $g['id'] ?>"><?= htmlspecialchars($g['naam']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+                    <button type="submit" class="btn btn-primary">Ticket aanmaken</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="dashRisicoModal" tabindex="-1" aria-labelledby="dashRisicoModalTitel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="post" action="/cyberrisicos">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dashRisicoModalTitel">Risico melden</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Titel</label>
+                            <input type="text" class="form-control" name="titel" required placeholder="bv. Sticky note met wachtwoord onder toetsenbord">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Omschrijving</label>
+                            <textarea class="form-control" name="omschrijving" style="min-height:100px" required></textarea>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Type risico</label>
+                            <select class="form-select" name="categorie">
+                                <?php foreach ($cyberCategorieen as $val => $label): ?>
+                                    <option value="<?= $val ?>"><?= htmlspecialchars($label) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Prioriteit</label>
+                            <select class="form-select" name="prioriteit">
+                                <?php foreach ($cyberPrioriteiten as $val => $label): ?>
+                                    <option value="<?= $val ?>" <?= $val === 'middel' ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Locatie</label>
+                            <input type="text" class="form-control" name="locatie" placeholder="bv. Serverroom, receptie, kantoor 2e verdieping">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Gemeld door</label>
+                            <input type="text" class="form-control" name="gemeld_door" placeholder="Naam van de melder">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Eigenaar (verantwoordelijk voor opvolging)</label>
+                            <select class="form-select" name="eigenaar_id">
+                                <option value="">— Niet toegewezen —</option>
+                                <?php foreach ($gebruikers as $g): ?>
+                                    <option value="<?= $g['id'] ?>"><?= htmlspecialchars($g['naam']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Datum geconstateerd</label>
+                            <input type="date" class="form-control" name="datum_geconstateerd">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Oplossingsadvies</label>
+                            <textarea class="form-control" name="oplossingsadvies" placeholder="Wat moet er gebeuren om dit risico weg te nemen?"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Bewijs / notities</label>
+                            <textarea class="form-control" name="bewijs_notities" placeholder="Waar/wanneer geconstateerd, foto-locatie, extra context..."></textarea>
+                        </div>
+                        <div class="col-12 form-check">
+                            <input class="form-check-input" type="checkbox" id="dashRisicoGevoelig" name="is_gevoelig" value="1">
+                            <label class="form-check-label" for="dashRisicoGevoelig">Bevat gevoelige informatie (bijv. echte wachtwoorden, credentials) — wees terughoudend met details hierboven</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+                    <button type="submit" class="btn btn-primary">Risico registreren</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -220,7 +379,7 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
     <?php else: ?>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+                <thead>
                     <tr>
                         <th style="width: 90px;">#</th>
                         <th>Taak</th>
@@ -260,7 +419,7 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
     <?php else: ?>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+                <thead>
                     <tr>
                         <th>Type</th>
                         <th style="width: 100px;">Code</th>
