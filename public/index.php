@@ -4,6 +4,7 @@ require __DIR__ . '/../app/bootstrap.php';
 
 use App\Core\Router;
 use App\Modules\Account\AccountController;
+use App\Modules\Agenda\AgendaController;
 use App\Modules\Beheer\BeheerController;
 use App\Modules\Beheer\LogController;
 use App\Modules\Beheer\RechtenController;
@@ -65,6 +66,12 @@ $router->get('/uitgiften/create', [UitgifteController::class, 'create']);
 $router->post('/uitgiften', [UitgifteController::class, 'store']);
 $router->get('/uitgiften/{id}', [UitgifteController::class, 'show']);
 $router->post('/uitgiften/{id}/retour', [UitgifteController::class, 'retour']);
+
+$router->get('/agenda', [AgendaController::class, 'index']);
+$router->get('/agenda/events', [AgendaController::class, 'events']);
+$router->post('/agenda', [AgendaController::class, 'store']);
+$router->post('/agenda/{id}', [AgendaController::class, 'update']);
+$router->post('/agenda/{id}/verwijderen', [AgendaController::class, 'destroy']);
 
 $router->get('/account', [AccountController::class, 'profiel']);
 $router->get('/account/bewerken', [AccountController::class, 'bewerken']);

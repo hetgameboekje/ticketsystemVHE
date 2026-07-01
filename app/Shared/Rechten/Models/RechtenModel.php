@@ -12,6 +12,7 @@ class RechtenModel extends Model
 
     /** Alle modules die via de rechtenmatrix worden beheerd (module-key zoals gebruikt in $activeModule). */
     public const MODULES = [
+        'agenda' => 'Agenda',
         'tickets' => 'Ticket systeem',
         'verbeterpunten' => 'Verbeterpunten',
         'reflecties' => 'Reflectie',

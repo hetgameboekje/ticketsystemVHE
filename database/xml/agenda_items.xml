@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="agenda_items" engine="InnoDB">
+  <columns>
+    <column name="id" type="INT" primary="true" auto_increment="true"/>
+    <column name="titel" type="VARCHAR" length="255" nullable="false"/>
+    <column name="omschrijving" type="TEXT"/>
+    <column name="start_op" type="DATETIME" nullable="false"/>
+    <column name="eind_op" type="DATETIME" nullable="false"/>
+    <column name="type" type="VARCHAR" length="20" nullable="false" default="'afspraak'"/>
+    <column name="gekoppeld_id" type="INT"/>
+    <column name="locatie" type="VARCHAR" length="150"/>
+    <column name="user_id" type="INT" nullable="false"/>
+    <column name="aangemaakt_door_id" type="INT"/>
+    <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
+    <column name="updated_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP" on_update="CURRENT_TIMESTAMP"/>
+    <column name="deleted_at" type="TIMESTAMP"/>
+  </columns>
+</table>

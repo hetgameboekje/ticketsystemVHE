@@ -237,17 +237,72 @@ $chartData = array_map(fn (array $d) => $d['aantal'], $cyberrisicosPerDag);
   </div>
 </div>
 
-<div class="row g-2 mb-3">
-  <div class="col-12 col-md-6">
-    <div class="card" style="margin-bottom:0">
+<div class="row g-2 mb-3 align-items-stretch">
+  <div class="col-12 col-md-6 d-flex">
+    <div class="card" style="margin-bottom:0;height:100%;width:100%;display:flex;flex-direction:column">
       <div class="card-header">
         <span class="card-title">Gemelde cyberrisico's — laatste 30 dagen</span>
         <a class="btn" href="/cyberrisicos" style="font-size:12px">Alle risico's &rarr;</a>
       </div>
-      <div style="padding:16px">
+      <div style="padding:16px;flex:1;display:flex;flex-direction:column;justify-content:center">
         <div style="position:relative;height:220px">
           <canvas id="cyberrisicoChart"></canvas>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6 d-flex">
+    <div class="card" style="margin-bottom:0;height:100%;width:100%;display:flex;flex-direction:column">
+      <div class="card-header">
+        <span class="card-title">Mijn agenda</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="date" id="dashAgendaDatum" style="width:auto;padding:5px 8px;font-size:13px">
+          <button class="btn btn-primary" type="button" id="dashAgendaNieuwBtn" style="font-size:12px;padding:5px 10px">+ Toevoegen</button>
+        </div>
+      </div>
+      <div style="padding:8px 16px;flex:1;overflow:auto" id="dashAgendaLijst">
+        <div class="empty-state">Laden...</div>
+      </div>
+      <div style="padding:0 16px 16px">
+        <a class="btn" href="/agenda" style="font-size:12px">Volledige agenda &rarr;</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="dashAgendaModal" tabindex="-1" aria-labelledby="dashAgendaModalTitel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="dashAgendaModalTitel">Nieuwe afspraak</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="dashAgendaId" value="">
+        <div class="form-group">
+          <label class="form-label">Titel</label>
+          <input type="text" id="dashAgendaTitel" required>
+        </div>
+        <div class="form-grid" style="grid-template-columns:1fr 1fr">
+          <div class="form-group">
+            <label class="form-label">Start</label>
+            <input type="time" id="dashAgendaStart" value="09:00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Einde</label>
+            <input type="time" id="dashAgendaEind" value="10:00">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Locatie</label>
+          <input type="text" id="dashAgendaLocatie">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger d-none" id="dashAgendaVerwijderBtn">Verwijderen</button>
+        <button type="button" class="btn" data-bs-dismiss="modal">Annuleren</button>
+        <button type="button" class="btn btn-primary" id="dashAgendaOpslaanBtn">Opslaan</button>
       </div>
     </div>
   </div>
@@ -435,5 +490,137 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var datumInput = document.getElementById('dashAgendaDatum');
+    var lijst = document.getElementById('dashAgendaLijst');
+    var modalEl = document.getElementById('dashAgendaModal');
+    if (!datumInput || !modalEl) {
+        return;
+    }
+    var modal = new bootstrap.Modal(modalEl);
+
+    function vandaagStr() {
+        var d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function volgendeDagStr(dateStr) {
+        var d = new Date(dateStr + 'T00:00:00');
+        d.setDate(d.getDate() + 1);
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function tijd(iso) {
+        return iso.slice(11, 16);
+    }
+
+    function laadDag() {
+        var datum = datumInput.value || vandaagStr();
+        lijst.innerHTML = '<div class="empty-state">Laden...</div>';
+
+        fetch('/agenda/events?start=' + datum + 'T00:00:00&end=' + volgendeDagStr(datum) + 'T00:00:00')
+            .then(function (r) { return r.json(); })
+            .then(function (events) {
+                if (!events.length) {
+                    lijst.innerHTML = '<div class="empty-state">Geen afspraken op deze dag.</div>';
+                    return;
+                }
+                lijst.innerHTML = '';
+                events.forEach(function (ev) {
+                    var row = document.createElement('div');
+                    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--color-border-tertiary);cursor:pointer';
+                    row.innerHTML =
+                        '<span style="width:8px;height:8px;border-radius:50%;background:' + ev.color + ';flex-shrink:0"></span>' +
+                        '<span style="font-size:12px;color:var(--color-text-secondary);white-space:nowrap">' + tijd(ev.start) + '&ndash;' + tijd(ev.end) + '</span>' +
+                        '<span class="text-truncate d-block" style="font-size:13px">' + ev.title.replace(/</g, '&lt;') + '</span>';
+                    row.addEventListener('click', function () {
+                        openBewerken(ev);
+                    });
+                    lijst.appendChild(row);
+                });
+            });
+    }
+
+    function openNieuw() {
+        document.getElementById('dashAgendaModalTitel').textContent = 'Nieuwe afspraak';
+        document.getElementById('dashAgendaId').value = '';
+        document.getElementById('dashAgendaTitel').value = '';
+        document.getElementById('dashAgendaLocatie').value = '';
+        document.getElementById('dashAgendaStart').value = '09:00';
+        document.getElementById('dashAgendaEind').value = '10:00';
+        document.getElementById('dashAgendaVerwijderBtn').classList.add('d-none');
+        modal.show();
+    }
+
+    function openBewerken(ev) {
+        document.getElementById('dashAgendaModalTitel').textContent = 'Afspraak bewerken';
+        document.getElementById('dashAgendaId').value = ev.id;
+        document.getElementById('dashAgendaTitel').value = ev.title;
+        document.getElementById('dashAgendaLocatie').value = ev.extendedProps.locatie || '';
+        document.getElementById('dashAgendaStart').value = tijd(ev.start);
+        document.getElementById('dashAgendaEind').value = tijd(ev.end);
+        document.getElementById('dashAgendaVerwijderBtn').classList.remove('d-none');
+        modal.show();
+    }
+
+    document.getElementById('dashAgendaNieuwBtn').addEventListener('click', openNieuw);
+    datumInput.addEventListener('change', laadDag);
+
+    document.getElementById('dashAgendaOpslaanBtn').addEventListener('click', function () {
+        var datum = datumInput.value || vandaagStr();
+        var id = document.getElementById('dashAgendaId').value;
+        var titel = document.getElementById('dashAgendaTitel').value.trim();
+        var start = document.getElementById('dashAgendaStart').value;
+        var eind = document.getElementById('dashAgendaEind').value;
+
+        if (!titel || !start || !eind) {
+            window.alert('Titel, start en einde zijn verplicht.');
+            return;
+        }
+
+        var payload = {
+            titel: titel,
+            start_op: datum + 'T' + start,
+            eind_op: datum + 'T' + eind,
+            locatie: document.getElementById('dashAgendaLocatie').value
+        };
+        if (!id) {
+            payload.type = 'afspraak';
+        }
+
+        var url = id ? '/agenda/' + id : '/agenda';
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }).then(function (r) { return r.json(); }).then(function (res) {
+            if (res.success) {
+                modal.hide();
+                laadDag();
+            } else {
+                window.alert(res.error || 'Opslaan is mislukt.');
+            }
+        });
+    });
+
+    document.getElementById('dashAgendaVerwijderBtn').addEventListener('click', function () {
+        var id = document.getElementById('dashAgendaId').value;
+        if (!id || !window.confirm('Deze afspraak verwijderen?')) {
+            return;
+        }
+        fetch('/agenda/' + id + '/verwijderen', { method: 'POST' })
+            .then(function (r) { return r.json(); })
+            .then(function () {
+                modal.hide();
+                laadDag();
+            });
+    });
+
+    datumInput.value = vandaagStr();
+    laadDag();
 });
 </script>

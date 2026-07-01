@@ -57,6 +57,10 @@ $active = $activeModule ?? '';
                     <a class="nav-link<?= navActive('dashboard', $active) ?>" href="/">Dashboard</a>
                 </li>
 
+                <li class="nav-item">
+                    <a class="nav-link<?= navActive('agenda', $active) ?>" href="/agenda">Agenda</a>
+                </li>
+
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle<?= dropdownActive(['tickets', 'verbeterpunten', 'reflecties', 'kennisbank', 'voorraad', 'uitgiften', 'printers', 'cyberrisicos'], $active) ?>"
                        href="#"
