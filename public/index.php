@@ -82,8 +82,13 @@ $router->post('/beheer/git-pull', [BeheerController::class, 'gitPull']);
 $router->post('/beheer/database-parsen', [BeheerController::class, 'databaseParsen']);
 
 $router->get('/beheer/rechten', [RechtenController::class, 'index']);
+$router->get('/beheer/rechten/nieuw', [RechtenController::class, 'aanmaken']);
+$router->post('/beheer/rechten', [RechtenController::class, 'opslaan']);
 $router->get('/beheer/rechten/{id}', [RechtenController::class, 'bewerken']);
 $router->post('/beheer/rechten/{id}', [RechtenController::class, 'bijwerken']);
+$router->post('/beheer/rechten/{id}/gebruiker', [RechtenController::class, 'gebruikerBijwerken']);
+$router->post('/beheer/rechten/{id}/wachtwoord', [RechtenController::class, 'wachtwoordWijzigen']);
+$router->post('/beheer/rechten/{id}/verwijderen', [RechtenController::class, 'verwijderen']);
 
 $router->get('/beheer/log', [LogController::class, 'index']);
 

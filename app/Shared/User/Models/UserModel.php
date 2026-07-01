@@ -18,6 +18,20 @@ class UserModel extends Model
         return $row === false ? null : $row;
     }
 
+    public static function emailExists(string $email, ?int $exceptId = null): bool
+    {
+        $sql = 'SELECT 1 FROM users WHERE LOWER(email) = LOWER(?)';
+        $params = [$email];
+        if ($exceptId !== null) {
+            $sql .= ' AND id != ?';
+            $params[] = $exceptId;
+        }
+
+        $stmt = Database::pdo()->prepare($sql . ' LIMIT 1');
+        $stmt->execute($params);
+        return $stmt->fetchColumn() !== false;
+    }
+
     public static function authenticate(string $email, string $password): ?array
     {
         $user = self::findByEmail($email);
