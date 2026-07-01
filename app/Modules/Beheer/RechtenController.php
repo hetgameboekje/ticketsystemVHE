@@ -4,7 +4,6 @@ namespace App\Modules\Beheer;
 
 use App\Core\Controller;
 use App\Core\Table;
-use App\Modules\Ticket\Models\TicketModel;
 use App\Shared\Rechten\Models\RechtenModel;
 use App\Shared\User\Models\UserModel;
 
@@ -15,6 +14,7 @@ class RechtenController extends Controller
         $this->requireAdmin();
 
         $gebruikers = UserModel::all('naam ASC');
+        $gedeactiveerd = UserModel::allGedeactiveerd('naam ASC');
 
         $flashSuccess = $_SESSION['flash_success'] ?? null;
         $flashError = $_SESSION['flash_error'] ?? null;
@@ -32,8 +32,8 @@ class RechtenController extends Controller
                 }
 
                 return '<form method="post" action="/beheer/rechten/' . (int) $g['id'] . '/verwijderen" '
-                    . 'onsubmit="return confirm(\'Gebruiker ' . htmlspecialchars(addslashes($g['naam']), ENT_QUOTES) . ' definitief verwijderen?\')">'
-                    . '<button class="btn" type="submit" title="Verwijderen"><i class="bi bi-trash"></i></button></form>';
+                    . 'onsubmit="return confirm(\'Login van ' . htmlspecialchars(addslashes($g['naam']), ENT_QUOTES) . ' deactiveren? De gebruiker kan dan niet meer inloggen, maar blijft zichtbaar in de historie.\')">'
+                    . '<button class="btn" type="submit" title="Deactiveren"><i class="bi bi-trash"></i></button></form>';
             }, ['class' => 'col-1', 'sortable' => false, 'stopPropagation' => true])
             ->rows($gebruikers);
 
@@ -42,6 +42,20 @@ class RechtenController extends Controller
             . ($flashSuccess ? '<div class="alert alert-success">' . htmlspecialchars($flashSuccess) . '</div>' : '')
             . ($flashError ? '<div class="alert alert-error">' . htmlspecialchars($flashError) . '</div>' : '')
             . '<div class="card">' . $table->render() . '</div>';
+
+        if ($gedeactiveerd !== []) {
+            $deactiefTable = (new Table())
+                ->rowUrl(fn (array $g) => '/beheer/rechten/' . (int) $g['id'])
+                ->column('naam', 'Naam', fn (array $g) => htmlspecialchars($g['naam']), ['class' => 'col-3', 'sortable' => false])
+                ->column('email', 'E-mailadres', fn (array $g) => htmlspecialchars($g['email']), ['sortable' => false])
+                ->column('acties', '', fn (array $g) => '<form method="post" action="/beheer/rechten/' . (int) $g['id'] . '/heractiveren">'
+                    . '<button class="btn" type="submit" title="Heractiveren"><i class="bi bi-arrow-counterclockwise"></i></button></form>',
+                    ['class' => 'col-1', 'sortable' => false, 'stopPropagation' => true])
+                ->rows($gedeactiveerd);
+
+            $content .= '<div class="page-header" style="margin-top:24px"><div class="page-title" style="font-size:16px">Gedeactiveerde gebruikers</div></div>'
+                . '<div class="card">' . $deactiefTable->render() . '</div>';
+        }
 
         $this->renderContent($content, [
             'activeModule' => 'beheer',
@@ -97,7 +111,7 @@ class RechtenController extends Controller
     {
         $this->requireAdmin();
 
-        $gebruiker = UserModel::find($id);
+        $gebruiker = UserModel::findIncludingDeleted($id);
         if ($gebruiker === null) {
             http_response_code(404);
             echo 'Gebruiker niet gevonden.';
@@ -124,7 +138,7 @@ class RechtenController extends Controller
     {
         $this->requireAdmin();
 
-        $gebruiker = UserModel::find($id);
+        $gebruiker = UserModel::findIncludingDeleted($id);
         if ($gebruiker === null) {
             http_response_code(404);
             echo 'Gebruiker niet gevonden.';
@@ -159,7 +173,7 @@ class RechtenController extends Controller
     {
         $this->requireAdmin();
 
-        $gebruiker = UserModel::find($id);
+        $gebruiker = UserModel::findIncludingDeleted($id);
         if ($gebruiker === null) {
             http_response_code(404);
             echo 'Gebruiker niet gevonden.';
@@ -187,6 +201,7 @@ class RechtenController extends Controller
         $this->redirect('/beheer/rechten/' . $id);
     }
 
+    /** "Verwijderen" deactiveert de login (soft delete): de rij, rechten en historische verwijzingen blijven bewaard. */
     public function verwijderen(int $id): void
     {
         $this->requireAdmin();
@@ -199,30 +214,39 @@ class RechtenController extends Controller
         }
 
         if ($id === $this->currentUserId()) {
-            $_SESSION['flash_error'] = 'Je kunt je eigen account niet verwijderen.';
+            $_SESSION['flash_error'] = 'Je kunt je eigen account niet deactiveren.';
             $this->redirect('/beheer/rechten');
             return;
         }
 
-        $ticketsAantal = TicketModel::countByBehandelaar($id);
-        if ($ticketsAantal > 0) {
-            $_SESSION['flash_error'] = "Kan {$gebruiker['naam']} niet verwijderen: nog behandelaar van {$ticketsAantal} ticket(s). Wijs deze eerst opnieuw toe.";
-            $this->redirect('/beheer/rechten/' . $id);
+        UserModel::delete($id);
+
+        $_SESSION['flash_success'] = "Gebruiker {$gebruiker['naam']} gedeactiveerd. De login kan niet meer inloggen, maar blijft zichtbaar in de historie.";
+        $this->redirect('/beheer/rechten');
+    }
+
+    public function heractiveren(int $id): void
+    {
+        $this->requireAdmin();
+
+        $gebruiker = UserModel::findIncludingDeleted($id);
+        if ($gebruiker === null) {
+            http_response_code(404);
+            echo 'Gebruiker niet gevonden.';
             return;
         }
 
-        RechtenModel::deleteForUser($id);
-        UserModel::delete($id);
+        UserModel::restore($id);
 
-        $_SESSION['flash_success'] = "Gebruiker {$gebruiker['naam']} verwijderd.";
-        $this->redirect('/beheer/rechten');
+        $_SESSION['flash_success'] = "Gebruiker {$gebruiker['naam']} heractiveerd en kan weer inloggen.";
+        $this->redirect('/beheer/rechten/' . $id);
     }
 
     public function bijwerken(int $id): void
     {
         $this->requireAdmin();
 
-        $gebruiker = UserModel::find($id);
+        $gebruiker = UserModel::findIncludingDeleted($id);
         if ($gebruiker === null) {
             http_response_code(404);
             echo 'Gebruiker niet gevonden.';

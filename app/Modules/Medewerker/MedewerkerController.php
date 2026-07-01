@@ -17,7 +17,31 @@ class MedewerkerController extends CrudController
 
     protected function formData(): array
     {
-        return ['afdelingen' => AfdelingModel::all()];
+        return [
+            'afdelingen' => AfdelingModel::all(),
+            'gebruikers' => MedewerkerModel::beschikbareGebruikers(),
+        ];
+    }
+
+    public function edit(int $id): void
+    {
+        $this->requirePermission($this->activeModule, 'schrijven');
+
+        $item = MedewerkerModel::find($id);
+        if ($item === null) {
+            http_response_code(404);
+            echo 'Niet gevonden.';
+            return;
+        }
+
+        $this->render("{$this->viewDir}/edit", [
+            'item' => $item,
+            'afdelingen' => AfdelingModel::all(),
+            'gebruikers' => MedewerkerModel::beschikbareGebruikers($item['user_id'] !== null ? (int) $item['user_id'] : null),
+            'activeModule' => $this->activeModule,
+            'pageTitle' => $this->pageTitle,
+            'routeBase' => $this->routeBase,
+        ]);
     }
 
     protected function validatedData(array $post, bool $isUpdate = false): array
@@ -31,6 +55,7 @@ class MedewerkerController extends CrudController
             'afdeling_id' => $post['afdeling_id'] !== '' ? (int) $post['afdeling_id'] : null,
             'startdatum' => $post['startdatum'] !== '' ? $post['startdatum'] : null,
             'status' => $post['status'] ?? 'actief',
+            'user_id' => !empty($post['user_id']) ? (int) $post['user_id'] : null,
         ];
     }
 }

@@ -9,13 +9,29 @@ class UserModel extends Model
 {
     protected static string $table = 'users';
     protected static array $fillable = ['naam', 'email', 'wachtwoord_hash', 'rol', 'foto'];
+    protected static bool $softDeletes = true;
 
     public static function findByEmail(string $email): ?array
     {
-        $stmt = Database::pdo()->prepare('SELECT * FROM users WHERE email = ?');
+        $stmt = Database::pdo()->prepare('SELECT * FROM users WHERE email = ? AND deleted_at IS NULL');
         $stmt->execute([$email]);
         $row = $stmt->fetch();
         return $row === false ? null : $row;
+    }
+
+    /** Zoals find(), maar vindt ook gedeactiveerde logins — nodig voor Beheer > Rechten om ze te kunnen beheren/heractiveren. */
+    public static function findIncludingDeleted(int $id): ?array
+    {
+        $stmt = Database::pdo()->prepare('SELECT * FROM users WHERE id = ?');
+        $stmt->execute([$id]);
+        $row = $stmt->fetch();
+        return $row === false ? null : $row;
+    }
+
+    public static function allGedeactiveerd(string $orderBy = 'naam ASC'): array
+    {
+        $stmt = Database::pdo()->query("SELECT * FROM users WHERE deleted_at IS NOT NULL ORDER BY {$orderBy}");
+        return $stmt->fetchAll();
     }
 
     public static function emailExists(string $email, ?int $exceptId = null): bool
@@ -50,7 +66,7 @@ class UserModel extends Model
     {
         $naam = trim($naam);
 
-        $stmt = Database::pdo()->prepare('SELECT id FROM users WHERE LOWER(naam) = LOWER(?)');
+        $stmt = Database::pdo()->prepare('SELECT id FROM users WHERE LOWER(naam) = LOWER(?) AND deleted_at IS NULL');
         $stmt->execute([$naam]);
         $id = $stmt->fetchColumn();
 

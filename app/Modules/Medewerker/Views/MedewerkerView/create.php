@@ -1,4 +1,7 @@
-<?php /** @var array $afdelingen */ ?>
+<?php
+/** @var array $afdelingen */
+/** @var array $gebruikers */
+?>
 <div class="page-header">
   <div style="display:flex;align-items:center;gap:12px">
     <a class="btn" href="/medewerkers" style="padding:6px 10px">&larr;</a>
@@ -23,6 +26,15 @@
         </select>
       </div>
       <div class="form-group"><label class="form-label">Startdatum</label><input type="date" name="startdatum"></div>
+      <div class="form-group">
+        <label class="form-label">Gekoppelde login</label>
+        <select name="user_id">
+          <option value="">— Geen login —</option>
+          <?php foreach ($gebruikers as $g): ?>
+            <option value="<?= $g['id'] ?>"><?= htmlspecialchars($g['naam']) ?> (<?= htmlspecialchars($g['email']) ?>)</option>
+          <?php endforeach; ?>
+        </select>
+      </div>
     </div>
     <div style="display:flex;gap:8px;margin-top:8px">
       <button class="btn btn-primary" type="submit">Opslaan</button>

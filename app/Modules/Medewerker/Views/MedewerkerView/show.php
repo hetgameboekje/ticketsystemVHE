@@ -22,5 +22,17 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
     <div class="meta-row"><span class="meta-key">E-mail</span><span><?= htmlspecialchars($item['email'] ?? '—') ?></span></div>
     <div class="meta-row"><span class="meta-key">Telefoon</span><span><?= htmlspecialchars($item['telefoon'] ?? '—') ?></span></div>
     <div class="meta-row"><span class="meta-key">Startdatum</span><span><?= formatDatum($item['startdatum']) ?></span></div>
+    <div class="meta-row">
+      <span class="meta-key">Login</span>
+      <span>
+        <?php if (empty($item['user_id'])): ?>
+          <span class="text-body-secondary">Geen login gekoppeld</span>
+        <?php elseif (!empty($item['login_deleted_at'])): ?>
+          <?= htmlspecialchars($item['login_email']) ?> <span class="text-body-secondary">(gedeactiveerd)</span>
+        <?php else: ?>
+          <?= htmlspecialchars($item['login_email']) ?>
+        <?php endif; ?>
+      </span>
+    </div>
   </div>
 </div>

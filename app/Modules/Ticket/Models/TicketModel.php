@@ -51,13 +51,6 @@ class TicketModel extends Model
         return (int) $stmt->fetchColumn();
     }
 
-    public static function countByBehandelaar(int $userId): int
-    {
-        $stmt = Database::pdo()->prepare('SELECT COUNT(*) FROM tickets WHERE behandelaar_id = ? AND deleted_at IS NULL');
-        $stmt->execute([$userId]);
-        return (int) $stmt->fetchColumn();
-    }
-
     public static function setCreatedAt(int $id, string $date): void
     {
         $stmt = Database::pdo()->prepare('UPDATE tickets SET created_at = ? WHERE id = ?');

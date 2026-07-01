@@ -89,6 +89,7 @@ $router->post('/beheer/rechten/{id}', [RechtenController::class, 'bijwerken']);
 $router->post('/beheer/rechten/{id}/gebruiker', [RechtenController::class, 'gebruikerBijwerken']);
 $router->post('/beheer/rechten/{id}/wachtwoord', [RechtenController::class, 'wachtwoordWijzigen']);
 $router->post('/beheer/rechten/{id}/verwijderen', [RechtenController::class, 'verwijderen']);
+$router->post('/beheer/rechten/{id}/heractiveren', [RechtenController::class, 'heractiveren']);
 
 $router->get('/beheer/log', [LogController::class, 'index']);
 

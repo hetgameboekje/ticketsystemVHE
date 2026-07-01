@@ -10,6 +10,7 @@
     <column name="afdeling_id" type="INT" references="afdelingen.id"/>
     <column name="startdatum" type="DATE"/>
     <column name="status" type="VARCHAR" length="20" nullable="false" default="'actief'"/>
+    <column name="user_id" type="INT" nullable="true" unique="true" references="users.id" on_delete="SET NULL"/>
     <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
     <column name="updated_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP" on_update="CURRENT_TIMESTAMP"/>
     <column name="deleted_at" type="TIMESTAMP"/>

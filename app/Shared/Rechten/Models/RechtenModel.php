@@ -58,12 +58,6 @@ class RechtenModel extends Model
         return $out;
     }
 
-    public static function deleteForUser(int $userId): void
-    {
-        $stmt = Database::pdo()->prepare('DELETE FROM rechten WHERE user_id = ?');
-        $stmt->execute([$userId]);
-    }
-
     /** @param array<string, array{lezen?:mixed,schrijven?:mixed,verwijderen?:mixed}> $moduleRechten */
     public static function setForUser(int $userId, array $moduleRechten): void
     {

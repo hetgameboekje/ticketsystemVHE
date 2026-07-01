@@ -36,6 +36,15 @@ $checkbox = fn (string $module, string $veld, mixed $checked): string => '<input
   <div class="alert alert-error"><?= htmlspecialchars($fout) ?></div>
 <?php endif; ?>
 
+<?php if (!empty($gebruiker['deleted_at'])): ?>
+  <div class="alert alert-error" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <span><i class="bi bi-slash-circle"></i> Deze login is gedeactiveerd en kan niet meer inloggen.</span>
+    <form method="post" action="/beheer/rechten/<?= $gebruiker['id'] ?>/heractiveren">
+      <button class="btn btn-primary" type="submit">Heractiveren</button>
+    </form>
+  </div>
+<?php endif; ?>
+
 <div class="card" style="margin-bottom:16px">
   <form method="post" action="/beheer/rechten/<?= $gebruiker['id'] ?>/gebruiker" style="padding:16px">
     <div class="form-grid">
@@ -103,14 +112,14 @@ $checkbox = fn (string $module, string $veld, mixed $checked): string => '<input
   </div>
 <?php endif; ?>
 
-<?php if ($magVerwijderen): ?>
+<?php if ($magVerwijderen && empty($gebruiker['deleted_at'])): ?>
   <div class="card" style="padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px">
     <div>
-      <div style="font-weight:600">Gebruiker verwijderen</div>
-      <div class="text-body-secondary" style="font-size:13px">Dit verwijdert <?= htmlspecialchars($gebruiker['naam']) ?> definitief. Deze actie kan niet ongedaan worden gemaakt.</div>
+      <div style="font-weight:600">Login deactiveren</div>
+      <div class="text-body-secondary" style="font-size:13px">Deactiveert de login van <?= htmlspecialchars($gebruiker['naam']) ?> — die kan dan niet meer inloggen, maar blijft zichtbaar in tickets, agenda en logs. Je kunt dit later ongedaan maken.</div>
     </div>
-    <form method="post" action="/beheer/rechten/<?= $gebruiker['id'] ?>/verwijderen" onsubmit="return confirm('Gebruiker <?= htmlspecialchars(addslashes($gebruiker['naam']), ENT_QUOTES) ?> definitief verwijderen?')">
-      <button class="btn btn-danger" type="submit">Verwijderen</button>
+    <form method="post" action="/beheer/rechten/<?= $gebruiker['id'] ?>/verwijderen" onsubmit="return confirm('Login van <?= htmlspecialchars(addslashes($gebruiker['naam']), ENT_QUOTES) ?> deactiveren?')">
+      <button class="btn btn-danger" type="submit">Deactiveren</button>
     </form>
   </div>
 <?php endif; ?>
