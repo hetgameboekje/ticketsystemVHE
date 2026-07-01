@@ -4,18 +4,17 @@ namespace App\Core;
 
 /**
  * Zet database/xml/*.xml om naar SQL (CREATE TABLE IF NOT EXISTS + INSERT IGNORE-seeds)
- * en kan die SQL optioneel meteen tegen de live database uitvoeren. Omdat alle statements
- * idempotent zijn, worden bestaande tabellen/rijen nooit aangepast — alleen wat nog
- * ontbreekt wordt toegevoegd.
+ * en kan die SQL, plus eventuele ontbrekende kolommen op reeds bestaande tabellen,
+ * tegen de live database uitvoeren. Alles is idempotent: bestaande tabellen/kolommen/rijen
+ * worden nooit aangepast — alleen wat nog ontbreekt wordt toegevoegd.
  */
 class SchemaParser
 {
-    public static function generateSql(): string
+    /** @return array<string, \SimpleXMLElement> tabelnaam => geparste XML, in geen specifieke volgorde */
+    private static function loadTables(): array
     {
-        $xmlDir = APP_ROOT . '/database/xml';
-
         $tables = [];
-        foreach (glob($xmlDir . '/*.xml') as $file) {
+        foreach (glob(APP_ROOT . '/database/xml/*.xml') as $file) {
             $xml = simplexml_load_file($file);
             if ($xml === false) {
                 throw new \RuntimeException("Kan {$file} niet parsen als XML.");
@@ -23,11 +22,25 @@ class SchemaParser
             $tables[(string) $xml['name']] = $xml;
         }
 
+        return $tables;
+    }
+
+    /** @return string[] tabelnamen in dependency-volgorde (referenties vóór de tabellen die ernaar verwijzen) */
+    private static function orderedTableNames(array $tables): array
+    {
         $ordered = [];
         $visited = [];
         foreach (array_keys($tables) as $name) {
             self::visitTable($name, $tables, $ordered, $visited);
         }
+
+        return $ordered;
+    }
+
+    public static function generateSql(): string
+    {
+        $tables = self::loadTables();
+        $ordered = self::orderedTableNames($tables);
 
         $sql = "-- Gegenereerd door database/parse.php — niet handmatig bewerken.\n";
         $sql .= "-- Bron: database/xml/*.xml\n\n";
@@ -60,9 +73,11 @@ class SchemaParser
     }
 
     /**
-     * Voert de gegenereerde SQL statement-voor-statement uit tegen de live database.
-     * CREATE TABLE IF NOT EXISTS en INSERT IGNORE zijn idempotent: bestaande tabellen/rijen
-     * blijven ongewijzigd, alleen ontbrekende tabellen/seed-rijen worden toegevoegd.
+     * Voert de gegenereerde SQL statement-voor-statement uit tegen de live database, en
+     * voegt daarna ontbrekende kolommen toe aan tabellen die al bestaan maar achterlopen
+     * op database/xml/*.xml (bv. na een eerdere handmatige/deel-toepassing van het schema).
+     * CREATE TABLE IF NOT EXISTS, INSERT IGNORE en de kolom-aanvulling zijn alle drie
+     * idempotent: bestaande tabellen/kolommen/rijen blijven ongewijzigd.
      * Wordt alleen aangeroepen vanuit dev-modus (App\Core\DevSync) — de Beheer-knop
      * "Database parsen" genereert het bestand alleen en voert het bewust niet uit.
      *
@@ -88,6 +103,56 @@ class SchemaParser
             } catch (\PDOException $e) {
                 $skipped++;
                 $errors[] = $e->getMessage();
+            }
+        }
+
+        $columnResult = self::applyMissingColumns($pdo);
+        $applied += $columnResult['applied'];
+        $skipped += $columnResult['skipped'];
+        $errors = array_merge($errors, $columnResult['errors']);
+
+        return ['applied' => $applied, 'skipped' => $skipped, 'errors' => $errors];
+    }
+
+    /**
+     * Vergelijkt elke tabel in database/xml/*.xml met de daadwerkelijke kolommen op de live
+     * database, en voegt via ALTER TABLE ... ADD COLUMN toe wat in de XML staat maar nog
+     * ontbreekt in de database. Tabellen die nog helemaal niet bestaan worden overgeslagen
+     * (die krijgen hun kolommen al compleet via CREATE TABLE IF NOT EXISTS).
+     *
+     * @return array{applied: int, skipped: int, errors: string[]}
+     */
+    private static function applyMissingColumns(\PDO $pdo): array
+    {
+        $applied = 0;
+        $skipped = 0;
+        $errors = [];
+
+        foreach (self::loadTables() as $name => $table) {
+            $existsStmt = $pdo->prepare('SHOW TABLES LIKE ?');
+            $existsStmt->execute([$name]);
+            if ($existsStmt->fetchColumn() === false) {
+                continue;
+            }
+
+            $columnsStmt = $pdo->query("SHOW COLUMNS FROM `{$name}`");
+            $existingColumns = array_column($columnsStmt->fetchAll(\PDO::FETCH_ASSOC), 'Field');
+
+            foreach ($table->columns->column as $column) {
+                $colName = (string) $column['name'];
+                if (in_array($colName, $existingColumns, true)) {
+                    continue;
+                }
+
+                $statement = "ALTER TABLE `{$name}` ADD COLUMN " . self::buildColumnDefinition($column);
+
+                try {
+                    $pdo->exec($statement);
+                    $applied++;
+                } catch (\PDOException $e) {
+                    $skipped++;
+                    $errors[] = $e->getMessage();
+                }
             }
         }
 
@@ -120,6 +185,36 @@ class SchemaParser
         $ordered[] = $name;
     }
 
+    /** Bouwt de "kolomnaam TYPE(lengte) [modifiers]"-fragment, gebruikt door zowel CREATE TABLE als ALTER TABLE. */
+    private static function buildColumnDefinition(\SimpleXMLElement $column): string
+    {
+        $colName = (string) $column['name'];
+        $type = (string) $column['type'];
+        $length = (string) $column['length'];
+
+        $line = "{$colName} {$type}" . ($length !== '' ? "({$length})" : '');
+
+        if ((string) $column['auto_increment'] === 'true') {
+            $line .= ' AUTO_INCREMENT';
+        }
+        if ((string) $column['nullable'] === 'false') {
+            $line .= ' NOT NULL';
+        }
+        if ((string) $column['unique'] === 'true') {
+            $line .= ' UNIQUE';
+        }
+        $default = (string) $column['default'];
+        if ($default !== '') {
+            $line .= " DEFAULT {$default}";
+        }
+        $onUpdate = (string) $column['on_update'];
+        if ($onUpdate !== '') {
+            $line .= " ON UPDATE {$onUpdate}";
+        }
+
+        return $line;
+    }
+
     private static function buildCreateTable(\SimpleXMLElement $table): string
     {
         $name = (string) $table['name'];
@@ -130,40 +225,16 @@ class SchemaParser
         $foreignKeys = [];
 
         foreach ($table->columns->column as $column) {
-            $colName = (string) $column['name'];
-            $type = (string) $column['type'];
-            $length = (string) $column['length'];
-
-            $line = "    {$colName} {$type}" . ($length !== '' ? "({$length})" : '');
-
-            if ((string) $column['auto_increment'] === 'true') {
-                $line .= ' AUTO_INCREMENT';
-            }
-            if ((string) $column['nullable'] === 'false') {
-                $line .= ' NOT NULL';
-            }
-            if ((string) $column['unique'] === 'true') {
-                $line .= ' UNIQUE';
-            }
-            $default = (string) $column['default'];
-            if ($default !== '') {
-                $line .= " DEFAULT {$default}";
-            }
-            $onUpdate = (string) $column['on_update'];
-            if ($onUpdate !== '') {
-                $line .= " ON UPDATE {$onUpdate}";
-            }
-
-            $lines[] = $line;
+            $lines[] = '    ' . self::buildColumnDefinition($column);
 
             if ((string) $column['primary'] === 'true') {
-                $primary = $colName;
+                $primary = (string) $column['name'];
             }
 
             $ref = (string) $column['references'];
             if ($ref !== '') {
                 [$refTable, $refCol] = explode('.', $ref);
-                $fk = "    FOREIGN KEY ({$colName}) REFERENCES {$refTable}({$refCol})";
+                $fk = "    FOREIGN KEY (" . (string) $column['name'] . ") REFERENCES {$refTable}({$refCol})";
                 $onDelete = (string) $column['on_delete'];
                 if ($onDelete !== '') {
                     $fk .= " ON DELETE {$onDelete}";

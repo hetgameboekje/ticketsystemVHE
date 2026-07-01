@@ -38,7 +38,13 @@ class AuthController extends Controller
         $email = trim($_POST['email'] ?? '');
         $wachtwoord = $_POST['wachtwoord'] ?? '';
 
-        $user = UserModel::authenticate($email, $wachtwoord);
+        try {
+            $user = UserModel::authenticate($email, $wachtwoord);
+        } catch (\PDOException $e) {
+            error_log('[Login] databaseverbinding mislukt: ' . $e->getMessage());
+            $_SESSION['login_error'] = 'Inloggen is momenteel niet mogelijk (databaseverbinding mislukt). Probeer het later opnieuw.';
+            $this->redirect('/login');
+        }
 
         if ($user === null) {
             $_SESSION['login_error'] = 'E-mailadres of wachtwoord is onjuist.';

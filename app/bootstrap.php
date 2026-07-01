@@ -21,6 +21,14 @@ if (is_file($envFile)) {
 }
 unset($envFile);
 
+// Zet APP_DEBUG=true in .env om PHP-fouten direct in de browser te tonen i.p.v. een kale
+// 500-pagina. Alleen voor tijdelijke foutopsporing — weer op false/weg na diagnose.
+if (filter_var(getenv('APP_DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN)) {
+    ini_set('display_errors', '1');
+    ini_set('display_startup_errors', '1');
+    error_reporting(E_ALL);
+}
+
 spl_autoload_register(function (string $class): void {
     $prefix = 'App\\';
     if (strpos($class, $prefix) !== 0) {
