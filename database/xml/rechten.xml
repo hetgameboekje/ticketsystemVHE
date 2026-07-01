@@ -8,6 +8,6 @@
     <column name="mag_schrijven" type="TINYINT" length="1" nullable="false" default="0"/>
     <column name="mag_verwijderen" type="TINYINT" length="1" nullable="false" default="0"/>
     <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
-    <column name="updated_at" type="TIMESTAMP" nullable="true" on_update="CURRENT_TIMESTAMP"/>
+    <column name="updated_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP" on_update="CURRENT_TIMESTAMP"/>
   </columns>
 </table>
