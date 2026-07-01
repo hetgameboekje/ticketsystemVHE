@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="cyberrisicos" engine="InnoDB">
+  <columns>
+    <column name="id" type="INT" primary="true" auto_increment="true"/>
+    <column name="titel" type="VARCHAR" length="255" nullable="false"/>
+    <column name="omschrijving" type="TEXT" nullable="false"/>
+    <column name="categorie" type="VARCHAR" length="30" nullable="false" default="'overig'"/>
+    <column name="prioriteit" type="VARCHAR" length="20" nullable="false" default="'middel'"/>
+    <column name="status" type="VARCHAR" length="30" nullable="false" default="'nieuw'"/>
+    <column name="locatie" type="VARCHAR" length="150"/>
+    <column name="gemeld_door" type="VARCHAR" length="150"/>
+    <column name="eigenaar_id" type="INT"/>
+    <column name="datum_geconstateerd" type="DATE"/>
+    <column name="datum_gemeld" type="DATE"/>
+    <column name="oplossingsadvies" type="TEXT"/>
+    <column name="bewijs_notities" type="TEXT"/>
+    <column name="is_gevoelig" type="TINYINT" length="1" nullable="false" default="0"/>
+    <column name="aangemaakt_door_id" type="INT"/>
+    <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
+    <column name="updated_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP" on_update="CURRENT_TIMESTAMP"/>
+    <column name="deleted_at" type="TIMESTAMP"/>
+  </columns>
+</table>

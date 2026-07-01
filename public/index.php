@@ -3,9 +3,11 @@
 require __DIR__ . '/../app/bootstrap.php';
 
 use App\Core\Router;
+use App\Modules\CyberRisico\CyberRisicoController;
 use App\Modules\HardwareUitgave\HardwareUitgaveController;
 use App\Modules\Kennisbank\KennisbankController;
 use App\Modules\Medewerker\MedewerkerController;
+use App\Modules\Printer\PrinterController;
 use App\Modules\Reflectie\ReflectieController;
 use App\Modules\Ticket\TicketController;
 use App\Modules\Ticket\TicketLogController;
@@ -31,6 +33,8 @@ $modules = [
     'hardware-uitgaven' => HardwareUitgaveController::class,
     'medewerkers' => MedewerkerController::class,
     'voorraad' => VoorraadController::class,
+    'printers' => PrinterController::class,
+    'cyberrisicos' => CyberRisicoController::class,
 ];
 
 foreach ($modules as $routeBase => $controller) {

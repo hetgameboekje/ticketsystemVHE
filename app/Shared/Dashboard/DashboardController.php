@@ -3,6 +3,7 @@
 namespace App\Shared\Dashboard;
 
 use App\Core\Controller;
+use App\Modules\CyberRisico\Models\CyberRisicoModel;
 use App\Modules\Medewerker\Models\MedewerkerModel;
 use App\Modules\Ticket\Models\TicketModel;
 use App\Modules\Verbeterpunt\Models\VerbeterpuntModel;
@@ -25,6 +26,8 @@ class DashboardController extends Controller
             ],
             'recenteTickets' => TicketModel::recent(5),
             'voorraadOverview' => VoorraadItemModel::countByType(),
+            'cyberrisicosOpen' => CyberRisicoModel::countOpen(),
+            'cyberrisicosPerDag' => CyberRisicoModel::countLast30Days(),
         ]);
     }
 }

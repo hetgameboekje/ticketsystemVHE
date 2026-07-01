@@ -3,7 +3,7 @@
 if (!function_exists('prioBadge')) {
     function prioBadge(string $prio): string
     {
-        $labels = ['laag' => 'Laag', 'normaal' => 'Normaal', 'hoog' => 'Hoog', 'kritiek' => 'Kritiek'];
+        $labels = ['laag' => 'Laag', 'normaal' => 'Normaal', 'middel' => 'Middel', 'hoog' => 'Hoog', 'kritiek' => 'Kritiek'];
         $label = $labels[$prio] ?? ucfirst($prio);
         return '<span class="prio prio-' . htmlspecialchars($prio) . '"><span class="prio-dot"></span>' . htmlspecialchars($label) . '</span>';
     }
@@ -29,6 +29,9 @@ if (!function_exists('statusLabel')) {
             'geleverd' => 'Geleverd',
             'actief' => 'Actief',
             'inactief' => 'Inactief',
+            'in_onderzoek' => 'In onderzoek',
+            'bevestigd' => 'Bevestigd',
+            'geaccepteerd' => 'Geaccepteerd risico',
         ];
         return $labels[$status] ?? ucfirst(str_replace('_', ' ', $status));
     }

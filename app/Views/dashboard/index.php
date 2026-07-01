@@ -2,7 +2,12 @@
 /** @var array $stats */
 /** @var array $recenteTickets */
 /** @var array $voorraadOverview */
+/** @var int $cyberrisicosOpen */
+/** @var array $cyberrisicosPerDag */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
+
+$chartLabels = array_map(fn (array $d) => date('d-m', strtotime($d['datum'])), $cyberrisicosPerDag);
+$chartData = array_map(fn (array $d) => $d['aantal'], $cyberrisicosPerDag);
 ?>
 
 <style>
@@ -12,13 +17,24 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
     justify-content: space-between;
     gap: 12px;
     margin-bottom: 16px;
+    flex-wrap: wrap;
   }
 
   .page-title {
+    margin: 0;
     font-size: 28px;
     font-weight: 700;
     line-height: 1.2;
-    margin: 0;
+  }
+
+  .dashboard-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .row.g-2 > [class*="col-"] {
+    display: flex;
   }
 
   .stat {
@@ -26,6 +42,7 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
     flex-direction: column;
     justify-content: center;
     gap: 4px;
+    width: 100%;
     height: 100%;
     min-height: 96px;
     padding: 16px;
@@ -34,13 +51,13 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
     border-radius: 12px;
     text-decoration: none;
     color: inherit;
-    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
   }
 
   .stat:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(0,0,0,.08);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
     text-decoration: none;
     color: inherit;
   }
@@ -67,6 +84,7 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
     border: 1px solid var(--color-border, #e5e7eb);
     border-radius: 12px;
     overflow: hidden;
+    margin-bottom: 16px;
   }
 
   .card-header {
@@ -76,6 +94,7 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
     gap: 12px;
     padding: 16px 20px;
     border-bottom: 1px solid var(--color-border, #e5e7eb);
+    flex-wrap: wrap;
   }
 
   .card-title {
@@ -93,11 +112,19 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
     border-collapse: collapse;
   }
 
-  th, td {
+  th,
+  td {
     padding: 14px 20px;
     text-align: left;
     vertical-align: middle;
     border-bottom: 1px solid var(--color-border, #e5e7eb);
+  }
+
+  thead th {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-secondary, #6b7280);
+    white-space: nowrap;
   }
 
   tbody tr {
@@ -106,7 +133,7 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
   }
 
   tbody tr:hover {
-    background: rgba(0,0,0,.02);
+    background: rgba(0, 0, 0, 0.02);
   }
 
   .text-truncate {
@@ -119,11 +146,55 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
     padding: 24px 20px;
     color: var(--color-text-secondary, #6b7280);
   }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  @media (max-width: 576px) {
+    .page-title {
+      font-size: 24px;
+    }
+
+    .stat {
+      min-height: 88px;
+    }
+
+    .stat-val {
+      font-size: 24px;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+    }
+  }
 </style>
 
 <div class="page-header">
   <div class="page-title">Dashboard</div>
-  <a class="btn btn-primary" href="/tickets/create">+ Nieuw ticket</a>
+
+  <div class="dashboard-actions">
+    <a class="btn btn-primary" href="/tickets/create">+ Nieuw ticket</a>
+
+    <a class="btn" href="/cyberrisicos/create" title="Cyberrisico melden">
+      <i class="bi bi-shield-exclamation"></i> Risico melden
+      <?php if ($cyberrisicosOpen > 0): ?>
+        <span class="badge" style="background:#FBEAEA;color:#b3261e">
+          <?= (int) $cyberrisicosOpen ?>
+        </span>
+      <?php endif; ?>
+    </a>
+  </div>
 </div>
 
 <div class="row g-2 mb-3">
@@ -161,6 +232,22 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
         <?= (int) $stats['medewerkers'] ?>
       </div>
     </a>
+  </div>
+</div>
+
+<div class="row g-2 mb-3">
+  <div class="col-12 col-md-6">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-header">
+        <span class="card-title">Gemelde cyberrisico's — laatste 30 dagen</span>
+        <a class="btn" href="/cyberrisicos" style="font-size:12px">Alle risico's &rarr;</a>
+      </div>
+      <div style="padding:16px">
+        <div style="position:relative;height:220px">
+          <canvas id="cyberrisicoChart"></canvas>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -237,3 +324,37 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
     </div>
   <?php endif; ?>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var canvas = document.getElementById('cyberrisicoChart');
+    if (!canvas || typeof Chart === 'undefined') {
+        return;
+    }
+
+    new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode($chartLabels) ?>,
+            datasets: [{
+                label: 'Gemelde incidenten',
+                data: <?= json_encode($chartData) ?>,
+                backgroundColor: '#9cc3e8',
+                borderRadius: 3,
+                maxBarThickness: 18
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, ticks: { precision: 0 } }
+            }
+        }
+    });
+});
+</script>

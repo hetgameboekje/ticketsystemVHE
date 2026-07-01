@@ -1,0 +1,139 @@
+<?php
+
+namespace App\Modules\CyberRisico;
+
+use App\Core\CrudController;
+use App\Modules\CyberRisico\Models\CyberRisicoModel;
+use App\Shared\User\Models\UserModel;
+
+class CyberRisicoController extends CrudController
+{
+    protected string $modelClass = CyberRisicoModel::class;
+    protected string $viewDir = 'Modules/CyberRisico/Views/CyberRisicoView';
+    protected string $routeBase = 'cyberrisicos';
+    protected string $activeModule = 'cyberrisicos';
+    protected string $pageTitle = "Cyberrisico's";
+    protected ?string $searchColumn = 'titel';
+
+    private const STATUS_LABELS = [
+        'nieuw' => 'Nieuw',
+        'in_onderzoek' => 'In onderzoek',
+        'bevestigd' => 'Bevestigd',
+        'opgelost' => 'Opgelost',
+        'geaccepteerd' => 'Geaccepteerd risico',
+    ];
+
+    private const PRIORITEIT_LABELS = [
+        'laag' => 'Laag',
+        'middel' => 'Middel',
+        'hoog' => 'Hoog',
+        'kritiek' => 'Kritiek',
+    ];
+
+    private const CATEGORIE_LABELS = [
+        'fysieke_toegang' => 'Fysieke toegang',
+        'social_engineering' => 'Social engineering',
+        'onveilige_opslag' => 'Onveilige opslag',
+        'papieren_informatie' => 'Papieren informatie',
+        'device_exposure' => 'Device exposure',
+        'overig' => 'Overig',
+    ];
+
+    protected function filterOptions(array $allItems): array
+    {
+        $locaties = array_values(array_unique(array_filter(array_column($allItems, 'locatie'))));
+        sort($locaties);
+
+        return [
+            'status' => self::STATUS_LABELS,
+            'prioriteit' => self::PRIORITEIT_LABELS,
+            'categorie' => self::CATEGORIE_LABELS,
+            'locatie' => array_combine($locaties, $locaties),
+        ];
+    }
+
+    protected function applyDefaultFilters(array $items): array
+    {
+        if (($_GET['status'] ?? '') === '') {
+            return array_values(array_filter(
+                $items,
+                fn (array $r) => !in_array($r['status'], ['opgelost', 'geaccepteerd'], true)
+            ));
+        }
+
+        return $items;
+    }
+
+    public function store(): void
+    {
+        $this->requireAuth();
+        $data = $this->validatedData($_POST);
+
+        if ($data['titel'] === '' || $data['omschrijving'] === '') {
+            $_SESSION['flash_error'] = 'Titel en omschrijving zijn verplicht.';
+            $this->redirect('/cyberrisicos/create');
+        }
+
+        $id = CyberRisicoModel::create($data);
+        $_SESSION['flash_success'] = 'Risico geregistreerd.';
+        $this->redirect("/cyberrisicos/{$id}");
+    }
+
+    public function update(int $id): void
+    {
+        $this->requireAuth();
+        $data = $this->validatedData($_POST, isUpdate: true);
+
+        if ($data['titel'] === '' || $data['omschrijving'] === '') {
+            $_SESSION['flash_error'] = 'Titel en omschrijving zijn verplicht.';
+            $this->redirect("/cyberrisicos/{$id}/edit");
+        }
+
+        CyberRisicoModel::update($id, $data);
+        $_SESSION['flash_success'] = 'Risico bijgewerkt.';
+        $this->redirect("/cyberrisicos/{$id}");
+    }
+
+    protected function formData(): array
+    {
+        return [
+            'gebruikers' => UserModel::all('naam ASC'),
+            'statussen' => self::STATUS_LABELS,
+            'prioriteiten' => self::PRIORITEIT_LABELS,
+            'categorieen' => self::CATEGORIE_LABELS,
+        ];
+    }
+
+    protected function validatedData(array $post, bool $isUpdate = false): array
+    {
+        $data = [
+            'titel' => trim($post['titel'] ?? ''),
+            'omschrijving' => trim($post['omschrijving'] ?? ''),
+            'categorie' => in_array($post['categorie'] ?? '', array_keys(self::CATEGORIE_LABELS), true)
+                ? $post['categorie']
+                : 'overig',
+            'prioriteit' => in_array($post['prioriteit'] ?? '', array_keys(self::PRIORITEIT_LABELS), true)
+                ? $post['prioriteit']
+                : 'middel',
+            'locatie' => trim($post['locatie'] ?? '') ?: null,
+            'gemeld_door' => trim($post['gemeld_door'] ?? '') ?: null,
+            'eigenaar_id' => !empty($post['eigenaar_id']) ? (int) $post['eigenaar_id'] : null,
+            'datum_geconstateerd' => ($post['datum_geconstateerd'] ?? '') !== '' ? $post['datum_geconstateerd'] : null,
+            'datum_gemeld' => ($post['datum_gemeld'] ?? '') !== '' ? $post['datum_gemeld'] : null,
+            'oplossingsadvies' => trim($post['oplossingsadvies'] ?? '') ?: null,
+            'bewijs_notities' => trim($post['bewijs_notities'] ?? '') ?: null,
+            'is_gevoelig' => !empty($post['is_gevoelig']) ? 1 : 0,
+        ];
+
+        if ($isUpdate) {
+            $data['status'] = in_array($post['status'] ?? '', array_keys(self::STATUS_LABELS), true)
+                ? $post['status']
+                : 'nieuw';
+        } else {
+            $data['status'] = 'nieuw';
+            $data['aangemaakt_door_id'] = $this->currentUserId();
+        }
+
+        return $data;
+    }
+}

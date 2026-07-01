@@ -31,6 +31,7 @@ $active = $activeModule ?? '';
     <title><?= htmlspecialchars($pageTitle ?? 'Intranet') ?> · Intranet</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/app.css">
 </head>
 <body>
@@ -51,7 +52,7 @@ $active = $activeModule ?? '';
                 </li>
 
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle<?= dropdownActive(['tickets', 'verbeterpunten', 'reflecties', 'kennisbank', 'voorraad', 'uitgiften'], $active) ?>"
+                    <a class="nav-link dropdown-toggle<?= dropdownActive(['tickets', 'verbeterpunten', 'reflecties', 'kennisbank', 'voorraad', 'uitgiften', 'printers', 'cyberrisicos'], $active) ?>"
                        href="#"
                        id="ictDropdown"
                        role="button"
@@ -66,6 +67,8 @@ $active = $activeModule ?? '';
                         <li><a class="dropdown-item<?= navActive('kennisbank', $active) ?>" href="/kennisbank">Kennisbank</a></li>
                         <li><a class="dropdown-item<?= navActive('voorraad', $active) ?>" href="/voorraad">Voorraad</a></li>
                         <li><a class="dropdown-item<?= navActive('uitgiften', $active) ?>" href="/uitgiften">Uitgifte</a></li>
+                        <li><a class="dropdown-item<?= navActive('printers', $active) ?>" href="/printers">Printers</a></li>
+                        <li><a class="dropdown-item<?= navActive('cyberrisicos', $active) ?>" href="/cyberrisicos">Cyberrisico's</a></li>
                     </ul>
                 </li>
 
@@ -97,11 +100,13 @@ $active = $activeModule ?? '';
     </div>
 </nav>
 
-<main class="main">
+<main class="main<?= $active === 'dashboard' ? ' page-dashboard' : '' ?>">
     <?= $content ?>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="/assets/js/app.js"></script>
 <script>
     var mainNavbar = document.getElementById('mainNavbar');
     mainNavbar.addEventListener('show.bs.collapse', function () { document.body.classList.add('nav-open'); });

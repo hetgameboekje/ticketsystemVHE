@@ -24,12 +24,30 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 <?php endif; ?>
 
 <div class="filters" style="margin-bottom:14px">
-  <a class="btn" href="/tickets/export">Exporteren naar Excel</a>
-  <form method="post" action="/tickets/import" enctype="multipart/form-data" class="filters">
-    <input type="file" name="bestand" accept=".xlsx" required>
-    <button class="btn" type="submit">Importeren vanuit Excel</button>
+  <a class="btn" href="/tickets/export"><i class="bi bi-download"></i> Exporteren naar Excel</a>
+
+  <button type="button" class="btn" id="import-trigger-btn"><i class="bi bi-upload"></i> Importeren vanuit Excel</button>
+  <form method="post" action="/tickets/import" enctype="multipart/form-data" id="import-form">
+    <input type="file" name="bestand" accept=".xlsx" id="import-file-input" style="display:none" required>
   </form>
 </div>
+
+<script>
+(function () {
+    var triggerBtn = document.getElementById('import-trigger-btn');
+    var fileInput = document.getElementById('import-file-input');
+    var form = document.getElementById('import-form');
+
+    triggerBtn.addEventListener('click', function () {
+        fileInput.click();
+    });
+    fileInput.addEventListener('change', function () {
+        if (fileInput.files && fileInput.files.length > 0) {
+            form.submit();
+        }
+    });
+})();
+</script>
 
 <form method="get" action="/tickets" class="filters" style="margin-bottom:14px">
   <input type="text" name="q" value="<?= htmlspecialchars($search) ?>" placeholder="Zoeken op taak...">
