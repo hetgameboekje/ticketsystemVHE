@@ -3,6 +3,7 @@
 namespace App\Modules\Ticket;
 
 use App\Core\CrudController;
+use App\Core\TableQuery;
 use App\Modules\Ticket\Models\TicketLogModel;
 use App\Modules\Ticket\Models\TicketModel;
 use App\Shared\Afdeling\Models\AfdelingModel;
@@ -20,8 +21,7 @@ class TicketController extends CrudController
         'open' => 'Open',
         'in_behandeling' => 'In behandeling',
         'wacht_op_info' => 'Wacht op info',
-        'opgelost' => 'Opgelost',
-        'gesloten' => 'Gesloten',
+        'afgehandeld' => 'Afgehandeld',
     ];
 
     private const PRIORITEIT_LABELS = [
@@ -40,7 +40,7 @@ class TicketController extends CrudController
         sort($behandelaars);
 
         return [
-            'status' => self::STATUS_LABELS,
+            'status' => ['alle' => 'Alle statussen'] + self::STATUS_LABELS,
             'prioriteit' => self::PRIORITEIT_LABELS,
             'afdeling_naam' => array_combine($afdelingen, $afdelingen),
             'behandelaar_naam' => array_combine($behandelaars, $behandelaars),
@@ -49,8 +49,17 @@ class TicketController extends CrudController
 
     protected function applyDefaultFilters(array $items): array
     {
-        if (($_GET['status'] ?? '') === '') {
-            return array_values(array_filter($items, fn (array $t) => $t['status'] !== 'opgelost'));
+        $status = $_GET['status'] ?? '';
+
+        if ($status === 'alle') {
+            // 'alle' is een expliciete keuze voor "geen statusfilter" — verwijderen zodat
+            // TableQuery::apply() hierna niet op de letterlijke waarde 'alle' probeert te matchen.
+            unset($_GET['status']);
+            return $items;
+        }
+
+        if ($status === '') {
+            return array_values(array_filter($items, fn (array $t) => $t['status'] !== 'afgehandeld'));
         }
 
         return $items;
@@ -80,7 +89,13 @@ class TicketController extends CrudController
     {
         $this->requirePermission($this->activeModule, 'lezen');
 
-        $content = TicketExcel::export();
+        // Zelfde filter/zoek-pijplijn als index(), zodat de export exact de huidige weergave bevat
+        // (m.u.v. paginering — de export bevat alle gefilterde rijen, niet alleen de huidige pagina).
+        $allItems = TicketModel::allWithRelations();
+        $items = $this->applyDefaultFilters($allItems);
+        $items = TableQuery::apply($items, $_GET, $this->searchColumn);
+
+        $content = TicketExcel::export($items);
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="tickets-export-' . date('Y-m-d') . '.xlsx"');

@@ -53,7 +53,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 
 <form method="get" action="/tickets" class="filters" style="margin-bottom:14px">
   <input type="text" name="q" value="<?= htmlspecialchars($search) ?>" placeholder="Zoeken op taak...">
-  <?= filterSelect('status', 'Alle statussen (zonder opgelost)', $filterOptions['status']) ?>
+  <?= filterSelect('status', 'Actieve statussen', $filterOptions['status']) ?>
   <?= filterSelect('prioriteit', 'Alle prioriteiten', $filterOptions['prioriteit']) ?>
   <?= filterSelect('afdeling_naam', 'Alle afdelingen', $filterOptions['afdeling_naam']) ?>
   <?= filterSelect('behandelaar_naam', 'Alle behandelaars', $filterOptions['behandelaar_naam']) ?>

@@ -2,7 +2,7 @@
 /** @var array $item */
 /** @var array $logs */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
-$statussen = ['open' => 'Open', 'in_behandeling' => 'In behandeling', 'wacht_op_info' => 'Wacht op info', 'opgelost' => 'Opgelost', 'gesloten' => 'Gesloten'];
+$statussen = ['open' => 'Open', 'in_behandeling' => 'In behandeling', 'wacht_op_info' => 'Wacht op info', 'afgehandeld' => 'Afgehandeld'];
 $statusLogs = array_values(array_filter($logs, fn ($log) => $log['status_naar'] !== null));
 $opmerkingen = array_values(array_filter($logs, fn ($log) => $log['status_naar'] === null));
 ?>
@@ -30,6 +30,16 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => $log['status_naar']
     <div class="card">
       <div class="card-header"><span class="card-title">Opmerkingen</span></div>
 
+      <div style="padding:16px;border-bottom:0.5px solid var(--color-border-tertiary)">
+        <form method="post" action="/tickets/<?= $item['id'] ?>/log" id="ticketLogForm">
+          <div class="form-group">
+            <label class="form-label">Opmerking toevoegen</label>
+            <textarea name="opmerking" placeholder="Beschrijf wat je gedaan hebt of vraag om meer informatie..."></textarea>
+          </div>
+          <button class="btn btn-primary" type="submit">Opslaan</button>
+        </form>
+      </div>
+
       <?php if (empty($opmerkingen)): ?>
         <div class="empty-state">Nog geen opmerkingen.</div>
       <?php else: ?>
@@ -43,16 +53,6 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => $log['status_naar']
         </div>
         <?php endforeach; ?>
       <?php endif; ?>
-
-      <div style="padding:16px;border-top:0.5px solid var(--color-border-tertiary)">
-        <form method="post" action="/tickets/<?= $item['id'] ?>/log">
-          <div class="form-group">
-            <label class="form-label">Opmerking toevoegen</label>
-            <textarea name="opmerking" placeholder="Beschrijf wat je gedaan hebt of vraag om meer informatie..."></textarea>
-          </div>
-          <button class="btn btn-primary" type="submit">Opslaan</button>
-        </form>
-      </div>
     </div>
   </div>
 
@@ -74,16 +74,16 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => $log['status_naar']
     <div class="card" style="margin-bottom:16px">
       <div class="card-header"><span class="card-title">Status wijzigen</span></div>
       <div style="padding:16px">
-        <form method="post" action="/tickets/<?= $item['id'] ?>/log">
-          <div class="form-group">
-            <select name="status" style="width:100%">
-              <?php foreach ($statussen as $val => $label): ?>
-                <option value="<?= $val ?>" <?= $item['status'] === $val ? 'selected' : '' ?>><?= $label ?></option>
-              <?php endforeach; ?>
-            </select>
-          </div>
-          <button class="btn btn-primary" type="submit" style="width:100%;justify-content:center">Status bijwerken</button>
-        </form>
+        <!-- Hoort bij #ticketLogForm (het opmerking-formulier hierboven), via het form="" attribuut —
+             zo wordt een eventueel ingevulde opmerking niet verloren wanneer je hier de status wijzigt. -->
+        <div class="form-group">
+          <select name="status" form="ticketLogForm" style="width:100%">
+            <?php foreach ($statussen as $val => $label): ?>
+              <option value="<?= $val ?>" <?= $item['status'] === $val ? 'selected' : '' ?>><?= $label ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <button class="btn btn-primary" type="submit" form="ticketLogForm" style="width:100%;justify-content:center">Status bijwerken</button>
       </div>
     </div>
 

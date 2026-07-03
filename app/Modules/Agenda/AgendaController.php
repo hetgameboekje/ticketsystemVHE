@@ -6,6 +6,7 @@ use App\Core\Controller;
 use App\Modules\Agenda\Models\AgendaItemModel;
 use App\Modules\Ticket\Models\TicketModel;
 use App\Modules\Verbeterpunt\Models\VerbeterpuntModel;
+use App\Shared\Rechten\Models\RechtenModel;
 use App\Shared\User\Models\UserModel;
 
 class AgendaController extends Controller
@@ -16,7 +17,7 @@ class AgendaController extends Controller
 
         $openTickets = array_values(array_filter(
             TicketModel::all('titel ASC'),
-            fn (array $t) => !in_array($t['status'], ['opgelost', 'gesloten'], true)
+            fn (array $t) => $t['status'] !== 'afgehandeld'
         ));
 
         $this->render('Modules/Agenda/Views/AgendaView/index', [
@@ -67,7 +68,7 @@ class AgendaController extends Controller
 
     public function store(): void
     {
-        $this->requirePermission('agenda', 'schrijven');
+        $this->requireJsonPermission('agenda', 'schrijven');
 
         $data = $this->readJsonOrPost();
         $item = $this->validated($data);
@@ -86,7 +87,7 @@ class AgendaController extends Controller
 
     public function update(int $id): void
     {
-        $this->requirePermission('agenda', 'schrijven');
+        $this->requireJsonPermission('agenda', 'schrijven');
 
         $bestaand = AgendaItemModel::find($id);
         if ($bestaand === null) {
@@ -108,12 +109,27 @@ class AgendaController extends Controller
 
     public function destroy(int $id): void
     {
-        $this->requirePermission('agenda', 'verwijderen');
+        $this->requireJsonPermission('agenda', 'verwijderen');
 
         AgendaItemModel::delete($id);
 
         header('Content-Type: application/json');
         echo json_encode(['success' => true]);
+    }
+
+    /** Zoals requirePermission(), maar geeft bij ontbrekend recht een JSON 403 i.p.v. een HTML-pagina — nodig
+     *  voor deze fetch()-endpoints, anders faalt r.json() in de kalender stil zonder duidelijke foutmelding. */
+    private function requireJsonPermission(string $module, string $actie): void
+    {
+        $this->requireAuth();
+
+        if (($this->currentUser()['rol'] ?? '') === 'admin') {
+            return;
+        }
+
+        if (!RechtenModel::has((int) $this->currentUserId(), $module, $actie)) {
+            $this->jsonError('Je hebt geen rechten om de agenda te wijzigen.', 403);
+        }
     }
 
     private function readJsonOrPost(): array
@@ -146,10 +162,11 @@ class AgendaController extends Controller
         return $item;
     }
 
-    private function jsonError(string $message): void
+    private function jsonError(string $message, int $status = 422): void
     {
-        http_response_code(422);
+        http_response_code($status);
         header('Content-Type: application/json');
         echo json_encode(['success' => false, 'error' => $message]);
+        exit;
     }
 }

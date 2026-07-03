@@ -34,7 +34,7 @@ class RechtenController extends Controller
                 return '<form method="post" action="/beheer/rechten/' . (int) $g['id'] . '/verwijderen" '
                     . 'onsubmit="return confirm(\'Login van ' . htmlspecialchars(addslashes($g['naam']), ENT_QUOTES) . ' deactiveren? De gebruiker kan dan niet meer inloggen, maar blijft zichtbaar in de historie.\')">'
                     . '<button class="btn" type="submit" title="Deactiveren"><i class="bi bi-trash"></i></button></form>';
-            }, ['class' => 'col-1', 'sortable' => false, 'stopPropagation' => true])
+            }, ['class' => 'col-1', 'sortable' => false])
             ->rows($gebruikers);
 
         $content = '<div class="page-header"><div class="page-title">Rechten</div>'
@@ -50,7 +50,7 @@ class RechtenController extends Controller
                 ->column('email', 'E-mailadres', fn (array $g) => htmlspecialchars($g['email']), ['sortable' => false])
                 ->column('acties', '', fn (array $g) => '<form method="post" action="/beheer/rechten/' . (int) $g['id'] . '/heractiveren">'
                     . '<button class="btn" type="submit" title="Heractiveren"><i class="bi bi-arrow-counterclockwise"></i></button></form>',
-                    ['class' => 'col-1', 'sortable' => false, 'stopPropagation' => true])
+                    ['class' => 'col-1', 'sortable' => false])
                 ->rows($gedeactiveerd);
 
             $content .= '<div class="page-header" style="margin-top:24px"><div class="page-title" style="font-size:16px">Gedeactiveerde gebruikers</div></div>'

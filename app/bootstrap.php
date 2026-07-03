@@ -2,6 +2,10 @@
 
 define('APP_ROOT', dirname(__DIR__));
 
+// Nederlandse tijd voor date()/strtotime()/DateTime (incl. automatische zomertijd) i.p.v. de
+// servertijdzone — zie ook App\Core\Database::pdo() voor de bijbehorende MySQL-sessie-tijdzone.
+date_default_timezone_set('Europe/Amsterdam');
+
 // .env is optioneel (staat in .gitignore) — handig om per omgeving (bv. Hostnet-productie)
 // eigen DB_* / dev-instellingen te zetten zonder config/config.php aan te passen.
 $envFile = APP_ROOT . '/.env';

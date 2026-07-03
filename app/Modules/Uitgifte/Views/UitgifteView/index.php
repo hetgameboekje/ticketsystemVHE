@@ -52,7 +52,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
           return '<form method="post" action="/uitgiften/' . $u['id'] . '/retour" onsubmit="return retourPrompt(this)">'
               . '<input type="hidden" name="opmerking" value="">'
               . '<button class="btn" type="submit" style="font-size:12px">Retour</button></form>';
-      }, ['class' => 'col-1', 'sortable' => false, 'stopPropagation' => true])
+      }, ['class' => 'col-1', 'sortable' => false])
       ->rows($items);
   echo $table->render();
   ?>

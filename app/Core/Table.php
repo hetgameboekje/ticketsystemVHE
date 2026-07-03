@@ -31,7 +31,7 @@ class Table
     /**
      * @param callable|null $render fn(array $row): string — mag HTML teruggeven (zelf escapen indien nodig).
      *                              Zonder render-callback wordt $row[$key] getoond, htmlspecialchars-veilig.
-     * @param array{class?:string, sortable?:bool, stopPropagation?:bool, cellStyle?:string} $options
+     * @param array{class?:string, sortable?:bool, cellStyle?:string} $options
      */
     public function column(string $key, string $label, ?callable $render = null, array $options = []): static
     {
@@ -41,7 +41,6 @@ class Table
             'render' => $render,
             'class' => $options['class'] ?? '',
             'sortable' => $options['sortable'] ?? true,
-            'stopPropagation' => $options['stopPropagation'] ?? false,
             'cellStyle' => $options['cellStyle'] ?? '',
         ];
 
@@ -96,17 +95,19 @@ class Table
             $rowAttr = '';
             if ($this->rowUrl !== null) {
                 $url = htmlspecialchars(($this->rowUrl)($row));
-                $rowAttr = " onclick=\"window.location='{$url}'\"";
+                // Navigeert alleen als de klik niet op een interactief element binnenin de rij viel
+                // (knop, link, formulierveld) — zo blijft de klik ook bubbelen naar document-niveau
+                // click-handlers (bv. de kopieer-naar-klembord-knop), wat event.stopPropagation() niet toeliet.
+                $rowAttr = " onclick=\"if (!event.target.closest('a,button,input,select,textarea,label')) window.location='{$url}'\"";
             }
             $html .= "<tr{$rowAttr}>";
 
             foreach ($this->columns as $col) {
                 $style = $col['cellStyle'] !== '' ? ' style="' . htmlspecialchars($col['cellStyle']) . '"' : '';
-                $stop = $col['stopPropagation'] ? ' onclick="event.stopPropagation()"' : '';
                 $content = $col['render'] !== null
                     ? ($col['render'])($row)
                     : htmlspecialchars((string) ($row[$col['key']] ?? '—'));
-                $html .= "<td{$style}{$stop}>{$content}</td>";
+                $html .= "<td{$style}>{$content}</td>";
             }
 
             $html .= '</tr>';

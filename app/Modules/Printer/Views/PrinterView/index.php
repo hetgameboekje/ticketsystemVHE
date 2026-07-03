@@ -47,7 +47,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
       ->column('ip_adres', 'IP / poort', fn (array $p) => htmlspecialchars($p['ip_adres'] ?? '—'), ['class' => 'col-2'])
       ->column('acties', '', fn (array $p) => '<button type="button" class="btn js-copy-btn" style="font-size:12px" '
           . 'data-command="' . htmlspecialchars(PrinterModel::buildInstallCommand($p)) . '" title="Kopieer shell commando">'
-          . '<i class="bi bi-copy"></i></button>', ['class' => 'col-2', 'sortable' => false, 'stopPropagation' => true])
+          . '<i class="bi bi-copy"></i></button>', ['class' => 'col-2', 'sortable' => false])
       ->rows($items);
   echo $table->render();
   ?>

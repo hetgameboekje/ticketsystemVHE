@@ -16,6 +16,7 @@ if (!function_exists('statusLabel')) {
             'open' => 'Open',
             'in_behandeling' => 'In behandeling',
             'wacht_op_info' => 'Wacht op info',
+            'afgehandeld' => 'Afgehandeld',
             'opgelost' => 'Opgelost',
             'gesloten' => 'Gesloten',
             'nieuw' => 'Nieuw',

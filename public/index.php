@@ -18,6 +18,7 @@ use App\Modules\Ticket\TicketController;
 use App\Modules\Ticket\TicketLogController;
 use App\Modules\Uitgifte\UitgifteController;
 use App\Modules\Verbeterpunt\VerbeterpuntController;
+use App\Modules\Verbeterpunt\VerbeterpuntLogController;
 use App\Modules\Voorraad\VoorraadController;
 use App\Shared\Auth\AuthController;
 use App\Shared\Dashboard\DashboardController;
@@ -56,6 +57,8 @@ foreach ($modules as $routeBase => $controller) {
 $router->post('/tickets/{id}/log', [TicketLogController::class, 'store']);
 $router->get('/tickets/export', [TicketController::class, 'export']);
 $router->post('/tickets/import', [TicketController::class, 'import']);
+
+$router->post('/verbeterpunten/{id}/log', [VerbeterpuntLogController::class, 'store']);
 
 $router->get('/voorraad/{id}/barcode', [VoorraadController::class, 'barcode']);
 

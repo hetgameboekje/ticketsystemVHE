@@ -189,10 +189,10 @@ document.addEventListener('DOMContentLoaded', function () {
             openEditModal(info.event);
         },
         eventDrop: function (info) {
-            saveDragOrResize(info.event);
+            saveDragOrResize(info);
         },
         eventResize: function (info) {
-            saveDragOrResize(info.event);
+            saveDragOrResize(info);
         }
     });
     calendar.render();
@@ -205,15 +205,27 @@ document.addEventListener('DOMContentLoaded', function () {
         openCreateModal(null, null);
     });
 
-    function saveDragOrResize(event) {
+    function saveDragOrResize(info) {
+        var event = info.event;
         fetch('/agenda/' + event.id, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ start_op: event.startStr, eind_op: event.endStr })
-        }).then(function (r) { return r.json(); }).then(function (res) {
-            if (!res.success) {
-                calendar.refetchEvents();
-            }
+        })
+        .then(function (r) {
+            return r.json()
+                .catch(function () {
+                    throw new Error('Onverwacht antwoord van de server (status ' + r.status + ').');
+                })
+                .then(function (res) {
+                    if (!r.ok || !res.success) {
+                        throw new Error(res.error || 'Opslaan is mislukt.');
+                    }
+                });
+        })
+        .catch(function (err) {
+            info.revert();
+            window.alert('Verplaatsen/opslaan is mislukt: ' + err.message);
         });
     }
 

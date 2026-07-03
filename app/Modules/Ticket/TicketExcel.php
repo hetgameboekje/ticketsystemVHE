@@ -17,12 +17,13 @@ class TicketExcel
     ];
 
     private const PRIORITEITEN = ['laag', 'normaal', 'hoog', 'kritiek'];
-    private const STATUSSEN = ['open', 'in_behandeling', 'wacht_op_info', 'opgelost', 'gesloten'];
+    private const STATUSSEN = ['open', 'in_behandeling', 'wacht_op_info', 'afgehandeld'];
+    /** Oude statuswaarden (voor het samenvoegen van 'opgelost'/'gesloten' tot 'afgehandeld') — nog wel herkend bij import van oudere exports. */
+    private const STATUS_ALIASSEN = ['opgelost' => 'afgehandeld', 'gesloten' => 'afgehandeld'];
 
-    public static function export(): string
+    /** @param array $tickets Al gefilterde/gezochte tickets (zie TicketController::export()) — exporteert exact deze set. */
+    public static function export(array $tickets): string
     {
-        $tickets = TicketModel::allWithRelations();
-
         $rows = [];
         foreach ($tickets as $t) {
             $rows[] = [
@@ -33,7 +34,7 @@ class TicketExcel
                 $t['prioriteit'],
                 $t['impact'],
                 $t['schatting_minuten'],
-                in_array($t['status'], ['opgelost', 'gesloten'], true) ? 1 : 0,
+                $t['status'] === 'afgehandeld' ? 1 : 0,
                 substr((string) $t['created_at'], 0, 10),
                 $t['deadline'] ?? '',
                 $t['behandelaar_naam'] ?? '',
@@ -104,17 +105,21 @@ class TicketExcel
             $statusNote = $get($row, 'Status');
             $statusRaw = strtolower(str_replace(' ', '_', $statusNote));
 
+            $statusHerkend = in_array($statusRaw, self::STATUSSEN, true) || isset(self::STATUS_ALIASSEN[$statusRaw]);
+
             if (in_array($statusRaw, self::STATUSSEN, true)) {
                 $status = $statusRaw;
+            } elseif (isset(self::STATUS_ALIASSEN[$statusRaw])) {
+                $status = self::STATUS_ALIASSEN[$statusRaw];
             } elseif ($behandeld) {
-                $status = 'opgelost';
+                $status = 'afgehandeld';
             } elseif ($statusNote !== '') {
                 $status = 'in_behandeling';
             } else {
                 $status = 'open';
             }
 
-            if ($statusNote !== '' && !in_array($statusRaw, self::STATUSSEN, true)) {
+            if ($statusNote !== '' && !$statusHerkend) {
                 $notes[] = "Status (Excel): {$statusNote}";
             }
 
