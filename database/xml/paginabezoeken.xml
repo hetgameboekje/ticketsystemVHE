@@ -6,6 +6,7 @@
     <column name="ip_adres" type="VARCHAR" length="45" nullable="false"/>
     <column name="methode" type="VARCHAR" length="10" nullable="false"/>
     <column name="url" type="VARCHAR" length="500" nullable="false"/>
+    <column name="parameters" type="TEXT" nullable="true"/>
     <column name="user_agent" type="VARCHAR" length="255" nullable="true"/>
     <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
   </columns>

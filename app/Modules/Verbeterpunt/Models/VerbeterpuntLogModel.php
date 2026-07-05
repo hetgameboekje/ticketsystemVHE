@@ -8,7 +8,7 @@ use App\Core\Model;
 class VerbeterpuntLogModel extends Model
 {
     protected static string $table = 'verbeterpunt_logs';
-    protected static array $fillable = ['verbeterpunt_id', 'user_id', 'opmerking', 'status_van', 'status_naar'];
+    protected static array $fillable = ['verbeterpunt_id', 'user_id', 'titel', 'opmerking', 'status_van', 'status_naar'];
 
     public static function forVerbeterpunt(int $verbeterpuntId): array
     {

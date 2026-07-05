@@ -2,8 +2,9 @@
 <table name="verbeterpunt_logs" engine="InnoDB">
   <columns>
     <column name="id" type="INT" primary="true" auto_increment="true"/>
-    <column name="verbeterpunt_id" type="INT" nullable="false" references="verbeterpunten.id" on_delete="CASCADE"/>
-    <column name="user_id" type="INT" references="users.id"/>
+    <column name="verbeterpunt_id" type="BIGINT UNSIGNED" nullable="false" references="verbeterpunten.id" on_delete="CASCADE"/>
+    <column name="user_id" type="BIGINT UNSIGNED" references="users.id"/>
+    <column name="titel" type="VARCHAR" length="255"/>
     <column name="opmerking" type="TEXT" nullable="false"/>
     <column name="status_van" type="VARCHAR" length="30"/>
     <column name="status_naar" type="VARCHAR" length="30"/>

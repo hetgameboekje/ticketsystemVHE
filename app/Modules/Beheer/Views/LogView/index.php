@@ -38,6 +38,7 @@ use App\Core\Table;
       ->column('ip_adres', 'IP-adres', fn (array $b) => htmlspecialchars($b['ip_adres']), ['class' => 'col-2', 'sortable' => false])
       ->column('methode', 'Methode', fn (array $b) => htmlspecialchars($b['methode']), ['class' => 'col-2', 'sortable' => false])
       ->column('url', 'URL', fn (array $b) => '<span class="text-truncate d-block" title="' . htmlspecialchars($b['url']) . '">' . htmlspecialchars($b['url']) . '</span>', ['sortable' => false])
+      ->column('parameters', 'Parameters', fn (array $b) => paginaBezoekParametersHtml($b['parameters']), ['sortable' => false])
       ->rows($bezoeken);
   echo $table->render();
   ?>

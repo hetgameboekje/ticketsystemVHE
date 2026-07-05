@@ -3,6 +3,7 @@
 namespace App\Modules\CyberRisico;
 
 use App\Core\CrudController;
+use App\Modules\CyberRisico\Models\CyberRisicoLogModel;
 use App\Modules\CyberRisico\Models\CyberRisicoModel;
 use App\Shared\User\Models\UserModel;
 
@@ -14,6 +15,26 @@ class CyberRisicoController extends CrudController
     protected string $activeModule = 'cyberrisicos';
     protected string $pageTitle = "Cyberrisico's";
     protected ?string $searchColumn = 'titel';
+
+    public function show(int $id): void
+    {
+        $this->requirePermission($this->activeModule, 'lezen');
+        $item = CyberRisicoModel::findWithRelations($id);
+
+        if ($item === null) {
+            http_response_code(404);
+            echo 'Niet gevonden.';
+            return;
+        }
+
+        $this->render("{$this->viewDir}/show", [
+            'item' => $item,
+            'logs' => CyberRisicoLogModel::forCyberRisico($id),
+            'activeModule' => $this->activeModule,
+            'pageTitle' => $this->pageTitle,
+            'routeBase' => $this->routeBase,
+        ]);
+    }
 
     private const STATUS_LABELS = [
         'nieuw' => 'Nieuw',

@@ -6,7 +6,7 @@ class Xlsx
 {
     private const EXCEL_EPOCH = '1899-12-30';
 
-    public static function write(string $sheetName, array $headers, array $rows, array $dateColumns = []): string
+    public static function write(string $sheetName, array $headers, array $rows, array $dateColumns = [], string $author = 'Ticketsysteem VHE'): string
     {
         $dateColumnIndexes = array_flip(array_map(
             fn (string $name) => array_search($name, $headers, true),
@@ -14,12 +14,15 @@ class Xlsx
         ));
 
         $sheetXml = self::buildSheetXml($headers, $rows, array_keys($dateColumnIndexes));
+        $now = gmdate('Y-m-d\TH:i:s\Z');
 
         $tmp = tempnam(sys_get_temp_dir(), 'xlsx_');
         $zip = new \ZipArchive();
         $zip->open($tmp, \ZipArchive::OVERWRITE);
         $zip->addFromString('[Content_Types].xml', self::contentTypesXml());
         $zip->addFromString('_rels/.rels', self::rootRelsXml());
+        $zip->addFromString('docProps/core.xml', self::coreXml($author, $now));
+        $zip->addFromString('docProps/app.xml', self::appXml($sheetName));
         $zip->addFromString('xl/workbook.xml', self::workbookXml($sheetName));
         $zip->addFromString('xl/_rels/workbook.xml.rels', self::workbookRelsXml());
         $zip->addFromString('xl/styles.xml', self::stylesXml());
@@ -199,6 +202,11 @@ class Xlsx
 
     private static function xmlEscape(string $value): string
     {
+        // Regeltekens buiten tab/lf/cr zijn niet toegestaan in XML 1.0. Zulke tekens (bv. uit
+        // geplakte Word-tekst) maken sheet1.xml ongeldig, waarna Excel het bestand als beschadigd
+        // meldt en de betreffende celinformatie bij het openen verwijdert.
+        $value = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $value);
+
         return htmlspecialchars($value, ENT_QUOTES | ENT_XML1, 'UTF-8');
     }
 
@@ -248,6 +256,8 @@ class Xlsx
             . '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
             . '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
             . '<Default Extension="xml" ContentType="application/xml"/>'
+            . '<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>'
+            . '<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>'
             . '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
             . '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
             . '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
@@ -259,7 +269,43 @@ class Xlsx
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
             . '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
             . '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+            . '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>'
+            . '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>'
             . '</Relationships>';
+    }
+
+    private static function coreXml(string $author, string $timestamp): string
+    {
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            . '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" '
+            . 'xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" '
+            . 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+            . '<dc:creator>' . self::xmlEscape($author) . '</dc:creator>'
+            . '<cp:lastModifiedBy>' . self::xmlEscape($author) . '</cp:lastModifiedBy>'
+            . '<dcterms:created xsi:type="dcterms:W3CDTF">' . $timestamp . '</dcterms:created>'
+            . '<dcterms:modified xsi:type="dcterms:W3CDTF">' . $timestamp . '</dcterms:modified>'
+            . '</cp:coreProperties>';
+    }
+
+    private static function appXml(string $sheetName): string
+    {
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            . '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" '
+            . 'xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">'
+            . '<Application>Ticketsysteem VHE</Application>'
+            . '<DocSecurity>0</DocSecurity>'
+            . '<ScaleCrop>false</ScaleCrop>'
+            . '<HeadingPairs><vt:vector size="2" baseType="variant">'
+            . '<vt:variant><vt:lpstr>Werkbladen</vt:lpstr></vt:variant>'
+            . '<vt:variant><vt:i4>1</vt:i4></vt:variant>'
+            . '</vt:vector></HeadingPairs>'
+            . '<TitlesOfParts><vt:vector size="1" baseType="lpstr">'
+            . '<vt:lpstr>' . self::xmlEscape($sheetName) . '</vt:lpstr>'
+            . '</vt:vector></TitlesOfParts>'
+            . '<LinksUpToDate>false</LinksUpToDate>'
+            . '<SharedDoc>false</SharedDoc>'
+            . '<HyperlinksChanged>false</HyperlinksChanged>'
+            . '</Properties>';
     }
 
     private static function workbookXml(string $sheetName): string

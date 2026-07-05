@@ -13,6 +13,7 @@ if (!function_exists('statusLabel')) {
     function statusLabel(string $status): string
     {
         $labels = [
+            'alle' => 'Alle statussen',
             'open' => 'Open',
             'in_behandeling' => 'In behandeling',
             'wacht_op_info' => 'Wacht op info',
@@ -123,6 +124,29 @@ if (!function_exists('filterSelect')) {
         $html .= '</select>';
 
         return $html;
+    }
+}
+
+if (!function_exists('paginaBezoekParametersHtml')) {
+    /** Rendert de JSON-parameters van een paginabezoek (zie PaginaBezoekLogger) als leesbare key: value-regels. */
+    function paginaBezoekParametersHtml(?string $parametersJson): string
+    {
+        if ($parametersJson === null || $parametersJson === '') {
+            return '<span style="color:var(--color-text-tertiary)">—</span>';
+        }
+
+        $params = json_decode($parametersJson, true);
+        if (!is_array($params) || empty($params)) {
+            return '<span style="color:var(--color-text-tertiary)">—</span>';
+        }
+
+        $lines = [];
+        foreach ($params as $key => $value) {
+            $waarde = is_array($value) ? json_encode($value) : (string) $value;
+            $lines[] = '<div><strong>' . htmlspecialchars((string) $key) . ':</strong> ' . htmlspecialchars($waarde) . '</div>';
+        }
+
+        return '<div style="font-size:12px;line-height:1.5">' . implode('', $lines) . '</div>';
     }
 }
 

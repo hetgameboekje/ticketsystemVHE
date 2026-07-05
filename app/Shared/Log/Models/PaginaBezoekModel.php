@@ -8,7 +8,7 @@ use App\Core\Model;
 class PaginaBezoekModel extends Model
 {
     protected static string $table = 'paginabezoeken';
-    protected static array $fillable = ['user_id', 'ip_adres', 'methode', 'url', 'user_agent'];
+    protected static array $fillable = ['user_id', 'ip_adres', 'methode', 'url', 'parameters', 'user_agent'];
 
     /**
      * @param array{user_id?:string, ip_adres?:string, q?:string} $filters

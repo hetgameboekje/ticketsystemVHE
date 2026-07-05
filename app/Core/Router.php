@@ -42,7 +42,7 @@ class Router
                 array_shift($matches);
                 $params = array_map('intval', $matches);
 
-                PaginaBezoekLogger::log($method, $path);
+                PaginaBezoekLogger::log($method, $uri);
 
                 [$class, $action] = $handler;
                 $controller = new $class();

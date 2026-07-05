@@ -33,7 +33,11 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => $log['status_naar']
       <div style="padding:16px;border-bottom:0.5px solid var(--color-border-tertiary)">
         <form method="post" action="/verbeterpunten/<?= $item['id'] ?>/log" id="verbeterpuntLogForm">
           <div class="form-group">
-            <label class="form-label">Opmerking toevoegen</label>
+            <label class="form-label">Titel</label>
+            <input type="text" name="titel" placeholder="Korte titel voor deze opmerking">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Omschrijving</label>
             <textarea name="opmerking" placeholder="Beschrijf de voortgang of vraag om meer informatie..."></textarea>
           </div>
           <button class="btn btn-primary" type="submit">Opslaan</button>
@@ -49,6 +53,9 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => $log['status_naar']
             <span class="log-user"><?= htmlspecialchars($log['user_naam'] ?? 'Onbekend') ?></span>
             <span class="log-time"><?= formatDatumTijd($log['created_at']) ?></span>
           </div>
+          <?php if (!empty($log['titel'])): ?>
+            <div class="log-title" style="font-weight:600;margin-bottom:2px"><?= htmlspecialchars($log['titel']) ?></div>
+          <?php endif; ?>
           <div class="log-text"><?= nl2br(htmlspecialchars($log['opmerking'])) ?></div>
         </div>
         <?php endforeach; ?>

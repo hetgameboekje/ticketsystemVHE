@@ -14,8 +14,12 @@ class TicketModel extends Model
     ];
     protected static bool $softDeletes = true;
 
+    // 'opgelost'/'gesloten' zijn oude statuswaarden van vóór het samenvoegen tot 'afgehandeld' (zie
+    // TicketExcel::STATUS_ALIASSEN). Bestaande rijen met die waarde worden hier genormaliseerd naar
+    // 'afgehandeld' zodat filtering/weergave overal consistent blijft, ook zonder dataconversie.
     private const SELECT = "
-        SELECT t.*, a.naam AS afdeling_naam, b.naam AS behandelaar_naam
+        SELECT t.*, a.naam AS afdeling_naam, b.naam AS behandelaar_naam,
+            CASE WHEN t.status IN ('opgelost', 'gesloten') THEN 'afgehandeld' ELSE t.status END AS status
         FROM tickets t
         LEFT JOIN afdelingen a ON a.id = t.afdeling_id
         LEFT JOIN users b ON b.id = t.behandelaar_id

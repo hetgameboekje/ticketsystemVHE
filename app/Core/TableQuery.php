@@ -36,7 +36,7 @@ class TableQuery
         $filters = array_diff_key($params, array_flip(self::RESERVED));
 
         foreach ($filters as $column => $value) {
-            if (!is_string($column) || !is_scalar($value) || $value === '') {
+            if (!is_string($column) || !is_scalar($value) || $value === '' || $value === 'alle') {
                 continue;
             }
 

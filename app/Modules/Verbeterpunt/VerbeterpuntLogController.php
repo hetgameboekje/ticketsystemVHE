@@ -19,6 +19,7 @@ class VerbeterpuntLogController extends Controller
             return;
         }
 
+        $titel = trim($_POST['titel'] ?? '');
         $opmerking = trim($_POST['opmerking'] ?? '');
         $nieuweStatus = $_POST['status'] ?? '';
         $statusGewijzigd = $nieuweStatus !== '' && $nieuweStatus !== $verbeterpunt['status'];
@@ -27,6 +28,7 @@ class VerbeterpuntLogController extends Controller
             VerbeterpuntLogModel::create([
                 'verbeterpunt_id' => $verbeterpuntId,
                 'user_id' => $this->currentUserId(),
+                'titel' => $titel !== '' ? $titel : null,
                 'opmerking' => $opmerking !== '' ? $opmerking : 'Status bijgewerkt.',
                 'status_van' => $statusGewijzigd ? $verbeterpunt['status'] : null,
                 'status_naar' => $statusGewijzigd ? $nieuweStatus : null,

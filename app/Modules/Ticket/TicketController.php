@@ -52,9 +52,9 @@ class TicketController extends CrudController
         $status = $_GET['status'] ?? '';
 
         if ($status === 'alle') {
-            // 'alle' is een expliciete keuze voor "geen statusfilter" — verwijderen zodat
-            // TableQuery::apply() hierna niet op de letterlijke waarde 'alle' probeert te matchen.
-            unset($_GET['status']);
+            // 'alle' is een expliciete keuze voor "geen statusfilter". TableQuery::filter()
+            // negeert deze waarde zelf al, dus $_GET blijft ongewijzigd — anders raakt de
+            // dropdown zijn geselecteerde optie kwijt zodra de pagina opnieuw rendert.
             return $items;
         }
 
@@ -95,7 +95,7 @@ class TicketController extends CrudController
         $items = $this->applyDefaultFilters($allItems);
         $items = TableQuery::apply($items, $_GET, $this->searchColumn);
 
-        $content = TicketExcel::export($items);
+        $content = TicketExcel::export($items, $this->currentUser()['naam'] ?? 'Ticketsysteem VHE');
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="tickets-export-' . date('Y-m-d') . '.xlsx"');

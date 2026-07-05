@@ -9,11 +9,14 @@ use App\Modules\Beheer\BeheerController;
 use App\Modules\Beheer\LogController;
 use App\Modules\Beheer\RechtenController;
 use App\Modules\CyberRisico\CyberRisicoController;
+use App\Modules\CyberRisico\CyberRisicoLogController;
 use App\Modules\HardwareUitgave\HardwareUitgaveController;
 use App\Modules\Kennisbank\KennisbankController;
+use App\Modules\Kennisbank\KennisbankLogController;
 use App\Modules\Medewerker\MedewerkerController;
 use App\Modules\Printer\PrinterController;
 use App\Modules\Reflectie\ReflectieController;
+use App\Modules\Reflectie\ReflectieLogController;
 use App\Modules\Ticket\TicketController;
 use App\Modules\Ticket\TicketLogController;
 use App\Modules\Uitgifte\UitgifteController;
@@ -59,6 +62,9 @@ $router->get('/tickets/export', [TicketController::class, 'export']);
 $router->post('/tickets/import', [TicketController::class, 'import']);
 
 $router->post('/verbeterpunten/{id}/log', [VerbeterpuntLogController::class, 'store']);
+$router->post('/reflecties/{id}/log', [ReflectieLogController::class, 'store']);
+$router->post('/kennisbank/{id}/log', [KennisbankLogController::class, 'store']);
+$router->post('/cyberrisicos/{id}/log', [CyberRisicoLogController::class, 'store']);
 
 $router->get('/voorraad/{id}/barcode', [VoorraadController::class, 'barcode']);
 
