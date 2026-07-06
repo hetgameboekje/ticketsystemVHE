@@ -50,9 +50,14 @@ class UitgifteController extends CrudController
         }
 
         $item = VoorraadItemModel::findAvailableByBarcode($barcode);
+        $onbekend = false;
+
         if ($item === null) {
-            $_SESSION['flash_error'] = "Geen beschikbaar voorraaditem gevonden met barcode \"{$barcode}\" (al uitgegeven of onbekend).";
-            $this->redirect('/uitgiften/create?barcode=' . urlencode($barcode));
+            // Geen bestaand voorraaditem met deze barcode/naam: automatisch als voorraad aanmaken
+            // onder het vaste type 'Overig' i.p.v. de uitgifte te weigeren.
+            $itemId = VoorraadItemModel::createOnbekend($barcode, $this->currentUserId());
+            $item = VoorraadItemModel::findWithRelations($itemId);
+            $onbekend = true;
         }
 
         $id = UitgifteModel::create([
@@ -63,9 +68,13 @@ class UitgifteController extends CrudController
             'uitgegeven_door_id' => $this->currentUserId(),
         ]);
 
-        VoorraadItemModel::setStatus((int) $item['id'], 'uitgegeven');
+        if (!$onbekend) {
+            VoorraadItemModel::setStatus((int) $item['id'], 'uitgegeven');
+        }
 
-        $_SESSION['flash_success'] = "{$item['type_naam']} ({$item['barcode']}) toegewezen aan {$medewerkerNaam}.";
+        $_SESSION['flash_success'] = $onbekend
+            ? "\"{$barcode}\" stond niet in de voorraad — automatisch aangemaakt onder 'Overig' en toegewezen aan {$medewerkerNaam}."
+            : "{$item['type_naam']} ({$item['barcode']}) toegewezen aan {$medewerkerNaam}.";
         $this->redirect("/uitgiften/{$id}");
     }
 

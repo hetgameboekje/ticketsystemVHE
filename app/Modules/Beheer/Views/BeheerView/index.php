@@ -64,6 +64,16 @@
         </form>
       </div>
     </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-header"><span class="card-title">Exporteren</span></div>
+      <div style="padding:16px">
+        <p style="font-size:13px;color:var(--color-text-secondary);margin-top:0">
+          Exporteer een of meer modules naar Excel (elke module een eigen werkblad) of CSV.
+        </p>
+        <a class="btn btn-primary" href="/beheer/exporteren">Naar exporteren</a>
+      </div>
+    </div>
   </div>
 
   <div>

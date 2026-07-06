@@ -6,6 +6,7 @@
     <column name="user_id" type="BIGINT UNSIGNED" references="users.id"/>
     <column name="titel" type="VARCHAR" length="255" nullable="false"/>
     <column name="omschrijving" type="TEXT" nullable="false"/>
+    <column name="volgorde" type="INT" nullable="false" default="0"/>
     <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
   </columns>
 </table>

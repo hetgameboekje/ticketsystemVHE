@@ -11,6 +11,7 @@ class TicketModel extends Model
     protected static array $fillable = [
         'titel', 'omschrijving', 'opdrachtgever_naam', 'afdeling_id', 'prioriteit',
         'impact', 'schatting_minuten', 'deadline', 'behandelaar_id', 'status', 'aangemaakt_door_id',
+        'escalatie_nummer', 'escalatie_instantie',
     ];
     protected static bool $softDeletes = true;
 
@@ -35,6 +36,31 @@ class TicketModel extends Model
     public static function recent(int $limit = 5): array
     {
         $stmt = Database::pdo()->prepare(self::SELECT . ' ORDER BY t.created_at DESC LIMIT ?');
+        $stmt->bindValue(1, $limit, \PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Actieve tickets voor het dashboard: eerst alles 'in_behandeling', dan alles 'open',
+     * dan alles 'wacht_op_info' — elk blok intern gesorteerd op meest recent. Afgehandelde
+     * (incl. de oude 'opgelost'/'gesloten' waarden) tickets komen hier nooit in voor.
+     */
+    public static function actief(int $limit = 5): array
+    {
+        $join = 'LEFT JOIN afdelingen a ON a.id = t.afdeling_id LEFT JOIN users b ON b.id = t.behandelaar_id';
+        $branch = fn (string $status, int $volgorde) => "
+            (SELECT t.*, a.naam AS afdeling_naam, b.naam AS behandelaar_naam, {$volgorde} AS volgorde
+             FROM tickets t {$join}
+             WHERE t.deleted_at IS NULL AND t.status = '{$status}'
+             ORDER BY t.created_at DESC)
+        ";
+
+        $sql = 'SELECT * FROM ('
+            . $branch('in_behandeling', 0) . 'UNION ALL' . $branch('open', 1) . 'UNION ALL' . $branch('wacht_op_info', 2)
+            . ') gecombineerd ORDER BY volgorde ASC, created_at DESC LIMIT ?';
+
+        $stmt = Database::pdo()->prepare($sql);
         $stmt->bindValue(1, $limit, \PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
@@ -67,6 +93,19 @@ class TicketModel extends Model
             'SELECT 1 FROM tickets WHERE LOWER(titel) = LOWER(?) AND LOWER(opdrachtgever_naam) = LOWER(?) AND deleted_at IS NULL LIMIT 1'
         );
         $stmt->execute([trim($titel), trim($opdrachtgever)]);
+        return $stmt->fetchColumn() !== false;
+    }
+
+    /** Dedupe-check voor de e-mail-intake (zie TicketEmailIntakeController): zelfde afzender+titel in de afgelopen $dagen. */
+    public static function existsRecentByAfzenderEnTitel(string $titel, string $afzender, int $dagen = 30): bool
+    {
+        $stmt = Database::pdo()->prepare(
+            'SELECT 1 FROM tickets
+             WHERE LOWER(titel) = LOWER(?) AND LOWER(opdrachtgever_naam) = LOWER(?)
+               AND created_at >= (NOW() - INTERVAL ? DAY) AND deleted_at IS NULL
+             LIMIT 1'
+        );
+        $stmt->execute([trim($titel), trim($afzender), $dagen]);
         return $stmt->fetchColumn() !== false;
     }
 

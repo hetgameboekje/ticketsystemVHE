@@ -1,7 +1,7 @@
 <?php
 /** @var array $mag */
 /** @var array $stats */
-/** @var array $recenteTickets */
+/** @var array $actieveTickets */
 /** @var array $voorraadOverview */
 /** @var int $cyberrisicosOpen */
 /** @var array $cyberrisicosPerDag */
@@ -404,12 +404,12 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
 <?php if ($mag['tickets']['lezen']): ?>
 <div class="card shadow-sm mb-3">
     <div class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <span class="fw-semibold">Recente tickets</span>
+        <span class="fw-semibold">Actieve tickets</span>
         <a class="btn btn-sm btn-outline-secondary" href="/tickets">Alle tickets &rarr;</a>
     </div>
 
-    <?php if (empty($recenteTickets)): ?>
-        <div class="card-body text-body-secondary">Nog geen tickets aangemaakt.</div>
+    <?php if (empty($actieveTickets)): ?>
+        <div class="card-body text-body-secondary">Geen actieve tickets.</div>
     <?php else: ?>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
@@ -423,7 +423,7 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($recenteTickets as $t): ?>
+                    <?php foreach ($actieveTickets as $t): ?>
                         <tr class="cursor-pointer" onclick="window.location='/tickets/<?= (int) $t['id'] ?>'">
                             <td class="text-body-secondary text-nowrap">#<?= (int) $t['id'] ?></td>
                             <td>

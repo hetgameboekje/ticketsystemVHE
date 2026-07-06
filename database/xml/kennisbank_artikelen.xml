@@ -6,6 +6,9 @@
     <column name="categorie" type="VARCHAR" length="100" nullable="false" default="'Algemeen'"/>
     <column name="inhoud" type="TEXT" nullable="false"/>
     <column name="auteur_id" type="INT" references="users.id"/>
+    <column name="quick_action_type" type="VARCHAR" length="30"/>
+    <column name="quick_action_omschrijving" type="VARCHAR" length="255"/>
+    <column name="quick_action_script" type="TEXT"/>
     <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
     <column name="updated_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP" on_update="CURRENT_TIMESTAMP"/>
     <column name="deleted_at" type="TIMESTAMP"/>

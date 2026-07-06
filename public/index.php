@@ -6,6 +6,7 @@ use App\Core\Router;
 use App\Modules\Account\AccountController;
 use App\Modules\Agenda\AgendaController;
 use App\Modules\Beheer\BeheerController;
+use App\Modules\Beheer\ExportController;
 use App\Modules\Beheer\LogController;
 use App\Modules\Beheer\RechtenController;
 use App\Modules\CyberRisico\CyberRisicoController;
@@ -18,7 +19,11 @@ use App\Modules\Printer\PrinterController;
 use App\Modules\Reflectie\ReflectieController;
 use App\Modules\Reflectie\ReflectieLogController;
 use App\Modules\Ticket\TicketController;
+use App\Modules\Ticket\TicketEmailIntakeController;
 use App\Modules\Ticket\TicketLogController;
+use App\Modules\Tools\PhonebookController;
+use App\Modules\Tools\SignatureController;
+use App\Modules\Tools\ToolsController;
 use App\Modules\Uitgifte\UitgifteController;
 use App\Modules\Verbeterpunt\VerbeterpuntController;
 use App\Modules\Verbeterpunt\VerbeterpuntLogController;
@@ -58,12 +63,30 @@ foreach ($modules as $routeBase => $controller) {
 }
 
 $router->post('/tickets/{id}/log', [TicketLogController::class, 'store']);
+$router->post('/tickets/{id}/escalatie', [TicketController::class, 'escalatie']);
+$router->post('/api/tickets/vanuit-email', [TicketEmailIntakeController::class, 'store']);
+
+$router->get('/tools', [ToolsController::class, 'index']);
+
+$router->get('/tools/telefoonlijst', [PhonebookController::class, 'index']);
+$router->post('/tools/telefoonlijst', [PhonebookController::class, 'store']);
+$router->get('/tools/telefoonlijst/{id}', [PhonebookController::class, 'show']);
+$router->get('/tools/telefoonlijst/{id}/download', [PhonebookController::class, 'download']);
+$router->post('/tools/telefoonlijst/{id}/verwijderen', [PhonebookController::class, 'destroy']);
+
+$router->get('/tools/handtekeningen', [SignatureController::class, 'index']);
+$router->get('/tools/handtekeningen/nieuw', [SignatureController::class, 'create']);
+$router->post('/tools/handtekeningen', [SignatureController::class, 'store']);
+$router->get('/tools/handtekeningen/{id}/bewerken', [SignatureController::class, 'edit']);
+$router->post('/tools/handtekeningen/{id}', [SignatureController::class, 'update']);
+$router->post('/tools/handtekeningen/{id}/verwijderen', [SignatureController::class, 'destroy']);
 $router->get('/tickets/export', [TicketController::class, 'export']);
 $router->post('/tickets/import', [TicketController::class, 'import']);
 
 $router->post('/verbeterpunten/{id}/log', [VerbeterpuntLogController::class, 'store']);
 $router->post('/reflecties/{id}/log', [ReflectieLogController::class, 'store']);
 $router->post('/kennisbank/{id}/log', [KennisbankLogController::class, 'store']);
+$router->post('/kennisbank/{id}/log/volgorde', [KennisbankLogController::class, 'reorder']);
 $router->post('/cyberrisicos/{id}/log', [CyberRisicoLogController::class, 'store']);
 
 $router->get('/voorraad/{id}/barcode', [VoorraadController::class, 'barcode']);
@@ -104,6 +127,9 @@ $router->post('/beheer/rechten/{id}/verwijderen', [RechtenController::class, 've
 $router->post('/beheer/rechten/{id}/heractiveren', [RechtenController::class, 'heractiveren']);
 
 $router->get('/beheer/log', [LogController::class, 'index']);
+
+$router->get('/beheer/exporteren', [ExportController::class, 'index']);
+$router->post('/beheer/exporteren/uitvoeren', [ExportController::class, 'export']);
 
 $router->get('/privacybeleid', [LegalController::class, 'privacybeleid']);
 

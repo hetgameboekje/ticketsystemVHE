@@ -2,6 +2,7 @@
 
 namespace App\Modules\Voorraad\Models;
 
+use App\Core\Database;
 use App\Core\Model;
 
 class VoorraadTypeModel extends Model
@@ -12,5 +13,19 @@ class VoorraadTypeModel extends Model
     public static function all(string $orderBy = 'naam ASC'): array
     {
         return parent::all($orderBy);
+    }
+
+    /** Vangnet-type voor uitgiftes van items die niet in de voorraadcatalogus staan (zie UitgifteController::store()). */
+    public static function findOrCreateOverig(): int
+    {
+        $stmt = Database::pdo()->prepare('SELECT id FROM voorraad_types WHERE LOWER(naam) = LOWER(?)');
+        $stmt->execute(['Overig']);
+        $id = $stmt->fetchColumn();
+
+        if ($id !== false) {
+            return (int) $id;
+        }
+
+        return self::create(['naam' => 'Overig', 'code' => 'OVERIG']);
     }
 }

@@ -14,6 +14,13 @@ class KennisbankController extends CrudController
     protected string $activeModule = 'kennisbank';
     protected string $pageTitle = 'Kennisbank';
 
+    private const QUICK_ACTION_TYPES = ['powershell' => 'PowerShell', 'batch' => 'Batch', 'bash' => 'Bash', 'overig' => 'Overig'];
+
+    protected function formData(): array
+    {
+        return ['quickActionTypes' => self::QUICK_ACTION_TYPES];
+    }
+
     public function show(int $id): void
     {
         $this->requirePermission($this->activeModule, 'lezen');
@@ -36,10 +43,18 @@ class KennisbankController extends CrudController
 
     protected function validatedData(array $post, bool $isUpdate = false): array
     {
+        $quickActionEnabled = ($post['quick_action_enabled'] ?? '0') === '1';
+        $quickActionScript = $quickActionEnabled ? trim($post['quick_action_script'] ?? '') : '';
+
         $data = [
             'titel' => trim($post['titel'] ?? ''),
             'categorie' => trim($post['categorie'] ?? '') ?: 'Algemeen',
             'inhoud' => trim($post['inhoud'] ?? ''),
+            'quick_action_type' => $quickActionScript !== ''
+                ? (in_array($post['quick_action_type'] ?? '', array_keys(self::QUICK_ACTION_TYPES), true) ? $post['quick_action_type'] : 'overig')
+                : null,
+            'quick_action_omschrijving' => $quickActionScript !== '' ? (trim($post['quick_action_omschrijving'] ?? '') ?: null) : null,
+            'quick_action_script' => $quickActionScript !== '' ? $quickActionScript : null,
         ];
 
         if (!$isUpdate) {

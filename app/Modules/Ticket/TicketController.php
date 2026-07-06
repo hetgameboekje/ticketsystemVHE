@@ -85,6 +85,25 @@ class TicketController extends CrudController
         ]);
     }
 
+    /** Los, klein formulier op de detailpagina — staat bewust los van de gewone bewerk-flow. */
+    public function escalatie(int $id): void
+    {
+        $this->requirePermission($this->activeModule, 'schrijven');
+
+        if (TicketModel::find($id) === null) {
+            http_response_code(404);
+            echo 'Niet gevonden.';
+            return;
+        }
+
+        TicketModel::update($id, [
+            'escalatie_nummer' => trim($_POST['escalatie_nummer'] ?? '') ?: null,
+            'escalatie_instantie' => trim($_POST['escalatie_instantie'] ?? '') ?: null,
+        ]);
+
+        $this->redirect("/tickets/{$id}");
+    }
+
     public function export(): void
     {
         $this->requirePermission($this->activeModule, 'lezen');

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="phonebook_jobs" engine="InnoDB">
+  <columns>
+    <column name="id" type="INT" primary="true" auto_increment="true"/>
+    <column name="original_filename" type="VARCHAR" length="255" nullable="false"/>
+    <column name="stored_path" type="VARCHAR" length="500" nullable="false"/>
+    <column name="result_path" type="VARCHAR" length="500"/>
+    <column name="status" type="VARCHAR" length="20" nullable="false" default="'queued'"/>
+    <column name="contact_count" type="INT"/>
+    <column name="error_message" type="VARCHAR" length="500"/>
+    <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
+    <column name="processed_at" type="TIMESTAMP"/>
+  </columns>
+</table>

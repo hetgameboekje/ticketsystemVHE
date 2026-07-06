@@ -8,25 +8,42 @@ class Xlsx
 
     public static function write(string $sheetName, array $headers, array $rows, array $dateColumns = [], string $author = 'Ticketsysteem VHE'): string
     {
-        $dateColumnIndexes = array_flip(array_map(
-            fn (string $name) => array_search($name, $headers, true),
-            array_intersect($dateColumns, $headers)
-        ));
+        return self::writeMultiSheet([
+            ['name' => $sheetName, 'headers' => $headers, 'rows' => $rows, 'dateColumns' => $dateColumns],
+        ], $author);
+    }
 
-        $sheetXml = self::buildSheetXml($headers, $rows, array_keys($dateColumnIndexes));
+    /**
+     * Zoals write(), maar met meerdere werkbladen in één workbook.
+     * @param array<int, array{name: string, headers: array, rows: array, dateColumns?: array}> $sheets
+     */
+    public static function writeMultiSheet(array $sheets, string $author = 'Ticketsysteem VHE'): string
+    {
         $now = gmdate('Y-m-d\TH:i:s\Z');
+        $sheetNames = array_column($sheets, 'name');
 
         $tmp = tempnam(sys_get_temp_dir(), 'xlsx_');
         $zip = new \ZipArchive();
         $zip->open($tmp, \ZipArchive::OVERWRITE);
-        $zip->addFromString('[Content_Types].xml', self::contentTypesXml());
+        $zip->addFromString('[Content_Types].xml', self::contentTypesXml(count($sheets)));
         $zip->addFromString('_rels/.rels', self::rootRelsXml());
         $zip->addFromString('docProps/core.xml', self::coreXml($author, $now));
-        $zip->addFromString('docProps/app.xml', self::appXml($sheetName));
-        $zip->addFromString('xl/workbook.xml', self::workbookXml($sheetName));
-        $zip->addFromString('xl/_rels/workbook.xml.rels', self::workbookRelsXml());
+        $zip->addFromString('docProps/app.xml', self::appXml($sheetNames));
+        $zip->addFromString('xl/workbook.xml', self::workbookXml($sheetNames));
+        $zip->addFromString('xl/_rels/workbook.xml.rels', self::workbookRelsXml(count($sheets)));
         $zip->addFromString('xl/styles.xml', self::stylesXml());
-        $zip->addFromString('xl/worksheets/sheet1.xml', $sheetXml);
+
+        foreach ($sheets as $i => $sheet) {
+            $headers = $sheet['headers'];
+            $dateColumns = $sheet['dateColumns'] ?? [];
+            $dateColumnIndexes = array_flip(array_map(
+                fn (string $name) => array_search($name, $headers, true),
+                array_intersect($dateColumns, $headers)
+            ));
+            $sheetXml = self::buildSheetXml($headers, $sheet['rows'], array_keys($dateColumnIndexes));
+            $zip->addFromString('xl/worksheets/sheet' . ($i + 1) . '.xml', $sheetXml);
+        }
+
         $zip->close();
 
         $content = file_get_contents($tmp);
@@ -250,8 +267,13 @@ class Xlsx
         return $xml;
     }
 
-    private static function contentTypesXml(): string
+    private static function contentTypesXml(int $sheetCount): string
     {
+        $overrides = '';
+        for ($i = 1; $i <= $sheetCount; $i++) {
+            $overrides .= '<Override PartName="/xl/worksheets/sheet' . $i . '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>';
+        }
+
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
             . '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
             . '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
@@ -260,7 +282,7 @@ class Xlsx
             . '<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>'
             . '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
             . '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
-            . '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+            . $overrides
             . '</Types>';
     }
 
@@ -287,8 +309,14 @@ class Xlsx
             . '</cp:coreProperties>';
     }
 
-    private static function appXml(string $sheetName): string
+    /** @param string[] $sheetNames */
+    private static function appXml(array $sheetNames): string
     {
+        $titleParts = implode('', array_map(
+            fn (string $name) => '<vt:lpstr>' . self::xmlEscape($name) . '</vt:lpstr>',
+            $sheetNames
+        ));
+
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
             . '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" '
             . 'xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">'
@@ -297,10 +325,10 @@ class Xlsx
             . '<ScaleCrop>false</ScaleCrop>'
             . '<HeadingPairs><vt:vector size="2" baseType="variant">'
             . '<vt:variant><vt:lpstr>Werkbladen</vt:lpstr></vt:variant>'
-            . '<vt:variant><vt:i4>1</vt:i4></vt:variant>'
+            . '<vt:variant><vt:i4>' . count($sheetNames) . '</vt:i4></vt:variant>'
             . '</vt:vector></HeadingPairs>'
-            . '<TitlesOfParts><vt:vector size="1" baseType="lpstr">'
-            . '<vt:lpstr>' . self::xmlEscape($sheetName) . '</vt:lpstr>'
+            . '<TitlesOfParts><vt:vector size="' . count($sheetNames) . '" baseType="lpstr">'
+            . $titleParts
             . '</vt:vector></TitlesOfParts>'
             . '<LinksUpToDate>false</LinksUpToDate>'
             . '<SharedDoc>false</SharedDoc>'
@@ -308,19 +336,31 @@ class Xlsx
             . '</Properties>';
     }
 
-    private static function workbookXml(string $sheetName): string
+    /** @param string[] $sheetNames */
+    private static function workbookXml(array $sheetNames): string
     {
+        $sheetTags = '';
+        foreach ($sheetNames as $i => $name) {
+            $n = $i + 1;
+            $sheetTags .= '<sheet name="' . self::xmlEscape($name) . '" sheetId="' . $n . '" r:id="rId' . $n . '"/>';
+        }
+
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
             . '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
-            . '<sheets><sheet name="' . self::xmlEscape($sheetName) . '" sheetId="1" r:id="rId1"/></sheets>'
+            . '<sheets>' . $sheetTags . '</sheets>'
             . '</workbook>';
     }
 
-    private static function workbookRelsXml(): string
+    private static function workbookRelsXml(int $sheetCount): string
     {
+        $rels = '';
+        for ($i = 1; $i <= $sheetCount; $i++) {
+            $rels .= '<Relationship Id="rId' . $i . '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' . $i . '.xml"/>';
+        }
+
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
             . '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-            . '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
+            . $rels
             . '</Relationships>';
     }
 

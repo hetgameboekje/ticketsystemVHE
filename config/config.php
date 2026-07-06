@@ -20,4 +20,8 @@ return [
         'username' => getenv('DB_USERNAME') ?: 'root',
         'password' => getenv('DB_PASSWORD') ?: '',
     ],
+
+    // Gedeeld geheim voor POST /api/tickets/vanuit-email (bv. het Outlook-script op it@vhe.nl).
+    // Leeg = endpoint wijst elk verzoek af. Zet via .env (TICKET_EMAIL_INTAKE_API_KEY=...), nooit hardcoded.
+    'ticketEmailIntakeApiKey' => getenv('TICKET_EMAIL_INTAKE_API_KEY') ?: '',
 ];

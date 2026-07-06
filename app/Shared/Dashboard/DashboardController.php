@@ -52,7 +52,7 @@ class DashboardController extends Controller
                 'verbeterpunten' => $mag['verbeterpunten']['lezen'] ? count(VerbeterpuntModel::all()) : 0,
                 'medewerkers' => $mag['medewerkers']['lezen'] ? count(MedewerkerModel::all()) : 0,
             ],
-            'recenteTickets' => $mag['tickets']['lezen'] ? TicketModel::recent(5) : [],
+            'actieveTickets' => $mag['tickets']['lezen'] ? TicketModel::actief(5) : [],
             'voorraadOverview' => $mag['voorraad']['lezen'] ? VoorraadItemModel::countByType() : [],
             'cyberrisicosOpen' => $mag['cyberrisicos']['lezen'] ? CyberRisicoModel::countOpen() : 0,
             'cyberrisicosPerDag' => $mag['cyberrisicos']['lezen'] ? CyberRisicoModel::countLast30Days() : [],

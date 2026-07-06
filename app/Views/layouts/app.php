@@ -91,6 +91,21 @@ $active = $activeModule ?? '';
                 </li>
                 <?php endif; ?>
 
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle<?= dropdownActive(['tools'], $active) ?>"
+                       href="#"
+                       id="toolsDropdown"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        Tools
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="toolsDropdown">
+                        <li><a class="dropdown-item" href="/tools/telefoonlijst">Telefoonlijst naar VCF</a></li>
+                        <li><a class="dropdown-item" href="/tools/handtekeningen">Handtekeningen</a></li>
+                    </ul>
+                </li>
+
                 <?php if ($magCrm): ?>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle<?= dropdownActive(['medewerkers'], $active) ?>"

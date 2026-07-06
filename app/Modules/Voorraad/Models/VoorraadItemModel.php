@@ -87,4 +87,23 @@ class VoorraadItemModel extends Model
         $stmt = Database::pdo()->prepare('UPDATE voorraad_items SET status = ? WHERE id = ?');
         $stmt->execute([$status, $id]);
     }
+
+    /**
+     * Maakt direct-uitgegeven voorraad aan voor een item dat niet in de catalogus voorkomt (zie
+     * UitgifteController::store()). Komt onder het vaste type 'Overig' te staan — dat type zelf
+     * wordt niet uitgebreid met nieuwe namen, de getypte naam komt als variant op het item te staan.
+     */
+    public static function createOnbekend(string $naam, ?int $aangemaaktDoorId): int
+    {
+        $typeId = VoorraadTypeModel::findOrCreateOverig();
+
+        return self::create([
+            'type_id' => $typeId,
+            'variant' => substr($naam, 0, 50),
+            'barcode' => 'ONBEKEND-' . uniqid(),
+            'status' => 'uitgegeven',
+            'opmerking' => "Automatisch aangemaakt vanuit uitgifte: \"{$naam}\" stond niet in de voorraadcatalogus.",
+            'aangemaakt_door_id' => $aangemaaktDoorId,
+        ]);
+    }
 }

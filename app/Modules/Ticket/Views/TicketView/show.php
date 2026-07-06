@@ -72,6 +72,23 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => $log['status_naar']
     </div>
 
     <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><span class="card-title">Escalatie</span></div>
+      <div style="padding:16px">
+        <form method="post" action="/tickets/<?= $item['id'] ?>/escalatie">
+          <div class="form-group">
+            <label class="form-label">Escalatienummer</label>
+            <input type="text" name="escalatie_nummer" value="<?= htmlspecialchars($item['escalatie_nummer'] ?? '') ?>" placeholder="Bijv. CAS-109311-L4Z5L7 - ACA:000133869">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Instantie</label>
+            <input type="text" name="escalatie_instantie" value="<?= htmlspecialchars($item['escalatie_instantie'] ?? '') ?>" placeholder="Bijv. ACA, ClearSolutions">
+          </div>
+          <button class="btn btn-primary" type="submit">Opslaan</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
       <div class="card-header"><span class="card-title">Status wijzigen</span></div>
       <div style="padding:16px">
         <!-- Hoort bij #ticketLogForm (het opmerking-formulier hierboven), via het form="" attribuut —
