@@ -146,13 +146,15 @@ class SignatureController extends Controller
             return;
         }
 
+        $logos = SignatureLogoModel::all();
+
         $this->render('Modules/Tools/Views/SignatureView/form', [
             'activeModule' => 'tools',
             'pageTitle' => $id !== null ? 'Handtekening bewerken' : 'Nieuwe handtekening',
             'signature' => $signature,
             'icons' => SignatureIcons::ICONS,
-            'logos' => SignatureLogoModel::all(),
-            'previewHtml' => $signature ? SignatureRenderer::render($signature['lines']) : '',
+            'logos' => $logos,
+            'previewHtml' => $signature ? SignatureRenderer::render($signature['lines'], '', array_column($logos, null, 'id')) : '',
         ]);
     }
 

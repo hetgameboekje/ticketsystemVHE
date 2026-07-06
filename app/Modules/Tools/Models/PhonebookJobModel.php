@@ -31,4 +31,14 @@ class PhonebookJobModel extends Model
         );
         $stmt->execute(['error_message' => $message, 'id' => $id]);
     }
+
+    /** Meest recente succesvol verwerkte telefoonlijst, voor de tegel op de Tools-index. */
+    public static function mostRecentDone(): ?array
+    {
+        $stmt = Database::pdo()->query(
+            "SELECT * FROM phonebook_jobs WHERE status = 'done' ORDER BY processed_at DESC LIMIT 1"
+        );
+        $row = $stmt->fetch();
+        return $row === false ? null : $row;
+    }
 }

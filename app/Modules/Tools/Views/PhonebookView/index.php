@@ -49,8 +49,10 @@ $statusBadgeClass = ['queued' => 'badge-wacht_op_info', 'processing' => 'badge-i
       ->column('status', 'Status', fn (array $j) => '<span class="badge ' . ($statusBadgeClass[$j['status']] ?? '') . '">' . htmlspecialchars($statusLabels[$j['status']] ?? $j['status']) . '</span>', ['sortable' => false])
       ->column('contact_count', 'Contacten', fn (array $j) => $j['contact_count'] !== null ? (int) $j['contact_count'] : '—', ['sortable' => false])
       ->column('created_at', 'Geüpload', fn (array $j) => formatDatumTijd($j['created_at']), ['sortable' => false])
-      ->column('acties', 'Acties', fn (array $j) => '<a class="btn" href="/tools/telefoonlijst/' . (int) $j['id'] . '">Bekijken</a> '
-          . deleteButton('tools/telefoonlijst', (int) $j['id']), ['sortable' => false])
+      ->column('acties', 'Acties', fn (array $j) => '<div style="display:flex;gap:8px">'
+          . '<a class="btn" href="/tools/telefoonlijst/' . (int) $j['id'] . '">Bekijken</a>'
+          . deleteButton('tools/telefoonlijst', (int) $j['id'])
+          . '</div>', ['sortable' => false])
       ->rows($jobs);
   echo $table->render();
   ?>

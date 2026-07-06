@@ -157,9 +157,11 @@ a.page-link:hover{background:var(--color-background-secondary);color:var(--color
 }
 
 .detail-layout{display:grid;grid-template-columns:1fr 280px;gap:16px}
+.detail-layout-3col{display:grid;grid-template-columns:2fr 1fr 260px;gap:16px}
 .barcode-wrap{overflow-x:auto}
 .barcode-wrap svg{display:block;margin:0 auto}
 @media (max-width:800px){.detail-layout{grid-template-columns:1fr}}
+@media (max-width:1000px){.detail-layout-3col{grid-template-columns:1fr}}
 
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .form-group{margin-bottom:16px}

@@ -19,8 +19,10 @@ use App\Core\Table;
       ->rowUrl(fn (array $s) => "/tools/handtekeningen/{$s['id']}/bewerken")
       ->column('name', 'Naam', fn (array $s) => htmlspecialchars($s['name']), ['sortable' => false])
       ->column('updated_at', 'Laatst bewerkt', fn (array $s) => formatDatumTijd($s['updated_at']), ['sortable' => false])
-      ->column('acties', 'Acties', fn (array $s) => '<a class="btn" href="/tools/handtekeningen/' . (int) $s['id'] . '/bewerken">Bewerken</a> '
-          . deleteButton('tools/handtekeningen', (int) $s['id']), ['sortable' => false])
+      ->column('acties', 'Acties', fn (array $s) => '<div style="display:flex;gap:8px">'
+          . '<a class="btn" href="/tools/handtekeningen/' . (int) $s['id'] . '/bewerken">Bewerken</a>'
+          . deleteButton('tools/handtekeningen', (int) $s['id'])
+          . '</div>', ['sortable' => false])
       ->rows($signatures);
   echo $table->render();
   ?>

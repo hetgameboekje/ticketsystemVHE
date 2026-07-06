@@ -427,8 +427,8 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
                         <tr class="cursor-pointer" onclick="window.location='/tickets/<?= (int) $t['id'] ?>'">
                             <td class="text-body-secondary text-nowrap">#<?= (int) $t['id'] ?></td>
                             <td>
-                                <span class="text-truncate-1" title="<?= htmlspecialchars($t['titel']) ?>">
-                                    <?= htmlspecialchars($t['titel']) ?>
+                                <span title="<?= htmlspecialchars($t['titel']) ?>">
+                                    <?= htmlspecialchars(truncateWoorden($t['titel'])) ?>
                                 </span>
                             </td>
                             <td><?= htmlspecialchars($t['afdeling_naam'] ?? '—') ?></td>

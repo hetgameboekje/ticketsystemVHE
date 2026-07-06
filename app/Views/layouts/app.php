@@ -70,7 +70,7 @@ $active = $activeModule ?? '';
 
                 <?php if ($magIct): ?>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle<?= dropdownActive(['tickets', 'verbeterpunten', 'reflecties', 'kennisbank', 'voorraad', 'uitgiften', 'printers', 'cyberrisicos'], $active) ?>"
+                    <a class="nav-link dropdown-toggle<?= dropdownActive(['ict', 'tickets', 'verbeterpunten', 'reflecties', 'kennisbank', 'voorraad', 'uitgiften', 'printers', 'cyberrisicos'], $active) ?>"
                        href="#"
                        id="ictDropdown"
                        role="button"
@@ -79,6 +79,8 @@ $active = $activeModule ?? '';
                         ICT
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="ictDropdown">
+                        <li><a class="dropdown-item<?= navActive('ict', $active) ?>" href="/ict">Overzicht</a></li>
+                        <li><hr class="dropdown-divider"></li>
                         <?php if ($navRechten['tickets'] ?? false): ?><li><a class="dropdown-item<?= navActive('tickets', $active) ?>" href="/tickets">Ticket systeem</a></li><?php endif; ?>
                         <?php if ($navRechten['verbeterpunten'] ?? false): ?><li><a class="dropdown-item<?= navActive('verbeterpunten', $active) ?>" href="/verbeterpunten">Verbeterpunten</a></li><?php endif; ?>
                         <?php if ($navRechten['reflecties'] ?? false): ?><li><a class="dropdown-item<?= navActive('reflecties', $active) ?>" href="/reflecties">Reflectie</a></li><?php endif; ?>
@@ -101,6 +103,8 @@ $active = $activeModule ?? '';
                         Tools
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="toolsDropdown">
+                        <li><a class="dropdown-item<?= navActive('tools', $active) ?>" href="/tools">Overzicht</a></li>
+                        <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="/tools/telefoonlijst">Telefoonlijst naar VCF</a></li>
                         <li><a class="dropdown-item" href="/tools/handtekeningen">Handtekeningen</a></li>
                     </ul>
@@ -108,7 +112,7 @@ $active = $activeModule ?? '';
 
                 <?php if ($magCrm): ?>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle<?= dropdownActive(['medewerkers'], $active) ?>"
+                    <a class="nav-link dropdown-toggle<?= dropdownActive(['crm', 'medewerkers'], $active) ?>"
                        href="#"
                        id="crmDropdown"
                        role="button"
@@ -117,6 +121,8 @@ $active = $activeModule ?? '';
                         CRM
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="crmDropdown">
+                        <li><a class="dropdown-item<?= navActive('crm', $active) ?>" href="/crm">Overzicht</a></li>
+                        <li><hr class="dropdown-divider"></li>
                         <?php if ($navRechten['medewerkers'] ?? false): ?><li><a class="dropdown-item<?= navActive('medewerkers', $active) ?>" href="/medewerkers">Medewerkers</a></li><?php endif; ?>
                     </ul>
                 </li>

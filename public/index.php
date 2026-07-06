@@ -31,6 +31,7 @@ use App\Modules\Voorraad\VoorraadController;
 use App\Shared\Auth\AuthController;
 use App\Shared\Dashboard\DashboardController;
 use App\Shared\Legal\LegalController;
+use App\Shared\Overview\OverviewController;
 
 $router = new Router();
 
@@ -66,6 +67,9 @@ $router->post('/tickets/{id}/log', [TicketLogController::class, 'store']);
 $router->post('/tickets/{id}/escalatie', [TicketController::class, 'escalatie']);
 $router->post('/api/tickets/vanuit-email', [TicketEmailIntakeController::class, 'store']);
 
+$router->get('/ict', [OverviewController::class, 'ict']);
+$router->get('/crm', [OverviewController::class, 'crm']);
+
 $router->get('/tools', [ToolsController::class, 'index']);
 
 $router->get('/tools/telefoonlijst', [PhonebookController::class, 'index']);
@@ -80,6 +84,8 @@ $router->post('/tools/handtekeningen', [SignatureController::class, 'store']);
 $router->get('/tools/handtekeningen/{id}/bewerken', [SignatureController::class, 'edit']);
 $router->post('/tools/handtekeningen/{id}', [SignatureController::class, 'update']);
 $router->post('/tools/handtekeningen/{id}/verwijderen', [SignatureController::class, 'destroy']);
+$router->post('/tools/handtekeningen/logos', [SignatureController::class, 'uploadLogo']);
+$router->post('/tools/handtekeningen/logos/{id}/verwijderen', [SignatureController::class, 'destroyLogo']);
 $router->get('/tickets/export', [TicketController::class, 'export']);
 $router->post('/tickets/import', [TicketController::class, 'import']);
 

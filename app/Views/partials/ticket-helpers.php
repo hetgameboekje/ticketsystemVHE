@@ -46,6 +46,19 @@ if (!function_exists('statusBadge')) {
     }
 }
 
+if (!function_exists('truncateWoorden')) {
+    /** Kapt tekst af op $maxWoorden woorden — voorkomt dat een lange taaknaam/omschrijving een tabel breder maakt dan zijn kaart. */
+    function truncateWoorden(string $tekst, int $maxWoorden = 10): string
+    {
+        $woorden = preg_split('/\s+/', trim($tekst));
+        if (count($woorden) <= $maxWoorden) {
+            return $tekst;
+        }
+
+        return implode(' ', array_slice($woorden, 0, $maxWoorden)) . '…';
+    }
+}
+
 if (!function_exists('formatDatum')) {
     function formatDatum(?string $datum): string
     {
