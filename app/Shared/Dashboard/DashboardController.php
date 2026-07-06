@@ -6,6 +6,7 @@ use App\Core\Controller;
 use App\Modules\CyberRisico\Models\CyberRisicoModel;
 use App\Modules\Medewerker\Models\MedewerkerModel;
 use App\Modules\Ticket\Models\TicketModel;
+use App\Modules\Tools\Models\PhonebookJobModel;
 use App\Modules\Verbeterpunt\Models\VerbeterpuntModel;
 use App\Modules\Voorraad\Models\VoorraadItemModel;
 use App\Shared\Afdeling\Models\AfdelingModel;
@@ -57,6 +58,7 @@ class DashboardController extends Controller
             'cyberrisicosOpen' => $mag['cyberrisicos']['lezen'] ? CyberRisicoModel::countOpen() : 0,
             'cyberrisicosPerDag' => $mag['cyberrisicos']['lezen'] ? CyberRisicoModel::countLast30Days() : [],
             'cyberrisicosByDate' => $mag['cyberrisicos']['lezen'] ? CyberRisicoModel::listLast30DaysGrouped() : [],
+            'laatsteTelefoonlijst' => PhonebookJobModel::mostRecentDone(),
             'afdelingen' => AfdelingModel::all(),
             'gebruikers' => UserModel::all('naam ASC'),
             'cyberCategorieen' => self::CYBER_CATEGORIE_LABELS,

@@ -6,6 +6,7 @@ use App\Core\Router;
 use App\Modules\Account\AccountController;
 use App\Modules\Agenda\AgendaController;
 use App\Modules\Beheer\BeheerController;
+use App\Modules\Beheer\EmailQueueController;
 use App\Modules\Beheer\ExportController;
 use App\Modules\Beheer\LogController;
 use App\Modules\Beheer\RechtenController;
@@ -28,6 +29,7 @@ use App\Modules\Uitgifte\UitgifteController;
 use App\Modules\Verbeterpunt\VerbeterpuntController;
 use App\Modules\Verbeterpunt\VerbeterpuntLogController;
 use App\Modules\Voorraad\VoorraadController;
+use App\Shared\Automation\AutomationController;
 use App\Shared\Auth\AuthController;
 use App\Shared\Dashboard\DashboardController;
 use App\Shared\Legal\LegalController;
@@ -64,8 +66,11 @@ foreach ($modules as $routeBase => $controller) {
 }
 
 $router->post('/tickets/{id}/log', [TicketLogController::class, 'store']);
-$router->post('/tickets/{id}/escalatie', [TicketController::class, 'escalatie']);
+$router->post('/tickets/{id}/kennisbank', [TicketController::class, 'kennisbankKoppel']);
+$router->post('/tickets/{id}/kennisbank/{id}/verwijderen', [TicketController::class, 'kennisbankOntkoppel']);
 $router->post('/api/tickets/vanuit-email', [TicketEmailIntakeController::class, 'store']);
+$router->post('/api/email-queue/verwerken', [AutomationController::class, 'emailQueueVerwerken']);
+$router->post('/api/tickets/herinneringen', [AutomationController::class, 'ticketHerinneringenGenereren']);
 
 $router->get('/ict', [OverviewController::class, 'ict']);
 $router->get('/crm', [OverviewController::class, 'crm']);
@@ -136,6 +141,8 @@ $router->get('/beheer/log', [LogController::class, 'index']);
 
 $router->get('/beheer/exporteren', [ExportController::class, 'index']);
 $router->post('/beheer/exporteren/uitvoeren', [ExportController::class, 'export']);
+
+$router->get('/beheer/emails', [EmailQueueController::class, 'index']);
 
 $router->get('/privacybeleid', [LegalController::class, 'privacybeleid']);
 

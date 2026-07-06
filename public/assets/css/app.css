@@ -1,3 +1,25 @@
+.dropdown-submenu{position:relative}
+.dropdown-submenu>.dropdown-menu{
+  top:0;
+  right:100%;
+  left:auto;
+  margin-top:-2px;
+  margin-right:2px;
+  display:none;
+}
+.dropdown-submenu:hover>.dropdown-menu,
+.dropdown-submenu:focus-within>.dropdown-menu{
+  display:block;
+}
+.dropdown-submenu>a{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.dropdown-submenu>a::after{
+  content:"";
+  display:inline-block;
+  border-top:4px solid transparent;
+  border-bottom:4px solid transparent;
+  border-right:4px solid currentColor;
+}
+
 :root{
   --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   --border-radius-md:6px;
@@ -157,11 +179,32 @@ a.page-link:hover{background:var(--color-background-secondary);color:var(--color
 }
 
 .detail-layout{display:grid;grid-template-columns:1fr 280px;gap:16px}
-.detail-layout-3col{display:grid;grid-template-columns:2fr 1fr 260px;gap:16px}
+.detail-layout-3col{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  grid-template-areas:
+    "col1 kb kb"
+    "col1 details escalatie"
+    "col1 . status"
+    "col1 . statuslog";
+  gap:10px;
+  align-items:start;
+}
+.detail-layout-3col .area-col1{grid-area:col1}
+.detail-layout-3col .area-kb{grid-area:kb}
+.detail-layout-3col .area-escalatie{grid-area:escalatie}
+.detail-layout-3col .area-details{grid-area:details}
+.detail-layout-3col .area-status{grid-area:status}
+.detail-layout-3col .area-statuslog{grid-area:statuslog}
 .barcode-wrap{overflow-x:auto}
 .barcode-wrap svg{display:block;margin:0 auto}
 @media (max-width:800px){.detail-layout{grid-template-columns:1fr}}
-@media (max-width:1000px){.detail-layout-3col{grid-template-columns:1fr}}
+@media (max-width:1000px){
+  .detail-layout-3col{
+    grid-template-columns:1fr;
+    grid-template-areas:"col1" "kb" "details" "escalatie" "status" "statuslog";
+  }
+}
 
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .form-group{margin-bottom:16px}

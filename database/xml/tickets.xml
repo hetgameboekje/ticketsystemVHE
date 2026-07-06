@@ -5,6 +5,7 @@
     <column name="titel" type="VARCHAR" length="255" nullable="false"/>
     <column name="omschrijving" type="TEXT" nullable="false"/>
     <column name="opdrachtgever_naam" type="VARCHAR" length="150" nullable="false"/>
+    <column name="categorie" type="VARCHAR" length="100" nullable="false" default="'Algemeen'"/>
     <column name="afdeling_id" type="INT" references="afdelingen.id"/>
     <column name="prioriteit" type="VARCHAR" length="20" nullable="false" default="'normaal'"/>
     <column name="impact" type="VARCHAR" length="100" nullable="false" default="'Normaal'"/>

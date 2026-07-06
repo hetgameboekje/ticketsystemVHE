@@ -9,11 +9,34 @@ class TicketModel extends Model
 {
     protected static string $table = 'tickets';
     protected static array $fillable = [
-        'titel', 'omschrijving', 'opdrachtgever_naam', 'afdeling_id', 'prioriteit',
+        'titel', 'omschrijving', 'opdrachtgever_naam', 'categorie', 'afdeling_id', 'prioriteit',
         'impact', 'schatting_minuten', 'deadline', 'behandelaar_id', 'status', 'aangemaakt_door_id',
         'escalatie_nummer', 'escalatie_instantie',
     ];
     protected static bool $softDeletes = true;
+
+    /**
+     * Laat velden die leeg zijn ingevuld, of niet afwijken van de huidige waarde, weg uit een
+     * update — zo overschrijft een per ongeluk leeg gelaten veld (bv. omdat een ander formulier op
+     * dezelfde pagina werd verzonden) nooit een eerder ingevulde waarde. Gebruikt door zowel
+     * TicketController (bewerken/escalatie) als TicketLogController (opmerking + status + escalatie
+     * delen dezelfde formulier-submit).
+     */
+    public static function alleenGewijzigdeVelden(array $huidig, array $nieuw): array
+    {
+        foreach ($nieuw as $veld => $waarde) {
+            if ($waarde === '' || $waarde === null) {
+                unset($nieuw[$veld]);
+                continue;
+            }
+
+            if (array_key_exists($veld, $huidig) && (string) $huidig[$veld] === (string) $waarde) {
+                unset($nieuw[$veld]);
+            }
+        }
+
+        return $nieuw;
+    }
 
     // 'opgelost'/'gesloten' zijn oude statuswaarden van vóór het samenvoegen tot 'afgehandeld' (zie
     // TicketExcel::STATUS_ALIASSEN). Bestaande rijen met die waarde worden hier genormaliseerd naar

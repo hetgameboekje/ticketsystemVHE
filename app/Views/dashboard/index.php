@@ -10,6 +10,7 @@
 /** @var array $gebruikers */
 /** @var array $cyberCategorieen */
 /** @var array $cyberPrioriteiten */
+/** @var array|null $laatsteTelefoonlijst */
 
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 
@@ -134,6 +135,24 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
         </a>
     </div>
     <?php endif; ?>
+
+    <div class="col-12 col-sm-6 col-xl-3 d-flex">
+        <div class="card shadow-sm w-100 h-100">
+            <div class="card-body d-flex flex-column justify-content-center">
+                <div class="text-body-secondary small mb-1">Laatste telefoonlijst</div>
+                <?php if ($laatsteTelefoonlijst === null): ?>
+                    <div class="text-body-secondary small">Nog geen telefoonlijst verwerkt.</div>
+                    <a class="btn btn-sm btn-outline-secondary mt-2" href="/tools/telefoonlijst">Openen</a>
+                <?php else: ?>
+                    <div class="small text-body-secondary mb-2">
+                        <?= formatDatumTijd($laatsteTelefoonlijst['processed_at']) ?> &middot;
+                        <?= (int) $laatsteTelefoonlijst['contact_count'] ?> contact(en)
+                    </div>
+                    <a class="btn btn-sm btn-primary" href="/tools/telefoonlijst/<?= (int) $laatsteTelefoonlijst['id'] ?>/download">Download .vcf</a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="row g-3 mb-3">

@@ -149,7 +149,13 @@ $active = $activeModule ?? '';
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="/beheer/rechten"><i class="bi bi-shield-lock me-2"></i>Rechten</a></li>
                                 <li><a class="dropdown-item" href="/beheer"><i class="bi bi-gear me-2"></i>Beheer</a></li>
-                                <li><a class="dropdown-item" href="/beheer/log"><i class="bi bi-clock-history me-2"></i>Log</a></li>
+                                <li class="dropdown-submenu">
+                                    <a class="dropdown-item" href="#" onclick="return false"><i class="bi bi-clock-history me-2"></i>Logs</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="/beheer/log">Pagina</a></li>
+                                        <li><a class="dropdown-item" href="/beheer/emails">E-mail</a></li>
+                                    </ul>
+                                </li>
                             <?php endif; ?>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="/privacybeleid"><i class="bi bi-file-earmark-text me-2"></i>Privacybeleid</a></li>

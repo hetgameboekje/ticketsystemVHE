@@ -4,6 +4,8 @@ namespace App\Modules\Ticket;
 
 use App\Core\CrudController;
 use App\Core\TableQuery;
+use App\Modules\Kennisbank\Models\KennisbankModel;
+use App\Modules\Ticket\Models\TicketKennisbankModel;
 use App\Modules\Ticket\Models\TicketLogModel;
 use App\Modules\Ticket\Models\TicketModel;
 use App\Shared\Afdeling\Models\AfdelingModel;
@@ -76,17 +78,44 @@ class TicketController extends CrudController
             return;
         }
 
+        $gekoppeld = TicketKennisbankModel::gekoppeld($id);
+        $gekoppeldeIds = array_column($gekoppeld, 'id');
+
         $this->render("{$this->viewDir}/show", [
             'item' => $item,
             'logs' => TicketLogModel::forTicket($id),
+            'gekoppeldeArtikelen' => $gekoppeld,
+            'suggestiesArtikelen' => array_filter(
+                TicketKennisbankModel::suggesties($id, $item['categorie']),
+                fn (array $a) => !in_array($a['id'], $gekoppeldeIds)
+            ),
             'activeModule' => $this->activeModule,
             'pageTitle' => $this->pageTitle,
             'routeBase' => $this->routeBase,
         ]);
     }
 
-    /** Los, klein formulier op de detailpagina — staat bewust los van de gewone bewerk-flow. */
-    public function escalatie(int $id): void
+    public function update(int $id): void
+    {
+        $this->requirePermission($this->activeModule, 'schrijven');
+
+        $huidig = TicketModel::find($id);
+        if ($huidig === null) {
+            http_response_code(404);
+            echo 'Niet gevonden.';
+            return;
+        }
+
+        $data = TicketModel::alleenGewijzigdeVelden($huidig, $this->validatedData($_POST, isUpdate: true));
+        if ($data !== []) {
+            TicketModel::update($id, $data);
+        }
+
+        $this->redirect("/tickets/{$id}");
+    }
+
+    /** Koppelt een kennisbankartikel aan dit ticket — via het "Gerelateerde kennisbank artikelen"-blok op de detailpagina. */
+    public function kennisbankKoppel(int $id): void
     {
         $this->requirePermission($this->activeModule, 'schrijven');
 
@@ -96,11 +125,18 @@ class TicketController extends CrudController
             return;
         }
 
-        TicketModel::update($id, [
-            'escalatie_nummer' => trim($_POST['escalatie_nummer'] ?? '') ?: null,
-            'escalatie_instantie' => trim($_POST['escalatie_instantie'] ?? '') ?: null,
-        ]);
+        $artikelId = (int) ($_POST['kennisbank_artikel_id'] ?? 0);
+        if ($artikelId > 0 && KennisbankModel::find($artikelId) !== null) {
+            TicketKennisbankModel::koppel($id, $artikelId);
+        }
 
+        $this->redirect("/tickets/{$id}");
+    }
+
+    public function kennisbankOntkoppel(int $id, int $artikelId): void
+    {
+        $this->requirePermission($this->activeModule, 'schrijven');
+        TicketKennisbankModel::ontkoppel($id, $artikelId);
         $this->redirect("/tickets/{$id}");
     }
 
@@ -155,6 +191,7 @@ class TicketController extends CrudController
         return [
             'afdelingen' => AfdelingModel::all(),
             'gebruikers' => UserModel::all('naam ASC'),
+            'categorieen' => KennisbankModel::distinctCategorieen(),
         ];
     }
 
@@ -164,6 +201,7 @@ class TicketController extends CrudController
             'titel' => trim($post['titel'] ?? ''),
             'omschrijving' => trim($post['omschrijving'] ?? ''),
             'opdrachtgever_naam' => trim($post['opdrachtgever_naam'] ?? ''),
+            'categorie' => trim($post['categorie'] ?? '') ?: 'Algemeen',
             'afdeling_id' => $post['afdeling_id'] !== '' ? (int) $post['afdeling_id'] : null,
             'prioriteit' => $post['prioriteit'] ?? 'normaal',
             'impact' => $post['impact'] ?? 'Normaal',

@@ -24,4 +24,19 @@ return [
     // Gedeeld geheim voor POST /api/tickets/vanuit-email (bv. het Outlook-script op it@vhe.nl).
     // Leeg = endpoint wijst elk verzoek af. Zet via .env (TICKET_EMAIL_INTAKE_API_KEY=...), nooit hardcoded.
     'ticketEmailIntakeApiKey' => getenv('TICKET_EMAIL_INTAKE_API_KEY') ?: '',
+
+    // Gedeeld geheim voor de achtergrondtaken-endpoints (e-mailwachtrij verwerken, ticketherinneringen
+    // genereren) — bedoeld voor een externe scheduler (Taakplanner/cron), niet voor gebruik in de UI.
+    'automationApiKey' => getenv('AUTOMATION_API_KEY') ?: '',
+
+    'mail' => [
+        'host' => getenv('MAIL_HOST') ?: '',
+        'port' => (int) (getenv('MAIL_PORT') ?: 587),
+        'encryption' => getenv('MAIL_ENCRYPTION') ?: 'tls',
+        'username' => getenv('MAIL_USERNAME') ?: '',
+        'password' => getenv('MAIL_PASSWORD') ?: '',
+        'from_address' => getenv('MAIL_FROM_ADDRESS') ?: 'noreply@vhe.nl',
+        'from_name' => getenv('MAIL_FROM_NAME') ?: 'Ticketsysteem VHE',
+        'admin_address' => getenv('MAIL_ADMIN_ADDRESS') ?: '',
+    ],
 ];

@@ -74,6 +74,16 @@
         <a class="btn btn-primary" href="/beheer/exporteren">Naar exporteren</a>
       </div>
     </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-header"><span class="card-title">E-mails</span></div>
+      <div style="padding:16px">
+        <p style="font-size:13px;color:var(--color-text-secondary);margin-top:0">
+          Overzicht van de e-mailwachtrij: ticketherinneringen/-escalaties en hun verzendstatus.
+        </p>
+        <a class="btn btn-primary" href="/beheer/emails">Naar e-mails</a>
+      </div>
+    </div>
   </div>
 
   <div>

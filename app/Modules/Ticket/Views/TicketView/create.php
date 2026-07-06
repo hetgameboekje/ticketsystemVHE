@@ -1,6 +1,7 @@
 <?php
 /** @var array $afdelingen */
 /** @var array $gebruikers */
+/** @var array $categorieen */
 ?>
 <div class="page-header">
   <div style="display:flex;align-items:center;gap:12px">
@@ -24,6 +25,15 @@
       </div>
       <div class="form-group" style="grid-column:1/-1"><label class="form-label">Taak (korte titel)</label><input type="text" name="titel" required></div>
       <div class="form-group" style="grid-column:1/-1"><label class="form-label">Omschrijving</label><textarea name="omschrijving" style="min-height:100px"></textarea></div>
+      <div class="form-group">
+        <label class="form-label">Categorie</label>
+        <input type="text" name="categorie" list="categorie-opties" placeholder="bijv. Printers, Netwerk, Accounts" value="Algemeen">
+        <datalist id="categorie-opties">
+          <?php foreach ($categorieen as $c): ?>
+            <option value="<?= htmlspecialchars($c) ?>">
+          <?php endforeach; ?>
+        </datalist>
+      </div>
       <div class="form-group">
         <label class="form-label">Prioriteit</label>
         <select name="prioriteit">

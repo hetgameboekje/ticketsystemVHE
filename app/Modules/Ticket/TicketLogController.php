@@ -33,8 +33,21 @@ class TicketLogController extends Controller
             ]);
         }
 
+        // Escalatienummer/-instantie staan op dezelfde pagina in een eigen kaart, maar delen dit
+        // formulier (form="ticketLogForm") — zo gaat er niets verloren als je die invult en vervolgens
+        // op "Opslaan" (opmerking) of "Status bijwerken" klikt i.p.v. op de escalatie-knop.
+        $escalatieData = TicketModel::alleenGewijzigdeVelden($ticket, [
+            'escalatie_nummer' => trim($_POST['escalatie_nummer'] ?? ''),
+            'escalatie_instantie' => trim($_POST['escalatie_instantie'] ?? ''),
+        ]);
+
+        $ticketUpdate = $escalatieData;
         if ($statusGewijzigd) {
-            TicketModel::update($ticketId, ['status' => $nieuweStatus]);
+            $ticketUpdate['status'] = $nieuweStatus;
+        }
+
+        if ($ticketUpdate !== []) {
+            TicketModel::update($ticketId, $ticketUpdate);
         }
 
         $this->redirect("/tickets/{$ticketId}");

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="email_queue" engine="InnoDB">
+  <columns>
+    <column name="id" type="INT" primary="true" auto_increment="true"/>
+    <column name="ontvanger" type="VARCHAR" length="255" nullable="false"/>
+    <column name="onderwerp" type="VARCHAR" length="255" nullable="false"/>
+    <column name="inhoud" type="TEXT" nullable="false"/>
+    <column name="status" type="VARCHAR" length="20" nullable="false" default="'pending'"/>
+    <column name="foutmelding" type="TEXT"/>
+    <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
+    <column name="sent_at" type="TIMESTAMP"/>
+  </columns>
+</table>
