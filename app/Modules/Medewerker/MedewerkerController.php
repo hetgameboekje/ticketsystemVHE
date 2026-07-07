@@ -3,7 +3,9 @@
 namespace App\Modules\Medewerker;
 
 use App\Core\CrudController;
+use App\Modules\Device\Models\DeviceModel;
 use App\Modules\Medewerker\Models\MedewerkerModel;
+use App\Modules\Uitgifte\Models\UitgifteModel;
 use App\Shared\Afdeling\Models\AfdelingModel;
 
 class MedewerkerController extends CrudController
@@ -60,6 +62,29 @@ class MedewerkerController extends CrudController
 
         MedewerkerModel::update($id, $data);
         $this->redirect("/medewerkers/{$id}");
+    }
+
+    public function show(int $id): void
+    {
+        $this->requirePermission($this->activeModule, 'lezen');
+        $item = MedewerkerModel::findWithRelations($id);
+
+        if ($item === null) {
+            http_response_code(404);
+            echo 'Niet gevonden.';
+            return;
+        }
+
+        $naam = trim($item['voornaam'] . ' ' . $item['achternaam']);
+
+        $this->render("{$this->viewDir}/show", [
+            'item' => $item,
+            'uitgiften' => UitgifteModel::forMedewerkerNaam($naam),
+            'apparaten' => DeviceModel::forMedewerker($id),
+            'activeModule' => $this->activeModule,
+            'pageTitle' => $this->pageTitle,
+            'routeBase' => $this->routeBase,
+        ]);
     }
 
     /** AJAX: checkt of het ingevoerde e-mailadres bij een bestaande, nog niet gekoppelde login hoort. */

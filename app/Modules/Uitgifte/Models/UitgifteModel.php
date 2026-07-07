@@ -33,6 +33,14 @@ class UitgifteModel extends Model
         return $row === false ? null : $row;
     }
 
+    /** Uitgiften van een medewerker — matcht op naam, zie medewerker-detailpagina. */
+    public static function forMedewerkerNaam(string $naam): array
+    {
+        $stmt = Database::pdo()->prepare(self::SELECT . ' WHERE LOWER(u.medewerker_naam) = LOWER(?) ORDER BY u.created_at DESC');
+        $stmt->execute([$naam]);
+        return $stmt->fetchAll();
+    }
+
     public static function setTeruggegeven(int $id, string $datum, ?string $opmerking = null): void
     {
         $stmt = Database::pdo()->prepare('UPDATE uitgiften SET teruggegeven_op = ?, retour_opmerking = ? WHERE id = ?');

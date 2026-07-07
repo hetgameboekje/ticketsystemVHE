@@ -21,6 +21,7 @@ class RechtenModel extends Model
         'medewerkers' => 'Medewerkers',
         'voorraad' => 'Voorraad',
         'uitgiften' => 'Uitgifte',
+        'apparaten' => 'Apparaten',
         'printers' => 'Printers',
         'cyberrisicos' => "Cyberrisico's",
     ];

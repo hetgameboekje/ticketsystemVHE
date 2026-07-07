@@ -14,6 +14,7 @@ use App\Modules\Beheer\LogController;
 use App\Modules\Beheer\RechtenController;
 use App\Modules\CyberRisico\CyberRisicoController;
 use App\Modules\CyberRisico\CyberRisicoLogController;
+use App\Modules\Device\DeviceController;
 use App\Modules\HardwareUitgave\HardwareUitgaveController;
 use App\Modules\Kennisbank\KennisbankController;
 use App\Modules\Kennisbank\KennisbankLogController;
@@ -53,6 +54,7 @@ $modules = [
     'hardware-uitgaven' => HardwareUitgaveController::class,
     'medewerkers' => MedewerkerController::class,
     'voorraad' => VoorraadController::class,
+    'apparaten' => DeviceController::class,
     'printers' => PrinterController::class,
     'cyberrisicos' => CyberRisicoController::class,
 ];

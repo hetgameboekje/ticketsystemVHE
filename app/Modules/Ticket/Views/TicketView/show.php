@@ -63,6 +63,7 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['opmerkin
     </div>
   </div>
 
+  <div class="area-right">
   <div class="area-kb">
     <div class="card">
       <div class="card-header"><span class="card-title">Gerelateerde kennisbank artikelen</span></div>
@@ -160,7 +161,7 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['opmerkin
         <?php foreach ($statusLogs as $log): ?>
         <div class="log-item">
           <div class="log-meta">
-            <span class="log-user"><?= htmlspecialchars($log['user_naam'] ?? 'Onbekend') ?></span>
+            <span class="log-user"><?= htmlspecialchars($log['user_naam'] ?? 'ACA') ?></span>
             <span class="log-time"><?= formatDatumTijd($log['created_at']) ?></span>
             <span class="status-change">
               <span class="badge badge-<?= htmlspecialchars($log['status_van']) ?>" style="padding:2px 6px;font-size:10px"><?= statusLabel($log['status_van']) ?></span>
@@ -172,5 +173,6 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['opmerkin
         <?php endforeach; ?>
       <?php endif; ?>
     </div>
+  </div>
   </div>
 </div>
