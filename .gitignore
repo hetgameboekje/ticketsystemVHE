@@ -8,3 +8,6 @@ database/seed.php
 !/public/uploads/.gitkeep
 .env.example
 /automation/outlook-intake/config.ini
+automation/outlook-intake/config.example.ini
+automation/outlook-intake/config.example.ini
+automation/outlook-intake/config.example.ini
