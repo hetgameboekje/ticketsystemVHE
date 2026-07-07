@@ -27,7 +27,7 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['opmerkin
   <div class="area-col1">
     <div class="card" style="margin-bottom:10px">
       <div class="card-header"><span class="card-title">Omschrijving</span></div>
-      <div style="padding:16px;font-size:13px;line-height:1.7;color:var(--color-text-secondary)">
+      <div style="padding:16px;font-size:13px;line-height:1.7;color:var(--color-text-secondary);overflow-wrap:anywhere">
         <?= $item['omschrijving'] !== '' ? nl2br(htmlspecialchars($item['omschrijving'])) : '<span style="color:var(--color-text-tertiary)">Geen omschrijving</span>' ?>
       </div>
     </div>
@@ -48,15 +48,17 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['opmerkin
       <?php if (empty($opmerkingen)): ?>
         <div class="empty-state">Nog geen opmerkingen.</div>
       <?php else: ?>
+        <div class="log-list">
         <?php foreach ($opmerkingen as $log): ?>
         <div class="log-item">
           <div class="log-meta">
-            <span class="log-user"><?= htmlspecialchars($log['user_naam'] ?? 'Onbekend') ?></span>
+            <span class="log-user"><?= htmlspecialchars($log['user_naam'] ?? 'ACA') ?></span>
             <span class="log-time"><?= formatDatumTijd($log['created_at']) ?></span>
           </div>
           <div class="log-text"><?= nl2br(htmlspecialchars($log['opmerking'])) ?></div>
         </div>
         <?php endforeach; ?>
+        </div>
       <?php endif; ?>
     </div>
   </div>

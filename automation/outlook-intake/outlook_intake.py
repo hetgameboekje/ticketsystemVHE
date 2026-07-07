@@ -38,6 +38,11 @@ ACA_SUBJECT_RE = re.compile(
 # olMail = 43 (Class-waarde van MailItem); overslaan van agenda-uitnodigingen e.d.
 OL_MAIL_ITEM_CLASS = 43
 
+# Namen waarop gescand wordt om automatisch een behandelaar aan het ticket te koppelen
+# (matcht tegen users.naam via een LIKE-zoekopdracht op de backend, bv. "Timo" -> "Timo Bergthaler").
+BEHANDELAAR_NAMEN = ["Timo", "Frank"]
+BEHANDELAAR_RE = re.compile(r"\b(" + "|".join(re.escape(n) for n in BEHANDELAAR_NAMEN) + r")\b", re.IGNORECASE)
+
 
 def laad_config() -> configparser.SectionProxy:
     if not CONFIG_PATH.exists():
@@ -81,6 +86,22 @@ def sender_smtp_adres(mail) -> str:
     return mail.SenderEmailAddress or ""
 
 
+def normaliseer_body(body: str) -> str:
+    """Ontdoet de mailtekst van overtollige spaties/lege regels (Outlook-signatures staan er vol mee)."""
+    regels = [re.sub(r"[ \t]+", " ", regel).rstrip() for regel in body.splitlines()]
+    body = "\n".join(regels)
+    return re.sub(r"\n{3,}", "\n\n", body).strip()
+
+
+def vind_behandelaar_hint(*teksten: str) -> str:
+    """Geeft de eerst gevonden naam uit BEHANDELAAR_NAMEN terug die in de teksten voorkomt, anders ''."""
+    for tekst in teksten:
+        match = BEHANDELAAR_RE.search(tekst)
+        if match:
+            return match.group(1)
+    return ""
+
+
 def vind_postvak_in(namespace, mailbox_naam: str, folder_naam: str):
     for folder in namespace.Folders:
         if folder.Name.strip().lower() == mailbox_naam.strip().lower():
@@ -88,18 +109,18 @@ def vind_postvak_in(namespace, mailbox_naam: str, folder_naam: str):
     raise SystemExit(f'Mailbox "{mailbox_naam}" niet gevonden onder de geopende Outlook-profielen.')
 
 
-def post_eindgebruiker_mail(base_url: str, api_key: str, afzender: str, titel: str, body: str) -> dict:
+def post_eindgebruiker_mail(base_url: str, api_key: str, afzender: str, titel: str, body: str, behandelaar_hint: str) -> dict:
     resp = requests.post(
         f"{base_url}/api/tickets/vanuit-email",
         headers={"X-Api-Key": api_key},
-        data={"afzender": afzender, "titel": titel, "omschrijving": body},
+        data={"afzender": afzender, "titel": titel, "omschrijving": body, "behandelaar_hint": behandelaar_hint},
         timeout=30,
     )
     resp.raise_for_status()
     return resp.json()
 
 
-def post_aca_update(base_url: str, api_key: str, match: re.Match, body: str) -> dict:
+def post_aca_update(base_url: str, api_key: str, match: re.Match, body: str, behandelaar_hint: str) -> dict:
     resp = requests.post(
         f"{base_url}/api/tickets/vanuit-aca-email",
         headers={"X-Api-Key": api_key},
@@ -109,6 +130,7 @@ def post_aca_update(base_url: str, api_key: str, match: re.Match, body: str) -> 
             "actie": match.group("actie"),
             "titel": match.group("titel").strip(),
             "omschrijving": body,
+            "behandelaar_hint": behandelaar_hint,
         },
         timeout=30,
     )
@@ -120,7 +142,8 @@ def verwerk_mail(mail, config: configparser.SectionProxy) -> bool:
     """Verwerkt één mail. Geeft True terug als de mail als verwerkt (gelezen) gezet mag worden."""
     afzender = sender_smtp_adres(mail)
     onderwerp = (mail.Subject or "").strip()
-    body = (mail.Body or "").strip()
+    body = normaliseer_body(mail.Body or "")
+    behandelaar_hint = vind_behandelaar_hint(body, onderwerp)
 
     base_url = config["api_base_url"].rstrip("/")
     api_key = config["api_key"]
@@ -132,11 +155,11 @@ def verwerk_mail(mail, config: configparser.SectionProxy) -> bool:
             logging.warning('ACA-mail met onherkenbaar onderwerp, overgeslagen (blijft ongelezen): "%s"', onderwerp)
             return False
 
-        resultaat = post_aca_update(base_url, api_key, match, body)
+        resultaat = post_aca_update(base_url, api_key, match, body, behandelaar_hint)
         logging.info("ACA-update verwerkt (%s): %s", match.group("cas"), resultaat)
         return True
 
-    resultaat = post_eindgebruiker_mail(base_url, api_key, afzender, onderwerp, body)
+    resultaat = post_eindgebruiker_mail(base_url, api_key, afzender, onderwerp, body, behandelaar_hint)
     logging.info('Eindgebruiker-mail verwerkt ("%s" van %s): %s', onderwerp, afzender, resultaat)
     return True
 

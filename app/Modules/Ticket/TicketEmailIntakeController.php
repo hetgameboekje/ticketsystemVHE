@@ -5,6 +5,7 @@ namespace App\Modules\Ticket;
 use App\Core\Controller;
 use App\Modules\Ticket\Models\TicketLogModel;
 use App\Modules\Ticket\Models\TicketModel;
+use App\Shared\User\Models\UserModel;
 
 /**
  * Neemt tickets aan vanuit een extern script (bv. het Outlook/pywin32-script op it@vhe.nl,
@@ -29,6 +30,7 @@ class TicketEmailIntakeController extends Controller
         $afzender = trim($_POST['afzender'] ?? '');
         $titel = trim($_POST['titel'] ?? '');
         $omschrijving = trim($_POST['omschrijving'] ?? '');
+        $behandelaarHint = trim($_POST['behandelaar_hint'] ?? '');
 
         if ($afzender === '' || $titel === '') {
             http_response_code(422);
@@ -51,6 +53,7 @@ class TicketEmailIntakeController extends Controller
             'prioriteit' => 'normaal',
             'impact' => 'Normaal',
             'status' => 'open',
+            'behandelaar_id' => $behandelaarHint !== '' ? UserModel::findIdByNaamBevat($behandelaarHint) : null,
         ]);
 
         http_response_code(201);
@@ -78,6 +81,7 @@ class TicketEmailIntakeController extends Controller
         $omschrijving = trim($_POST['omschrijving'] ?? '');
         $acaNummer = trim($_POST['aca_nummer'] ?? '');
         $actie = strtolower(trim($_POST['actie'] ?? ''));
+        $behandelaarHint = trim($_POST['behandelaar_hint'] ?? '');
 
         if ($casNummer === '' || $titel === '') {
             http_response_code(422);
@@ -98,6 +102,7 @@ class TicketEmailIntakeController extends Controller
                 'status' => 'open',
                 'escalatie_nummer' => $casNummer,
                 'escalatie_instantie' => 'ACA',
+                'behandelaar_id' => $behandelaarHint !== '' ? UserModel::findIdByNaamBevat($behandelaarHint) : null,
             ]);
 
             http_response_code(201);

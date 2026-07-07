@@ -62,6 +62,15 @@ class UserModel extends Model
         return $user;
     }
 
+    /** Zoekt een actieve gebruiker wiens naam de zoekterm bevat (bv. "Timo" -> "Timo Bergthaler"). */
+    public static function findIdByNaamBevat(string $zoekterm): ?int
+    {
+        $stmt = Database::pdo()->prepare('SELECT id FROM users WHERE naam LIKE ? AND deleted_at IS NULL LIMIT 1');
+        $stmt->execute(['%' . $zoekterm . '%']);
+        $id = $stmt->fetchColumn();
+        return $id === false ? null : (int) $id;
+    }
+
     public static function findOrCreateByNaam(string $naam): int
     {
         $naam = trim($naam);
