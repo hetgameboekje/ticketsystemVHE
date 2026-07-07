@@ -100,6 +100,20 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['opmerkin
 
   <div class="area-escalatie">
     <div class="card">
+      <div class="card-header"><span class="card-title">Status wijzigen</span></div>
+      <div style="padding:16px">
+        <!-- Hoort bij #ticketLogForm (het opmerking-formulier hierboven), via het form="" attribuut —
+             zo wordt een eventueel ingevulde opmerking niet verloren wanneer je hier de status wijzigt. -->
+        <div class="form-group">
+          <select name="status" form="ticketLogForm" style="width:100%">
+            <?php foreach ($statussen as $val => $label): ?>
+              <option value="<?= $val ?>" <?= $item['status'] === $val ? 'selected' : '' ?>><?= $label ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <button class="btn btn-primary" type="submit" form="ticketLogForm" style="width:100%;justify-content:center">Status bijwerken</button>
+      </div>
+
       <div class="card-header"><span class="card-title">Escalatie</span></div>
       <div style="padding:16px">
         <!-- Deelt #ticketLogForm met Opmerkingen/Status wijzigen, zodat het invullen van deze velden
@@ -130,24 +144,6 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['opmerkin
         <div class="meta-row"><span class="meta-key">Behandelaar</span><span><?= htmlspecialchars($item['behandelaar_naam'] ?? '—') ?></span></div>
         <div class="meta-row"><span class="meta-key">Datum aangemaakt</span><span><?= formatDatum($item['created_at']) ?></span></div>
         <div class="meta-row"><span class="meta-key">Deadline</span><span><?= formatDatum($item['deadline']) ?></span></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="area-status">
-    <div class="card">
-      <div class="card-header"><span class="card-title">Status wijzigen</span></div>
-      <div style="padding:16px">
-        <!-- Hoort bij #ticketLogForm (het opmerking-formulier hierboven), via het form="" attribuut —
-             zo wordt een eventueel ingevulde opmerking niet verloren wanneer je hier de status wijzigt. -->
-        <div class="form-group">
-          <select name="status" form="ticketLogForm" style="width:100%">
-            <?php foreach ($statussen as $val => $label): ?>
-              <option value="<?= $val ?>" <?= $item['status'] === $val ? 'selected' : '' ?>><?= $label ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-        <button class="btn btn-primary" type="submit" form="ticketLogForm" style="width:100%;justify-content:center">Status bijwerken</button>
       </div>
     </div>
   </div>

@@ -206,6 +206,11 @@ class SchemaParser
         $default = (string) $column['default'];
         if ($default !== '') {
             $line .= " DEFAULT {$default}";
+        } elseif ($type === 'TIMESTAMP' && (string) $column['nullable'] !== 'false') {
+            // MySQL geeft een TIMESTAMP-kolom zonder expliciete default anders impliciet
+            // NOT NULL DEFAULT '0000-00-00 00:00:00', wat onder strict mode een
+            // "Invalid default value"-fout oplevert. Expliciet NULL voorkomt dat.
+            $line .= ' NULL DEFAULT NULL';
         }
         $onUpdate = (string) $column['on_update'];
         if ($onUpdate !== '') {

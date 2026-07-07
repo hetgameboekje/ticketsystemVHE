@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="api_keys" engine="InnoDB">
+  <columns>
+    <column name="id" type="INT" primary="true" auto_increment="true"/>
+    <column name="naam" type="VARCHAR" length="150" nullable="false"/>
+    <column name="key_hash" type="VARCHAR" length="255" nullable="false"/>
+    <column name="key_prefix" type="VARCHAR" length="8" nullable="false"/>
+    <column name="scopes" type="VARCHAR" length="255" nullable="false"/>
+    <column name="aangemaakt_door_id" type="INT" references="users.id"/>
+    <column name="laatst_gebruikt_at" type="TIMESTAMP" nullable="true"/>
+    <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
+    <column name="updated_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP" on_update="CURRENT_TIMESTAMP"/>
+    <column name="deleted_at" type="TIMESTAMP" nullable="true"/>
+  </columns>
+</table>

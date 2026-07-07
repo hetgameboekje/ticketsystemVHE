@@ -21,13 +21,18 @@ return [
         'password' => getenv('DB_PASSWORD') ?: '',
     ],
 
-    // Gedeeld geheim voor POST /api/tickets/vanuit-email (bv. het Outlook-script op it@vhe.nl).
-    // Leeg = endpoint wijst elk verzoek af. Zet via .env (TICKET_EMAIL_INTAKE_API_KEY=...), nooit hardcoded.
-    'ticketEmailIntakeApiKey' => getenv('TICKET_EMAIL_INTAKE_API_KEY') ?: '',
+    // Sleutel voor het versleutelen van gevoelige ticketvelden (omschrijving, opdrachtgever_naam) —
+    // zie App\Shared\Crypto\FieldEncryptor. Base64-encoded, 32 bytes. Genereren met:
+    // openssl rand -base64 32
+    // Zet 'm in .env (APP_ENCRYPTION_KEY=...), nooit hardcoded. Leeg = versleutelen/ontsleutelen
+    // van tickets faalt met een duidelijke foutmelding.
+    'encryptionKey' => getenv('APP_ENCRYPTION_KEY') ?: '',
 
-    // Gedeeld geheim voor de achtergrondtaken-endpoints (e-mailwachtrij verwerken, ticketherinneringen
-    // genereren) — bedoeld voor een externe scheduler (Taakplanner/cron), niet voor gebruik in de UI.
-    'automationApiKey' => getenv('AUTOMATION_API_KEY') ?: '',
+    // Basis-URL van de applicatie, gebruikt om absolute links te bouwen in e-mails (bv. de
+    // ticketlink in herinneringsmails) — daar is geen actieve HTTP-request/host bekend zoals
+    // in een normale pageload. Zet 'm in .env (bv. https://intranet.vhe.nl of, lokaal,
+    // http://ticketsysteemvhe.test), zonder trailing slash.
+    'appUrl' => rtrim(getenv('APP_URL') ?: 'http://localhost', '/'),
 
     'mail' => [
         'host' => getenv('MAIL_HOST') ?: '',

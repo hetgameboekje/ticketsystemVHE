@@ -148,12 +148,14 @@ $active = $activeModule ?? '';
                             <?php if (($currentUser['rol'] ?? '') === 'admin'): ?>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="/beheer/rechten"><i class="bi bi-shield-lock me-2"></i>Rechten</a></li>
+                                <li><a class="dropdown-item" href="/beheer/api-sleutels"><i class="bi bi-key me-2"></i>API-sleutels</a></li>
                                 <li><a class="dropdown-item" href="/beheer"><i class="bi bi-gear me-2"></i>Beheer</a></li>
                                 <li class="dropdown-submenu">
                                     <a class="dropdown-item" href="#" onclick="return false"><i class="bi bi-clock-history me-2"></i>Logs</a>
                                     <ul class="dropdown-menu">
                                         <li><a class="dropdown-item" href="/beheer/log">Pagina</a></li>
                                         <li><a class="dropdown-item" href="/beheer/emails">E-mail</a></li>
+                                        <li><a class="dropdown-item" href="/beheer/beveiliging">Beveiliging (logins)</a></li>
                                     </ul>
                                 </li>
                             <?php endif; ?>

@@ -5,7 +5,9 @@ require __DIR__ . '/../app/bootstrap.php';
 use App\Core\Router;
 use App\Modules\Account\AccountController;
 use App\Modules\Agenda\AgendaController;
+use App\Modules\Beheer\ApiSleutelController;
 use App\Modules\Beheer\BeheerController;
+use App\Modules\Beheer\BeveiligingController;
 use App\Modules\Beheer\EmailQueueController;
 use App\Modules\Beheer\ExportController;
 use App\Modules\Beheer\LogController;
@@ -69,6 +71,7 @@ $router->post('/tickets/{id}/log', [TicketLogController::class, 'store']);
 $router->post('/tickets/{id}/kennisbank', [TicketController::class, 'kennisbankKoppel']);
 $router->post('/tickets/{id}/kennisbank/{id}/verwijderen', [TicketController::class, 'kennisbankOntkoppel']);
 $router->post('/api/tickets/vanuit-email', [TicketEmailIntakeController::class, 'store']);
+$router->post('/api/tickets/vanuit-aca-email', [TicketEmailIntakeController::class, 'storeAcaUpdate']);
 $router->post('/api/email-queue/verwerken', [AutomationController::class, 'emailQueueVerwerken']);
 $router->post('/api/tickets/herinneringen', [AutomationController::class, 'ticketHerinneringenGenereren']);
 
@@ -137,12 +140,20 @@ $router->post('/beheer/rechten/{id}/wachtwoord', [RechtenController::class, 'wac
 $router->post('/beheer/rechten/{id}/verwijderen', [RechtenController::class, 'verwijderen']);
 $router->post('/beheer/rechten/{id}/heractiveren', [RechtenController::class, 'heractiveren']);
 
+$router->get('/beheer/api-sleutels', [ApiSleutelController::class, 'index']);
+$router->get('/beheer/api-sleutels/nieuw', [ApiSleutelController::class, 'aanmaken']);
+$router->post('/beheer/api-sleutels', [ApiSleutelController::class, 'opslaan']);
+$router->post('/beheer/api-sleutels/{id}/intrekken', [ApiSleutelController::class, 'intrekken']);
+$router->post('/beheer/api-sleutels/{id}/heractiveren', [ApiSleutelController::class, 'heractiveren']);
+
 $router->get('/beheer/log', [LogController::class, 'index']);
+$router->get('/beheer/beveiliging', [BeveiligingController::class, 'index']);
 
 $router->get('/beheer/exporteren', [ExportController::class, 'index']);
 $router->post('/beheer/exporteren/uitvoeren', [ExportController::class, 'export']);
 
 $router->get('/beheer/emails', [EmailQueueController::class, 'index']);
+$router->post('/beheer/emails/test', [EmailQueueController::class, 'test']);
 
 $router->get('/privacybeleid', [LegalController::class, 'privacybeleid']);
 

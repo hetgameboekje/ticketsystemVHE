@@ -33,6 +33,20 @@ class TicketController extends CrudController
         'kritiek' => 'Kritiek',
     ];
 
+    protected function scopeAllowed(array $item): bool
+    {
+        $user = $this->currentUser();
+        if (($user['rol'] ?? '') === 'admin') {
+            return true;
+        }
+
+        $userId = (int) $this->currentUserId();
+
+        return ($item['afdeling_id'] ?? null) == ($user['afdeling_id'] ?? null)
+            || (int) ($item['behandelaar_id'] ?? 0) === $userId
+            || (int) ($item['aangemaakt_door_id'] ?? 0) === $userId;
+    }
+
     protected function filterOptions(array $allItems): array
     {
         $afdelingen = array_values(array_unique(array_filter(array_column($allItems, 'afdeling_naam'))));
@@ -78,6 +92,11 @@ class TicketController extends CrudController
             return;
         }
 
+        if (!$this->scopeAllowed($item)) {
+            $this->forbidden();
+            return;
+        }
+
         $gekoppeld = TicketKennisbankModel::gekoppeld($id);
         $gekoppeldeIds = array_column($gekoppeld, 'id');
 
@@ -103,6 +122,11 @@ class TicketController extends CrudController
         if ($huidig === null) {
             http_response_code(404);
             echo 'Niet gevonden.';
+            return;
+        }
+
+        if (!$this->scopeAllowed($huidig)) {
+            $this->forbidden();
             return;
         }
 

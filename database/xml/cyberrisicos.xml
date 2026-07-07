@@ -9,6 +9,7 @@
     <column name="status" type="VARCHAR" length="30" nullable="false" default="'nieuw'"/>
     <column name="locatie" type="VARCHAR" length="150"/>
     <column name="gemeld_door" type="VARCHAR" length="150"/>
+    <column name="afdeling_id" type="INT" references="afdelingen.id"/>
     <column name="eigenaar_id" type="INT"/>
     <column name="datum_geconstateerd" type="DATE"/>
     <column name="datum_gemeld" type="DATE"/>

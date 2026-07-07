@@ -2,8 +2,8 @@
 <table name="kennisbank_logs" engine="InnoDB">
   <columns>
     <column name="id" type="INT" primary="true" auto_increment="true"/>
-    <column name="kennisbank_artikel_id" type="BIGINT UNSIGNED" nullable="false" references="kennisbank_artikelen.id" on_delete="CASCADE"/>
-    <column name="user_id" type="BIGINT UNSIGNED" references="users.id"/>
+    <column name="kennisbank_artikel_id" type="INT" nullable="false" references="kennisbank_artikelen.id" on_delete="CASCADE"/>
+    <column name="user_id" type="INT" references="users.id"/>
     <column name="titel" type="VARCHAR" length="255" nullable="false"/>
     <column name="omschrijving" type="TEXT" nullable="false"/>
     <column name="volgorde" type="INT" nullable="false" default="0"/>

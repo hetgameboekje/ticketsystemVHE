@@ -67,6 +67,17 @@ class MedewerkerModel extends Model
         return $id === false ? null : (int) $id;
     }
 
+    /** Afdeling van de medewerker gekoppeld aan deze login — gebruikt om $_SESSION['user']['afdeling_id'] te vullen. */
+    public static function afdelingIdVoorUser(int $userId): ?int
+    {
+        $stmt = Database::pdo()->prepare(
+            'SELECT afdeling_id FROM medewerkers WHERE user_id = ? AND deleted_at IS NULL LIMIT 1'
+        );
+        $stmt->execute([$userId]);
+        $value = $stmt->fetchColumn();
+        return $value === false || $value === null ? null : (int) $value;
+    }
+
     public static function searchNamen(string $q): array
     {
         $stmt = Database::pdo()->prepare(

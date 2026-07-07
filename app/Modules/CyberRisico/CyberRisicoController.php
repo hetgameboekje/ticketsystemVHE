@@ -5,6 +5,7 @@ namespace App\Modules\CyberRisico;
 use App\Core\CrudController;
 use App\Modules\CyberRisico\Models\CyberRisicoLogModel;
 use App\Modules\CyberRisico\Models\CyberRisicoModel;
+use App\Shared\Afdeling\Models\AfdelingModel;
 use App\Shared\User\Models\UserModel;
 
 class CyberRisicoController extends CrudController
@@ -16,6 +17,20 @@ class CyberRisicoController extends CrudController
     protected string $pageTitle = "Cyberrisico's";
     protected ?string $searchColumn = 'titel';
 
+    protected function scopeAllowed(array $item): bool
+    {
+        $user = $this->currentUser();
+        if (($user['rol'] ?? '') === 'admin') {
+            return true;
+        }
+
+        $userId = (int) $this->currentUserId();
+
+        return ($item['afdeling_id'] ?? null) == ($user['afdeling_id'] ?? null)
+            || (int) ($item['eigenaar_id'] ?? 0) === $userId
+            || (int) ($item['aangemaakt_door_id'] ?? 0) === $userId;
+    }
+
     public function show(int $id): void
     {
         $this->requirePermission($this->activeModule, 'lezen');
@@ -24,6 +39,11 @@ class CyberRisicoController extends CrudController
         if ($item === null) {
             http_response_code(404);
             echo 'Niet gevonden.';
+            return;
+        }
+
+        if (!$this->scopeAllowed($item)) {
+            $this->forbidden();
             return;
         }
 
@@ -103,6 +123,18 @@ class CyberRisicoController extends CrudController
     public function update(int $id): void
     {
         $this->requirePermission($this->activeModule, 'schrijven');
+
+        $huidig = CyberRisicoModel::find($id);
+        if ($huidig === null) {
+            http_response_code(404);
+            echo 'Niet gevonden.';
+            return;
+        }
+        if (!$this->scopeAllowed($huidig)) {
+            $this->forbidden();
+            return;
+        }
+
         $data = $this->validatedData($_POST, isUpdate: true);
 
         if ($data['titel'] === '' || $data['omschrijving'] === '') {
@@ -119,6 +151,7 @@ class CyberRisicoController extends CrudController
     {
         return [
             'gebruikers' => UserModel::all('naam ASC'),
+            'afdelingen' => AfdelingModel::all(),
             'statussen' => self::STATUS_LABELS,
             'prioriteiten' => self::PRIORITEIT_LABELS,
             'categorieen' => self::CATEGORIE_LABELS,
@@ -138,6 +171,7 @@ class CyberRisicoController extends CrudController
                 : 'middel',
             'locatie' => trim($post['locatie'] ?? '') ?: null,
             'gemeld_door' => trim($post['gemeld_door'] ?? '') ?: null,
+            'afdeling_id' => !empty($post['afdeling_id']) ? (int) $post['afdeling_id'] : null,
             'eigenaar_id' => !empty($post['eigenaar_id']) ? (int) $post['eigenaar_id'] : null,
             'datum_geconstateerd' => ($post['datum_geconstateerd'] ?? '') !== '' ? $post['datum_geconstateerd'] : null,
             'datum_gemeld' => ($post['datum_gemeld'] ?? '') !== '' ? $post['datum_gemeld'] : null,

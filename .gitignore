@@ -7,3 +7,4 @@ database/seed.php
 /public/uploads/*
 !/public/uploads/.gitkeep
 .env.example
+/automation/outlook-intake/config.ini

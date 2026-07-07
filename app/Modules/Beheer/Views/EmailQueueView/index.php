@@ -8,11 +8,27 @@ $statusLabels = [
     'error' => 'Fout',
     'test' => 'Test',
 ];
+
+$flashSuccess = $_SESSION['flash_success'] ?? null;
+$flashError = $_SESSION['flash_error'] ?? null;
+unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 ?>
 <div class="page-header">
   <div class="page-title">E-mails</div>
-  <a class="btn" href="/beheer">&larr; Beheer</a>
+  <div>
+    <form method="post" action="/beheer/emails/test" style="display:inline">
+      <button type="submit" class="btn">Stuur testmail naar mezelf</button>
+    </form>
+    <a class="btn" href="/beheer">&larr; Beheer</a>
+  </div>
 </div>
+
+<?php if ($flashSuccess): ?>
+  <div class="alert alert-success"><?= htmlspecialchars($flashSuccess) ?></div>
+<?php endif; ?>
+<?php if ($flashError): ?>
+  <div class="alert alert-error"><?= htmlspecialchars($flashError) ?></div>
+<?php endif; ?>
 
 <div class="card">
   <?php if (empty($emails)): ?>

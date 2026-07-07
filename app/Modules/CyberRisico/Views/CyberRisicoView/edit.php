@@ -1,6 +1,7 @@
 <?php
 /** @var array $item */
 /** @var array $gebruikers */
+/** @var array $afdelingen */
 /** @var array $categorieen */
 /** @var array $prioriteiten */
 /** @var array $statussen */
@@ -61,6 +62,15 @@
           <option value="">— Niet toegewezen —</option>
           <?php foreach ($gebruikers as $g): ?>
             <option value="<?= $g['id'] ?>" <?= (int) ($item['eigenaar_id'] ?? 0) === (int) $g['id'] ? 'selected' : '' ?>><?= htmlspecialchars($g['naam']) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Afdeling</label>
+        <select name="afdeling_id">
+          <option value="">— Geen afdeling —</option>
+          <?php foreach ($afdelingen as $a): ?>
+            <option value="<?= $a['id'] ?>" <?= (int) ($item['afdeling_id'] ?? 0) === (int) $a['id'] ? 'selected' : '' ?>><?= htmlspecialchars($a['naam']) ?></option>
           <?php endforeach; ?>
         </select>
       </div>

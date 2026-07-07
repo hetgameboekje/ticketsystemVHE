@@ -2,7 +2,7 @@
 <table name="ticket_herinneringen" engine="InnoDB">
   <columns>
     <column name="id" type="INT" primary="true" auto_increment="true"/>
-    <column name="ticket_id" type="BIGINT UNSIGNED" nullable="false" references="tickets.id" on_delete="CASCADE"/>
+    <column name="ticket_id" type="INT" nullable="false" references="tickets.id" on_delete="CASCADE"/>
     <column name="type" type="VARCHAR" length="30" nullable="false"/>
     <column name="verstuurd_op" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
   </columns>

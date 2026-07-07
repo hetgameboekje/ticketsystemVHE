@@ -15,6 +15,19 @@ class VerbeterpuntController extends CrudController
     protected string $activeModule = 'verbeterpunten';
     protected string $pageTitle = 'Verbeterpunten';
 
+    protected function scopeAllowed(array $item): bool
+    {
+        $user = $this->currentUser();
+        if (($user['rol'] ?? '') === 'admin') {
+            return true;
+        }
+
+        $userId = (int) $this->currentUserId();
+
+        return ($item['afdeling_id'] ?? null) == ($user['afdeling_id'] ?? null)
+            || (int) ($item['ingediend_door_id'] ?? 0) === $userId;
+    }
+
     public function show(int $id): void
     {
         $this->requirePermission($this->activeModule, 'lezen');
@@ -23,6 +36,11 @@ class VerbeterpuntController extends CrudController
         if ($item === null) {
             http_response_code(404);
             echo 'Niet gevonden.';
+            return;
+        }
+
+        if (!$this->scopeAllowed($item)) {
+            $this->forbidden();
             return;
         }
 

@@ -11,10 +11,22 @@ abstract class CrudController extends Controller
     protected string $pageTitle;
     protected ?string $searchColumn = 'titel';
 
+    /**
+     * Rij-niveau toegangscontrole bovenop requirePermission() — bv. afdeling/eigenaarschap.
+     * Default: geen extra restrictie (bestaand gedrag voor modules die dit niet overriden).
+     */
+    protected function scopeAllowed(array $item): bool
+    {
+        return true;
+    }
+
     public function index(): void
     {
         $this->requirePermission($this->activeModule, 'lezen');
-        $allItems = ($this->modelClass)::allWithRelations();
+        $allItems = array_values(array_filter(
+            ($this->modelClass)::allWithRelations(),
+            fn (array $item) => $this->scopeAllowed($item)
+        ));
         $filterOptions = $this->filterOptions($allItems);
 
         $items = $this->applyDefaultFilters($allItems);
@@ -79,6 +91,11 @@ abstract class CrudController extends Controller
             return;
         }
 
+        if (!$this->scopeAllowed($item)) {
+            $this->forbidden();
+            return;
+        }
+
         $this->render("{$this->viewDir}/show", array_merge(['item' => $item], [
             'activeModule' => $this->activeModule,
             'pageTitle' => $this->pageTitle,
@@ -97,6 +114,11 @@ abstract class CrudController extends Controller
             return;
         }
 
+        if (!$this->scopeAllowed($item)) {
+            $this->forbidden();
+            return;
+        }
+
         $this->render("{$this->viewDir}/edit", array_merge(['item' => $item], $this->formData(), [
             'activeModule' => $this->activeModule,
             'pageTitle' => $this->pageTitle,
@@ -107,6 +129,18 @@ abstract class CrudController extends Controller
     public function update(int $id): void
     {
         $this->requirePermission($this->activeModule, 'schrijven');
+
+        $item = ($this->modelClass)::find($id);
+        if ($item === null) {
+            http_response_code(404);
+            echo 'Niet gevonden.';
+            return;
+        }
+        if (!$this->scopeAllowed($item)) {
+            $this->forbidden();
+            return;
+        }
+
         $data = $this->validatedData($_POST, isUpdate: true);
         ($this->modelClass)::update($id, $data);
         $this->redirect("/{$this->routeBase}/{$id}");
@@ -115,6 +149,18 @@ abstract class CrudController extends Controller
     public function destroy(int $id): void
     {
         $this->requirePermission($this->activeModule, 'verwijderen');
+
+        $item = ($this->modelClass)::find($id);
+        if ($item === null) {
+            http_response_code(404);
+            echo 'Niet gevonden.';
+            return;
+        }
+        if (!$this->scopeAllowed($item)) {
+            $this->forbidden();
+            return;
+        }
+
         ($this->modelClass)::delete($id);
         $_SESSION['flash_success'] = 'Item is inactief gezet en niet meer zichtbaar in het overzicht.';
         $this->redirect("/{$this->routeBase}");

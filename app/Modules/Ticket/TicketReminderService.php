@@ -4,6 +4,7 @@ namespace App\Modules\Ticket;
 
 use App\Core\Database;
 use App\Modules\Ticket\Models\TicketReminderModel;
+use App\Shared\Crypto\FieldEncryptor;
 use App\Shared\Mail\Models\EmailQueueModel;
 
 /**
@@ -102,8 +103,7 @@ class TicketReminderService
     private static function tweeWekenInhoud(array $t): string
     {
         $dagen = (int) (new \DateTime())->diff(new \DateTime($t['created_at']))->format('%a');
-        return "Ticket #{$t['id']} (\"" . htmlspecialchars($t['titel']) . "\") staat al {$dagen} dagen open en is nog niet afgehandeld.<br>"
-            . 'Bekijk het ticket: /tickets/' . $t['id'];
+        return self::ticketDetailsHtml($t, "Ticket #{$t['id']} staat al {$dagen} dagen open en is nog niet afgehandeld.");
     }
 
     private static function deadlineOnderwerp(array $t): string
@@ -113,7 +113,38 @@ class TicketReminderService
 
     private static function deadlineInhoud(array $t): string
     {
-        return "Ticket #{$t['id']} (\"" . htmlspecialchars($t['titel']) . "\") heeft een deadline op {$t['deadline']} en is nog niet afgehandeld.<br>"
-            . 'Bekijk het ticket: /tickets/' . $t['id'];
+        return self::ticketDetailsHtml($t, "Ticket #{$t['id']} heeft een naderende deadline en is nog niet afgehandeld.");
+    }
+
+    private const PRIORITEIT_LABELS = ['laag' => 'Laag', 'normaal' => 'Normaal', 'middel' => 'Middel', 'hoog' => 'Hoog', 'kritiek' => 'Kritiek'];
+
+    /**
+     * Bouwt de gedeelde e-mailinhoud voor beide herinneringstypes: titel, omschrijving (ontsleuteld —
+     * de query hierboven leest direct via Database::pdo(), niet via TicketModel, dus dat gebeurt hier
+     * expliciet), aanmaakdatum, deadline, prioriteit en een klikbare link naar het ticket.
+     */
+    private static function ticketDetailsHtml(array $t, string $intro): string
+    {
+        $omschrijving = FieldEncryptor::decrypt($t['omschrijving']);
+        $prioriteit = self::PRIORITEIT_LABELS[$t['prioriteit']] ?? ucfirst($t['prioriteit']);
+        $aangemaaktOp = date('d-m-Y H:i', strtotime($t['created_at']));
+        $deadline = $t['deadline'] ? date('d-m-Y', strtotime($t['deadline'])) : '—';
+        $link = self::ticketUrl((int) $t['id']);
+
+        return '<p>' . htmlspecialchars($intro) . '</p>'
+            . '<p><strong>' . htmlspecialchars($t['titel']) . '</strong><br>'
+            . nl2br(htmlspecialchars($omschrijving)) . '</p>'
+            . '<ul>'
+            . '<li>Aangemaakt op: ' . $aangemaaktOp . '</li>'
+            . '<li>Deadline: ' . htmlspecialchars($deadline) . '</li>'
+            . '<li>Prioriteit: ' . htmlspecialchars($prioriteit) . '</li>'
+            . '</ul>'
+            . '<p><a href="' . htmlspecialchars($link) . '">Bekijk ticket #' . $t['id'] . '</a></p>';
+    }
+
+    private static function ticketUrl(int $ticketId): string
+    {
+        $config = require APP_ROOT . '/config/config.php';
+        return $config['appUrl'] . '/tickets/' . $ticketId;
     }
 }

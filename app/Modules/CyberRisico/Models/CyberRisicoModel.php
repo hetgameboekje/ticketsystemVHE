@@ -10,15 +10,16 @@ class CyberRisicoModel extends Model
     protected static string $table = 'cyberrisicos';
     protected static array $fillable = [
         'titel', 'omschrijving', 'categorie', 'prioriteit', 'status', 'locatie', 'gemeld_door',
-        'eigenaar_id', 'datum_geconstateerd', 'datum_gemeld', 'oplossingsadvies', 'bewijs_notities',
-        'is_gevoelig', 'aangemaakt_door_id',
+        'afdeling_id', 'eigenaar_id', 'datum_geconstateerd', 'datum_gemeld', 'oplossingsadvies',
+        'bewijs_notities', 'is_gevoelig', 'aangemaakt_door_id',
     ];
     protected static bool $softDeletes = true;
 
     private const SELECT = "
-        SELECT c.*, u.naam AS eigenaar_naam
+        SELECT c.*, u.naam AS eigenaar_naam, a.naam AS afdeling_naam
         FROM cyberrisicos c
         LEFT JOIN users u ON u.id = c.eigenaar_id
+        LEFT JOIN afdelingen a ON a.id = c.afdeling_id
         WHERE c.deleted_at IS NULL
     ";
 

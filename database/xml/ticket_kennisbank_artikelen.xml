@@ -2,8 +2,8 @@
 <table name="ticket_kennisbank_artikelen" engine="InnoDB">
   <columns>
     <column name="id" type="INT" primary="true" auto_increment="true"/>
-    <column name="ticket_id" type="BIGINT UNSIGNED" nullable="false" references="tickets.id" on_delete="CASCADE"/>
-    <column name="kennisbank_artikel_id" type="BIGINT UNSIGNED" nullable="false" references="kennisbank_artikelen.id" on_delete="CASCADE"/>
+    <column name="ticket_id" type="INT" nullable="false" references="tickets.id" on_delete="CASCADE"/>
+    <column name="kennisbank_artikel_id" type="INT" nullable="false" references="kennisbank_artikelen.id" on_delete="CASCADE"/>
     <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
   </columns>
 </table>

@@ -1,13 +1,18 @@
 <?php
 // Eenmalig uitvoeren: php database/seed.php
 // Maakt demo-gebruikers aan met een door PHP gegenereerde wachtwoord-hash.
-
+//
+// Powershell
+// & "C:\xampp\php\php.exe" database\seed.php
+//
+//
+//
 require __DIR__ . '/../app/bootstrap.php';
 
 use App\Core\Database;
 
 $pdo = Database::pdo();
-$wachtwoord = 'admin123';
+$wachtwoord = 'demo123';
 $hash = password_hash($wachtwoord, PASSWORD_DEFAULT);
 
 $gebruikers = [

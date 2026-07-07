@@ -2,6 +2,7 @@
 
 namespace App\Core;
 
+use App\Shared\ApiKey\Models\ApiKeyModel;
 use App\Shared\Rechten\Models\RechtenModel;
 
 abstract class Controller
@@ -111,6 +112,21 @@ abstract class Controller
         }
 
         return $out;
+    }
+
+    /**
+     * Auth voor machine-to-machine endpoints (e-mailintake, Taakplanner-taken): geen sessie, maar een
+     * API-sleutel (header X-Api-Key of POST-veld api_key) die de gevraagde scope moet hebben. Sleutels
+     * worden beheerd via Beheer > API-sleutels (zie App\Shared\ApiKey\Models\ApiKeyModel).
+     */
+    protected function heeftApiSleutelMetScope(string $scope): bool
+    {
+        $meegegeven = $_SERVER['HTTP_X_API_KEY'] ?? ($_POST['api_key'] ?? '');
+        if (!is_string($meegegeven) || $meegegeven === '') {
+            return false;
+        }
+
+        return ApiKeyModel::vindActieveMetScope($meegegeven, $scope) !== null;
     }
 
     protected function forbidden(): void

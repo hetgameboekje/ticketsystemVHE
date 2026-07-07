@@ -8,8 +8,8 @@ use App\Shared\Mail\EmailQueueProcessor;
 
 /**
  * Achtergrondtaken-endpoints, bedoeld voor een externe scheduler (Taakplanner/cron) i.p.v. de UI.
- * Geen sessie-auth — authenticatie gaat via een gedeeld geheim, zelfde patroon als
- * TicketEmailIntakeController.
+ * Geen sessie-auth — authenticatie gaat via een API-sleutel met de juiste scope, zelfde patroon
+ * als TicketEmailIntakeController (zie App\Shared\ApiKey\Models\ApiKeyModel en Beheer > API-sleutels).
  */
 class AutomationController extends Controller
 {
@@ -17,9 +17,9 @@ class AutomationController extends Controller
     {
         header('Content-Type: application/json');
 
-        if (!$this->heeftGeldigeApiKey()) {
+        if (!$this->heeftApiSleutelMetScope('email_queue')) {
             http_response_code(401);
-            echo json_encode(['status' => 'error', 'message' => 'Ongeldige of ontbrekende API-key.']);
+            echo json_encode(['status' => 'error', 'message' => 'Ongeldige, ontbrekende of onvoldoende gemachtigde API-key.']);
             return;
         }
 
@@ -30,26 +30,12 @@ class AutomationController extends Controller
     {
         header('Content-Type: application/json');
 
-        if (!$this->heeftGeldigeApiKey()) {
+        if (!$this->heeftApiSleutelMetScope('ticket_herinneringen')) {
             http_response_code(401);
-            echo json_encode(['status' => 'error', 'message' => 'Ongeldige of ontbrekende API-key.']);
+            echo json_encode(['status' => 'error', 'message' => 'Ongeldige, ontbrekende of onvoldoende gemachtigde API-key.']);
             return;
         }
 
         echo json_encode(['status' => 'ok'] + TicketReminderService::genereer());
-    }
-
-    private function heeftGeldigeApiKey(): bool
-    {
-        $config = require APP_ROOT . '/config/config.php';
-        $verwacht = $config['automationApiKey'];
-
-        if ($verwacht === '') {
-            return false;
-        }
-
-        $meegegeven = $_SERVER['HTTP_X_API_KEY'] ?? ($_POST['api_key'] ?? '');
-
-        return is_string($meegegeven) && hash_equals($verwacht, $meegegeven);
     }
 }

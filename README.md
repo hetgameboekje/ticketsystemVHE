@@ -19,6 +19,7 @@ Dit project is geschikt voor organisaties die:
 - Exporteer- en importeerfunctionaliteit voor tickets
 - Beheeromgeving voor:
   - gebruikers/rechten
+  - API-sleutels voor externe scripts (scoped per endpoint)
   - database parsen/toepassen
   - e-mailqueue-overzicht
   - logoverzicht
@@ -98,6 +99,13 @@ php database/parse.php
 
 Voer vervolgens `database/.parsed/schema.sql` uit.
 
+> De Beheer-pagina ("Database toepassen") voegt automatisch ontbrekende tabellen/kolommen toe,
+> maar wijzigt geen bestaand kolomtype. Na het toevoegen van encryptie is `tickets.opdrachtgever_naam`
+> gewijzigd van `VARCHAR(150)` naar `TEXT` — pas dit één keer handmatig toe:
+> `ALTER TABLE tickets MODIFY opdrachtgever_naam TEXT NOT NULL;`. Draai daarna, met
+> `APP_ENCRYPTION_KEY` gezet, eenmalig `php database/encrypt_existing_tickets.php --apply` om
+> bestaande (plaintext) tickets te versleutelen.
+
 ### 2) Configuratie
 
 `config/config.php` gebruikt standaard lokale Laragon-waardes, of leest uit env:
@@ -109,6 +117,10 @@ Voer vervolgens `database/.parsed/schema.sql` uit.
 - `DB_PASSWORD`
 - `APP_DEV`
 - `APP_GIT_PULL_ENABLED`
+- `APP_ENCRYPTION_KEY` — sleutel voor het versleutelen van gevoelige ticketvelden
+  (`omschrijving`, `opdrachtgever_naam` — zie `App\Shared\Crypto\FieldEncryptor`). Genereer
+  met `openssl rand -base64 32`; gebruik dezelfde sleutel op elke omgeving die dezelfde
+  database gebruikt — wijzigen maakt bestaande versleutelde tickets onleesbaar.
 
 Kopieer `.env.example` naar `.env` om dit per omgeving te beheren.
 
