@@ -22,6 +22,7 @@ use App\Modules\Medewerker\MedewerkerController;
 use App\Modules\Printer\PrinterController;
 use App\Modules\Reflectie\ReflectieController;
 use App\Modules\Reflectie\ReflectieLogController;
+use App\Modules\Schijfgebruik\SchijfgebruikController;
 use App\Modules\Ticket\TicketController;
 use App\Modules\Ticket\TicketEmailIntakeController;
 use App\Modules\Ticket\TicketLogController;
@@ -106,6 +107,9 @@ $router->post('/kennisbank/{id}/log/volgorde', [KennisbankLogController::class, 
 $router->post('/cyberrisicos/{id}/log', [CyberRisicoLogController::class, 'store']);
 
 $router->get('/voorraad/{id}/barcode', [VoorraadController::class, 'barcode']);
+
+$router->get('/schijfgebruik', [SchijfgebruikController::class, 'index']);
+$router->post('/schijfgebruik/import', [SchijfgebruikController::class, 'upload']);
 
 $router->get('/medewerkers/login-check', [MedewerkerController::class, 'loginCheck']);
 

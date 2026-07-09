@@ -6,7 +6,7 @@
 /** @var array<string,bool> $navRechten */
 
 $navRechten = $navRechten ?? [];
-$magIct = array_filter(['tickets', 'verbeterpunten', 'reflecties', 'kennisbank', 'voorraad', 'uitgiften', 'apparaten', 'printers', 'cyberrisicos'], fn($m) => $navRechten[$m] ?? false);
+$magIct = array_filter(['tickets', 'verbeterpunten', 'reflecties', 'kennisbank', 'voorraad', 'uitgiften', 'apparaten', 'printers', 'cyberrisicos', 'schijfgebruik'], fn($m) => $navRechten[$m] ?? false);
 $magCrm = array_filter(['medewerkers'], fn($m) => $navRechten[$m] ?? false);
 
 function navActive(string $module, string $active): string
@@ -70,7 +70,7 @@ $active = $activeModule ?? '';
 
                 <?php if ($magIct): ?>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle<?= dropdownActive(['ict', 'tickets', 'verbeterpunten', 'reflecties', 'kennisbank', 'voorraad', 'uitgiften', 'apparaten', 'printers', 'cyberrisicos'], $active) ?>"
+                    <a class="nav-link dropdown-toggle<?= dropdownActive(['ict', 'tickets', 'verbeterpunten', 'reflecties', 'kennisbank', 'voorraad', 'uitgiften', 'apparaten', 'printers', 'cyberrisicos', 'schijfgebruik'], $active) ?>"
                        href="#"
                        id="ictDropdown"
                        role="button"
@@ -90,6 +90,7 @@ $active = $activeModule ?? '';
                         <?php if ($navRechten['apparaten'] ?? false): ?><li><a class="dropdown-item<?= navActive('apparaten', $active) ?>" href="/apparaten">Apparaten</a></li><?php endif; ?>
                         <?php if ($navRechten['printers'] ?? false): ?><li><a class="dropdown-item<?= navActive('printers', $active) ?>" href="/printers">Printers</a></li><?php endif; ?>
                         <?php if ($navRechten['cyberrisicos'] ?? false): ?><li><a class="dropdown-item<?= navActive('cyberrisicos', $active) ?>" href="/cyberrisicos">Cyberrisico's</a></li><?php endif; ?>
+                        <?php if ($navRechten['schijfgebruik'] ?? false): ?><li><a class="dropdown-item<?= navActive('schijfgebruik', $active) ?>" href="/schijfgebruik">Schijfgebruik</a></li><?php endif; ?>
                     </ul>
                 </li>
                 <?php endif; ?>

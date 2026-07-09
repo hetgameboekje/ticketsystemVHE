@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="schijfgebruik_devices" engine="InnoDB">
+  <columns>
+    <column name="id" type="INT" primary="true" auto_increment="true"/>
+    <column name="extern_id" type="VARCHAR" length="50" unique="true"/>
+    <column name="organisatie" type="VARCHAR" length="150"/>
+    <column name="locatie" type="VARCHAR" length="150"/>
+    <column name="naam" type="VARCHAR" length="150" nullable="false"/>
+    <column name="type" type="VARCHAR" length="100"/>
+    <column name="rol" type="VARCHAR" length="100"/>
+    <column name="beleid" type="VARCHAR" length="150"/>
+    <column name="laatst_online" type="TIMESTAMP"/>
+    <column name="laatst_update" type="TIMESTAMP"/>
+    <column name="laatste_login" type="VARCHAR" length="150"/>
+    <column name="ip_adressen" type="TEXT"/>
+    <column name="mac_adressen" type="TEXT"/>
+    <column name="publiek_ip" type="VARCHAR" length="50"/>
+    <column name="geheugen_gib" type="NUMERIC" length="10,2"/>
+    <column name="os_naam" type="VARCHAR" length="150"/>
+    <column name="os_architectuur" type="VARCHAR" length="20"/>
+    <column name="os_build" type="VARCHAR" length="30"/>
+    <column name="merk" type="VARCHAR" length="100"/>
+    <column name="model" type="VARCHAR" length="150"/>
+    <column name="serienummer" type="VARCHAR" length="100"/>
+    <column name="domein" type="VARCHAR" length="100"/>
+    <column name="processor" type="VARCHAR" length="200"/>
+    <column name="tijdzone" type="VARCHAR" length="100"/>
+    <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
+    <column name="updated_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP" on_update="CURRENT_TIMESTAMP"/>
+  </columns>
+</table>
