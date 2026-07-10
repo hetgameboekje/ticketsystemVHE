@@ -24,6 +24,7 @@ class ApiKeyModel extends Model
         'aca_intake' => 'ACA-case-updates',
         'email_queue' => 'E-mailwachtrij verwerken (Taakplanner)',
         'ticket_herinneringen' => 'Ticketherinneringen genereren (Taakplanner)',
+        'database_export' => 'Database-export (dev-sync: live database ophalen naar lokale omgeving)',
     ];
 
     /** @return array{id:int,plaintext:string} */

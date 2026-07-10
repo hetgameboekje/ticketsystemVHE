@@ -3,6 +3,7 @@
 namespace App\Shared\Automation;
 
 use App\Core\Controller;
+use App\Core\DatabaseDump;
 use App\Modules\Ticket\TicketReminderService;
 use App\Shared\Mail\EmailQueueProcessor;
 
@@ -37,5 +38,28 @@ class AutomationController extends Controller
         }
 
         echo json_encode(['status' => 'ok'] + TicketReminderService::genereer());
+    }
+
+    /**
+     * Levert een volledige SQL-dump van de live database (alle tabellen, schema + data), bedoeld
+     * om vanuit een lokale dev-omgeving opgehaald te worden (zie scripts/dev-tools/dev-tools.ps1). Bevat
+     * ongefilterde data, inclusief wachtwoordhashes — de scope 'database_export' moet dus alleen
+     * aan sleutels toegekend worden die je zelf beheert, niet aan externe scripts.
+     */
+    public function databaseExport(): void
+    {
+        if (!$this->heeftApiSleutelMetScope('database_export')) {
+            http_response_code(401);
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'error', 'message' => 'Ongeldige, ontbrekende of onvoldoende gemachtigde API-key.']);
+            return;
+        }
+
+        $sql = DatabaseDump::generate();
+
+        header('Content-Type: application/sql');
+        header('Content-Disposition: attachment; filename="database-export-' . date('Y-m-d_His') . '.sql"');
+        header('Content-Length: ' . strlen($sql));
+        echo $sql;
     }
 }

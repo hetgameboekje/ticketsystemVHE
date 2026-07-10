@@ -3,11 +3,7 @@
 *.log
 /database/.parsed/*.sql
 database/seed.php
-database/seed.php
 /public/uploads/*
 !/public/uploads/.gitkeep
-.env.example
-/automation/outlook-intake/config.ini
-automation/outlook-intake/config.example.ini
-automation/outlook-intake/config.example.ini
-automation/outlook-intake/config.example.ini
+/scripts/automation/outlook-intake/config.ini
+__pycache__/

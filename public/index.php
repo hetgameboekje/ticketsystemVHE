@@ -77,6 +77,7 @@ $router->post('/api/tickets/vanuit-email', [TicketEmailIntakeController::class, 
 $router->post('/api/tickets/vanuit-aca-email', [TicketEmailIntakeController::class, 'storeAcaUpdate']);
 $router->post('/api/email-queue/verwerken', [AutomationController::class, 'emailQueueVerwerken']);
 $router->post('/api/tickets/herinneringen', [AutomationController::class, 'ticketHerinneringenGenereren']);
+$router->get('/api/database/export', [AutomationController::class, 'databaseExport']);
 
 $router->get('/ict', [OverviewController::class, 'ict']);
 $router->get('/crm', [OverviewController::class, 'crm']);

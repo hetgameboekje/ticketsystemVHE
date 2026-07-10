@@ -124,6 +124,27 @@ Voer vervolgens `database/.parsed/schema.sql` uit.
 
 Kopieer `.env.example` naar `.env` om dit per omgeving te beheren.
 
+### Dev-tools script (Windows)
+
+`scripts/dev-tools/dev-tools.ps1` bundelt de dagelijkse lokale dev-taken in één interactief menu
+(pijltjes = navigeren, spatie = selecteren, Enter = uitvoeren):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\dev-tools\dev-tools.ps1
+```
+
+- **Database parsen** — genereert `database/.parsed/schema.sql` uit `database/xml/*`.
+- **Git pull & fetch** — `git fetch --all --prune` + `git pull`.
+- **Rebuild .env** — voegt sleutels toe die in `.env.example` staan maar nog niet in je
+  `.env`, zonder bestaande waarden te overschrijven.
+- **Database legen + schema herbouwen** — verwijdert alle lokale tabellen/data en herbouwt
+  het schema (`database/clear.php --force`).
+- **Live database ophalen** — haalt een volledige dump van de live database op via
+  `GET /api/database/export` en importeert die lokaal. Vereist `LIVE_DB_EXPORT_URL` en
+  `LIVE_DB_EXPORT_KEY` in `.env`; de sleutel maak je aan via Beheer > API-sleutels op de
+  live server met scope `database_export`. Bevat ongefilterde productiedata — deel deze
+  sleutel niet en trek 'm in zodra je 'm niet meer gebruikt.
+
 ### 3) Demo-data laden
 
 ```bash

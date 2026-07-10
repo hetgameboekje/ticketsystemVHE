@@ -9,7 +9,7 @@ use App\Shared\User\Models\UserModel;
 
 /**
  * Neemt tickets aan vanuit een extern script (bv. het Outlook/pywin32-script op it@vhe.nl,
- * zie automation/outlook-intake/) i.p.v. via de ingelogde UI. Geen sessie-auth — authenticatie
+ * zie scripts/automation/outlook-intake/) i.p.v. via de ingelogde UI. Geen sessie-auth — authenticatie
  * gaat via een API-sleutel met de juiste scope (zie App\Shared\ApiKey\Models\ApiKeyModel en
  * Beheer > API-sleutels), vergelijkbaar met een webhook.
  */

@@ -51,7 +51,7 @@ verwerkte mails komen in `outlook_intake.log` (in dezelfde map) én op het scher
 3. Actie: programma starten:
    - Programma: pad naar `python.exe` (of `pythonw.exe` om het consolevenster te onderdrukken)
    - Argumenten: `outlook_intake.py`
-   - Beginnen in: de map van dit script (`automation\outlook-intake`)
+   - Beginnen in: de map van dit script (`scripts\automation\outlook-intake`)
 4. Voer de taak uit **onder jouw eigen gebruikersaccount**, met "alleen uitvoeren als gebruiker is
    aangemeld" — de taak heeft een actieve Outlook-sessie nodig (COM-automatisering werkt niet
    headless/als systeemaccount zonder ingelogde Outlook-desktopsessie).
