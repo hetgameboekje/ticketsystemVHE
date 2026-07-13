@@ -21,10 +21,11 @@ class RechtenModel extends Model
         'medewerkers' => 'Medewerkers',
         'voorraad' => 'Voorraad',
         'uitgiften' => 'Uitgifte',
-        'apparaten' => 'Apparaten',
+        'apparaten' => 'Applicaties',
         'printers' => 'Printers',
         'cyberrisicos' => "Cyberrisico's",
         'schijfgebruik' => 'Schijfgebruik',
+        'scripts' => 'Scripts',
     ];
 
     public static function has(int $userId, string $module, string $actie): bool

@@ -10,6 +10,7 @@ class MedewerkerModel extends Model
     protected static string $table = 'medewerkers';
     protected static array $fillable = [
         'voornaam', 'achternaam', 'email', 'telefoon', 'functie', 'afdeling_id', 'startdatum', 'status', 'user_id',
+        'apparaat_hostnames',
     ];
     protected static bool $softDeletes = true;
 
@@ -57,6 +58,15 @@ class MedewerkerModel extends Model
         $stmt->execute($params);
 
         return $stmt->fetchColumn() !== false ? 'bezet' : 'gevonden';
+    }
+
+    /** Gebruikt door de CSV-import om te bepalen of een rij een bestaande medewerker bijwerkt of een nieuwe aanmaakt. */
+    public static function findByEmail(string $email): ?array
+    {
+        $stmt = Database::pdo()->prepare('SELECT * FROM medewerkers WHERE LOWER(email) = LOWER(?) AND deleted_at IS NULL');
+        $stmt->execute([$email]);
+        $row = $stmt->fetch();
+        return $row === false ? null : $row;
     }
 
     public static function userIdVoorEmail(string $email): ?int

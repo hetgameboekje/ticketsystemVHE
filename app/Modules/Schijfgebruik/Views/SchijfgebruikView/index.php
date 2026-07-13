@@ -4,6 +4,7 @@
 /** @var array $filterOptions */
 /** @var string $search */
 /** @var string $minGebruik */
+/** @var bool $alleenWaarschuwingen */
 /** @var string|null $sort */
 /** @var string $dir */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
@@ -44,6 +45,10 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
   <?= filterSelect('locatie', 'Alle locaties', $filterOptions['locatie']) ?>
   <?= filterSelect('letter', 'Alle schijven', $filterOptions['letter']) ?>
   <input type="number" name="min_gebruik" min="0" max="100" value="<?= htmlspecialchars($minGebruik) ?>" placeholder="Min. gebruik %" style="width:140px">
+  <label style="display:flex;align-items:center;gap:6px;font-weight:normal;font-size:13px">
+    <input type="checkbox" name="alleen_waarschuwingen" value="1" <?= $alleenWaarschuwingen ? 'checked' : '' ?>>
+    Alleen apparaten met waarschuwingen
+  </label>
   <button class="btn btn-primary" type="submit">Zoeken</button>
 </form>
 
@@ -54,6 +59,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
   $table = (new Table())
       ->emptyText('Geen apparaten/schijven gevonden. Importeer hierboven een CSV-export.')
       ->sortState($sort, $dir)
+      ->rowUrl(fn (array $r) => "/schijfgebruik/{$r['device_id']}")
       ->column('naam', 'Apparaat', fn (array $r) => htmlspecialchars($r['naam']))
       ->column('laatste_login', 'Gebruiker', fn (array $r) => htmlspecialchars($r['laatste_login'] ?? '—'))
       ->column('organisatie', 'Organisatie', fn (array $r) => htmlspecialchars($r['organisatie'] ?? '—'), ['class' => 'col-2'])
@@ -66,6 +72,22 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
           return '<span style="font-weight:600;color:' . $kleur . '">' . $pct . '%</span>';
       }, ['class' => 'col-1'])
       ->column('laatst_online', 'Laatst online', fn (array $r) => formatDatumTijd($r['laatst_online']), ['class' => 'col-2'])
+      ->column('laatste_boot', 'Laatste boot', fn (array $r) => formatDatumTijd($r['laatste_boot']), ['class' => 'col-2'])
+      ->column('is_online', 'Status', function (array $r) {
+          $badge = $r['is_online']
+              ? '<span class="badge" style="background:#198754;color:#fff">Online</span>'
+              : '<span class="badge" style="background:#dc3545;color:#fff">Offline' . ($r['dagen_offline'] !== null ? ' (' . $r['dagen_offline'] . 'd)' : '') . '</span>';
+
+          $iconen = '';
+          if ($r['herstart_nodig']) {
+              $iconen .= ' <i class="bi bi-arrow-clockwise" style="color:#fd7e14" title="Herstart aanbevolen"></i>';
+          }
+          if (!empty($r['waarschuwingen'])) {
+              $iconen .= ' <i class="bi bi-exclamation-triangle-fill" style="color:#dc3545" title="' . htmlspecialchars(implode(' — ', $r['waarschuwingen'])) . '"></i>';
+          }
+
+          return $badge . $iconen;
+      }, ['class' => 'col-2', 'sortable' => false])
       ->rows($items);
   echo $table->render();
   ?>

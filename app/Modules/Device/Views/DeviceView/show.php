@@ -17,7 +17,7 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 <div class="detail-layout">
   <div class="card">
     <div class="card-header">
-      <span class="card-title">Software (<?= count($software) ?>)</span>
+      <span class="card-title">Applicaties (<?= count($software) ?>)</span>
     </div>
     <?php if (!empty($software)): ?>
       <div style="padding:12px 16px;border-bottom:0.5px solid var(--color-border-tertiary)">

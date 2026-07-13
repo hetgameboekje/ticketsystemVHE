@@ -13,7 +13,7 @@ class DeviceController extends CrudController
     protected string $viewDir = 'Modules/Device/Views/DeviceView';
     protected string $routeBase = 'apparaten';
     protected string $activeModule = 'apparaten';
-    protected string $pageTitle = 'Apparaten';
+    protected string $pageTitle = 'Applicaties';
     protected ?string $searchColumn = 'naam';
 
     protected function filterOptions(array $allItems): array

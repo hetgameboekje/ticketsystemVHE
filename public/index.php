@@ -23,6 +23,7 @@ use App\Modules\Printer\PrinterController;
 use App\Modules\Reflectie\ReflectieController;
 use App\Modules\Reflectie\ReflectieLogController;
 use App\Modules\Schijfgebruik\SchijfgebruikController;
+use App\Modules\Script\ScriptController;
 use App\Modules\Ticket\TicketController;
 use App\Modules\Ticket\TicketEmailIntakeController;
 use App\Modules\Ticket\TicketLogController;
@@ -58,6 +59,7 @@ $modules = [
     'apparaten' => DeviceController::class,
     'printers' => PrinterController::class,
     'cyberrisicos' => CyberRisicoController::class,
+    'scripts' => ScriptController::class,
 ];
 
 foreach ($modules as $routeBase => $controller) {
@@ -79,8 +81,11 @@ $router->post('/api/email-queue/verwerken', [AutomationController::class, 'email
 $router->post('/api/tickets/herinneringen', [AutomationController::class, 'ticketHerinneringenGenereren']);
 $router->get('/api/database/export', [AutomationController::class, 'databaseExport']);
 
-$router->get('/ict', [OverviewController::class, 'ict']);
+$router->get('/service', [OverviewController::class, 'service']);
+$router->get('/assets', [OverviewController::class, 'assets']);
+$router->get('/security', [OverviewController::class, 'security']);
 $router->get('/crm', [OverviewController::class, 'crm']);
+$router->get('/onderhoud', [OverviewController::class, 'onderhoud']);
 
 $router->get('/tools', [ToolsController::class, 'index']);
 
@@ -111,8 +116,10 @@ $router->get('/voorraad/{id}/barcode', [VoorraadController::class, 'barcode']);
 
 $router->get('/schijfgebruik', [SchijfgebruikController::class, 'index']);
 $router->post('/schijfgebruik/import', [SchijfgebruikController::class, 'upload']);
+$router->get('/schijfgebruik/{id}', [SchijfgebruikController::class, 'show']);
 
 $router->get('/medewerkers/login-check', [MedewerkerController::class, 'loginCheck']);
+$router->post('/medewerkers/import', [MedewerkerController::class, 'import']);
 
 $router->get('/uitgiften', [UitgifteController::class, 'index']);
 $router->get('/uitgiften/namen', [UitgifteController::class, 'namen']);

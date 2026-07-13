@@ -2,6 +2,7 @@
 /** @var array $item */
 /** @var array $uitgiften */
 /** @var array $apparaten */
+/** @var array $schijfgebruik */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 ?>
 <div class="page-header">
@@ -50,6 +51,24 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
               <span class="log-time"><?= (int) $d['software_aantal'] ?> software-item(s)</span>
             </div>
             <div class="log-text">Laatst geïmporteerd: <?= formatDatumTijd($d['laatst_geimporteerd_op']) ?></div>
+          </a>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
+    </div>
+
+    <div class="card" style="margin-top:10px">
+      <div class="card-header"><span class="card-title">Schijfgebruik</span></div>
+      <?php if (empty($schijfgebruik)): ?>
+        <div class="empty-state">Geen schijfgebruik-apparaten gekoppeld.</div>
+      <?php else: ?>
+        <div class="log-list">
+          <?php foreach ($schijfgebruik as $d): ?>
+          <a class="log-item" href="/schijfgebruik/<?= $d['id'] ?>" style="display:block;color:inherit;text-decoration:none">
+            <div class="log-meta">
+              <span class="log-user"><?= htmlspecialchars($d['naam']) ?></span>
+              <span class="log-time"><?= htmlspecialchars($d['laatste_login'] ?? '—') ?></span>
+            </div>
           </a>
           <?php endforeach; ?>
         </div>

@@ -11,6 +11,9 @@
     <column name="beleid" type="VARCHAR" length="150"/>
     <column name="laatst_online" type="TIMESTAMP"/>
     <column name="laatst_update" type="TIMESTAMP"/>
+    <column name="laatste_boot" type="TIMESTAMP"/>
+    <column name="garantie_tot" type="TIMESTAMP"/>
+    <column name="tags" type="VARCHAR" length="255"/>
     <column name="laatste_login" type="VARCHAR" length="150"/>
     <column name="ip_adressen" type="TEXT"/>
     <column name="mac_adressen" type="TEXT"/>

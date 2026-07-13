@@ -7,3 +7,4 @@ database/seed.php
 !/public/uploads/.gitkeep
 /scripts/automation/outlook-intake/config.ini
 __pycache__/
+automation/outlook-intake/config.ini

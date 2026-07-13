@@ -15,7 +15,10 @@ class SchijfgebruikController extends Controller
     {
         $this->requirePermission(self::ACTIVE_MODULE, 'lezen');
 
-        $allItems = SchijfgebruikSchijfModel::allWithDevice();
+        $allItems = array_map(
+            fn (array $row) => array_merge($row, SchijfgebruikHealth::evaluate($row)),
+            SchijfgebruikSchijfModel::allWithDevice()
+        );
 
         $minGebruik = trim((string) ($_GET['min_gebruik'] ?? ''));
         if ($minGebruik !== '' && is_numeric($minGebruik)) {
@@ -23,6 +26,14 @@ class SchijfgebruikController extends Controller
             $allItems = array_values(array_filter(
                 $allItems,
                 fn (array $row) => (int) $row['gebruik_percentage'] >= $drempel
+            ));
+        }
+
+        $alleenWaarschuwingen = ($_GET['alleen_waarschuwingen'] ?? '') === '1';
+        if ($alleenWaarschuwingen) {
+            $allItems = array_values(array_filter(
+                $allItems,
+                fn (array $row) => !empty($row['waarschuwingen'])
             ));
         }
 
@@ -39,7 +50,7 @@ class SchijfgebruikController extends Controller
 
         $filterOptions = $this->filterOptions($allItems);
 
-        $params = array_diff_key($_GET, ['min_gebruik' => null, 'q' => null]);
+        $params = array_diff_key($_GET, ['min_gebruik' => null, 'q' => null, 'alleen_waarschuwingen' => null]);
         $params['sort'] = $params['sort'] ?? 'gebruik_percentage';
         $params['dir'] = $params['dir'] ?? 'desc';
 
@@ -52,10 +63,33 @@ class SchijfgebruikController extends Controller
             'filterOptions' => $filterOptions,
             'search' => $search,
             'minGebruik' => $minGebruik,
+            'alleenWaarschuwingen' => $alleenWaarschuwingen,
             'activeModule' => self::ACTIVE_MODULE,
             'pageTitle' => 'Schijfgebruik',
             'sort' => $params['sort'],
             'dir' => $params['dir'],
+        ]);
+    }
+
+    public function show(int $id): void
+    {
+        $this->requirePermission(self::ACTIVE_MODULE, 'lezen');
+
+        $device = SchijfgebruikDeviceModel::findWithSchijven($id);
+        if ($device === null) {
+            http_response_code(404);
+            echo 'Niet gevonden.';
+            return;
+        }
+
+        $maxGebruik = $device['schijven'] === [] ? 0 : max(array_column($device['schijven'], 'gebruik_percentage'));
+        $health = SchijfgebruikHealth::evaluate(array_merge($device, ['gebruik_percentage' => $maxGebruik]));
+
+        $this->render('Modules/Schijfgebruik/Views/SchijfgebruikView/show', [
+            'device' => $device,
+            'health' => $health,
+            'activeModule' => self::ACTIVE_MODULE,
+            'pageTitle' => 'Schijfgebruik',
         ]);
     }
 
