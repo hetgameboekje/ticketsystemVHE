@@ -24,6 +24,20 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
   <div class="alert alert-error"><?= htmlspecialchars($flashError) ?></div>
 <?php endif; ?>
 
+<div class="card" style="margin-bottom:14px">
+  <div class="card-header"><span class="card-title">CSV importeren</span></div>
+  <div style="padding:16px">
+    <form method="post" action="/medewerkers/import" enctype="multipart/form-data" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <input type="file" name="bestand" accept=".csv" required>
+      <button class="btn btn-primary" type="submit">Importeren</button>
+      <span style="font-size:12px;color:var(--color-text-secondary)">
+        Verwacht een gebruikers-export (.csv) met kolommen "User name", "Email", "User access", "Phone number"
+        en "Assigned devices". Werkt bestaande medewerkers bij op e-mailadres en koppelt apparaten waar mogelijk.
+      </span>
+    </form>
+  </div>
+</div>
+
 <form method="get" action="/medewerkers" class="filters" style="margin-bottom:14px">
   <input type="text" name="q" value="<?= htmlspecialchars($search) ?>" placeholder="Zoeken op achternaam...">
   <button class="btn btn-primary" type="submit">Zoeken</button>

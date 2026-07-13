@@ -58,4 +58,26 @@ class DeviceModel extends Model
         $stmt->execute([$medewerkerId]);
         return $stmt->fetchAll();
     }
+
+    /**
+     * Best-effort koppeling voor de medewerker-CSV-import: devices.naam is vrije tekst die IT
+     * handmatig invult (bv. "Laptop Timo Bergthaler"), dus een hostnaam uit een andere export
+     * matcht niet gegarandeerd. Probeert eerst een exacte match, dan of de hostnaam ergens in
+     * de naam voorkomt — vindt de import niets, dan blijft het apparaat gewoon ongekoppeld.
+     */
+    public static function findByNaamMatch(string $hostnaam): ?array
+    {
+        $stmt = Database::pdo()->prepare('SELECT * FROM devices WHERE deleted_at IS NULL AND LOWER(naam) = LOWER(?) LIMIT 1');
+        $stmt->execute([$hostnaam]);
+        $row = $stmt->fetch();
+        if ($row !== false) {
+            return $row;
+        }
+
+        $like = '%' . addcslashes($hostnaam, '%_\\') . '%';
+        $stmt = Database::pdo()->prepare("SELECT * FROM devices WHERE deleted_at IS NULL AND naam LIKE ? ESCAPE '\\\\' LIMIT 1");
+        $stmt->execute([$like]);
+        $row = $stmt->fetch();
+        return $row === false ? null : $row;
+    }
 }

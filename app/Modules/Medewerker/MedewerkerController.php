@@ -5,6 +5,7 @@ namespace App\Modules\Medewerker;
 use App\Core\CrudController;
 use App\Modules\Device\Models\DeviceModel;
 use App\Modules\Medewerker\Models\MedewerkerModel;
+use App\Modules\Schijfgebruik\Models\SchijfgebruikDeviceModel;
 use App\Modules\Uitgifte\Models\UitgifteModel;
 use App\Shared\Afdeling\Models\AfdelingModel;
 
@@ -77,14 +78,90 @@ class MedewerkerController extends CrudController
 
         $naam = trim($item['voornaam'] . ' ' . $item['achternaam']);
 
+        $hostnames = array_filter(array_map('trim', explode(',', $item['apparaat_hostnames'] ?? '')));
+        $schijfgebruik = array_values(array_filter(array_map(
+            fn (string $hostnaam) => SchijfgebruikDeviceModel::findByNaam($hostnaam),
+            $hostnames
+        )));
+
         $this->render("{$this->viewDir}/show", [
             'item' => $item,
             'uitgiften' => UitgifteModel::forMedewerkerNaam($naam),
             'apparaten' => DeviceModel::forMedewerker($id),
+            'schijfgebruik' => $schijfgebruik,
             'activeModule' => $this->activeModule,
             'pageTitle' => $this->pageTitle,
             'routeBase' => $this->routeBase,
         ]);
+    }
+
+    /**
+     * Importeert een gebruikers-export CSV: werkt medewerkers bij op e-mail of maakt ze aan, en
+     * koppelt de meegeleverde apparaat-hostnamen best-effort aan bestaande apparaten (zie
+     * DeviceModel::findByNaamMatch()). De hostnamen worden bewaard op de medewerker zelf, zodat
+     * show() daarmee ook de bijbehorende schijfgebruik-apparaten kan opzoeken.
+     */
+    public function import(): void
+    {
+        $this->requirePermission($this->activeModule, 'schrijven');
+
+        if (empty($_FILES['bestand']['tmp_name']) || $_FILES['bestand']['error'] !== UPLOAD_ERR_OK) {
+            $_SESSION['flash_error'] = 'Geen geldig CSV-bestand ontvangen.';
+            $this->redirect('/medewerkers');
+        }
+
+        $extension = strtolower(pathinfo($_FILES['bestand']['name'], PATHINFO_EXTENSION));
+        if ($extension !== 'csv') {
+            $_SESSION['flash_error'] = 'Alleen .csv-bestanden worden ondersteund.';
+            $this->redirect('/medewerkers');
+        }
+
+        try {
+            $rows = MedewerkerImport::parse($_FILES['bestand']['tmp_name']);
+        } catch (\RuntimeException $e) {
+            $_SESSION['flash_error'] = $e->getMessage();
+            $this->redirect('/medewerkers');
+        }
+
+        $aangemaakt = 0;
+        $bijgewerkt = 0;
+        $apparatenGekoppeld = 0;
+
+        foreach ($rows as $row) {
+            $bestaand = MedewerkerModel::findByEmail($row['email']);
+            $exceptId = $bestaand !== null ? (int) $bestaand['id'] : null;
+
+            $data = [
+                'voornaam' => $row['voornaam'],
+                'achternaam' => $row['achternaam'],
+                'email' => $row['email'],
+                'telefoon' => $row['telefoon'],
+                'status' => $row['status'],
+                'apparaat_hostnames' => implode(', ', $row['hostnames']),
+                'user_id' => $this->gekoppeldeUserId($row['email'], $exceptId),
+            ];
+
+            if ($bestaand !== null) {
+                $medewerkerId = (int) $bestaand['id'];
+                MedewerkerModel::update($medewerkerId, $data);
+                $bijgewerkt++;
+            } else {
+                $medewerkerId = MedewerkerModel::create($data);
+                $aangemaakt++;
+            }
+
+            foreach ($row['hostnames'] as $hostnaam) {
+                $device = DeviceModel::findByNaamMatch($hostnaam);
+                if ($device !== null) {
+                    DeviceModel::update((int) $device['id'], ['medewerker_id' => $medewerkerId]);
+                    $apparatenGekoppeld++;
+                }
+            }
+        }
+
+        $_SESSION['flash_success'] = "Import voltooid: {$aangemaakt} medewerker(s) aangemaakt, {$bijgewerkt} bijgewerkt, "
+            . "{$apparatenGekoppeld} apparaat/apparaten gekoppeld.";
+        $this->redirect('/medewerkers');
     }
 
     /** AJAX: checkt of het ingevoerde e-mailadres bij een bestaande, nog niet gekoppelde login hoort. */

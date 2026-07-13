@@ -16,6 +16,19 @@ class SchijfgebruikDeviceModel extends Model
         'merk', 'model', 'serienummer', 'domein', 'processor', 'tijdzone',
     ];
 
+    /**
+     * Gebruikt om vanaf een medewerker-pagina door te klikken naar schijfgebruik: naam is hier
+     * altijd de hostnaam uit de NinjaRMM "Display Name"-kolom, dus in tegenstelling tot
+     * DeviceModel::findByNaamMatch() is een exacte (case-insensitive) match hier wel betrouwbaar.
+     */
+    public static function findByNaam(string $naam): ?array
+    {
+        $stmt = Database::pdo()->prepare('SELECT * FROM schijfgebruik_devices WHERE LOWER(naam) = LOWER(?) LIMIT 1');
+        $stmt->execute([$naam]);
+        $row = $stmt->fetch();
+        return $row === false ? null : $row;
+    }
+
     public static function findWithSchijven(int $id): ?array
     {
         $device = static::find($id);

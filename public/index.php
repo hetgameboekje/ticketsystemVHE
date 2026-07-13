@@ -119,6 +119,7 @@ $router->post('/schijfgebruik/import', [SchijfgebruikController::class, 'upload'
 $router->get('/schijfgebruik/{id}', [SchijfgebruikController::class, 'show']);
 
 $router->get('/medewerkers/login-check', [MedewerkerController::class, 'loginCheck']);
+$router->post('/medewerkers/import', [MedewerkerController::class, 'import']);
 
 $router->get('/uitgiften', [UitgifteController::class, 'index']);
 $router->get('/uitgiften/namen', [UitgifteController::class, 'namen']);
