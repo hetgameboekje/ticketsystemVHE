@@ -22,6 +22,7 @@ abstract class Controller
 
         $currentUser = $this->currentUser();
         $navRechten = $this->navRechten();
+        $csrfToken = Csrf::token();
         require APP_ROOT . '/app/Views/layouts/app.php';
     }
 
@@ -32,6 +33,7 @@ abstract class Controller
 
         $currentUser = $this->currentUser();
         $navRechten = $this->navRechten();
+        $csrfToken = Csrf::token();
         require APP_ROOT . '/app/Views/layouts/app.php';
     }
 

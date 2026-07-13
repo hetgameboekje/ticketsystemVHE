@@ -46,5 +46,14 @@ spl_autoload_register(function (string $class): void {
 });
 
 if (session_status() === PHP_SESSION_NONE) {
+    // SameSite=Lax voorkomt dat de sessiecookie meegestuurd wordt bij cross-site POSTs (de
+    // klassieke CSRF-vector) — het CSRF-token (zie App\Core\Csrf) dekt de rest. Geen "Secure"
+    // omdat deze omgeving over HTTP draait (zie public/assets/js/app.js voor dezelfde reden).
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
     session_start();
 }

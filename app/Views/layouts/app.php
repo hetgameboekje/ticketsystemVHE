@@ -4,9 +4,13 @@
 /** @var string $pageTitle */
 /** @var array|null $currentUser */
 /** @var array<string,bool> $navRechten */
+/** @var string $csrfToken */
 
 $navRechten = $navRechten ?? [];
-$magIct = array_filter(['tickets', 'verbeterpunten', 'reflecties', 'kennisbank', 'voorraad', 'uitgiften', 'apparaten', 'printers', 'cyberrisicos', 'schijfgebruik'], fn($m) => $navRechten[$m] ?? false);
+$magService = array_filter(['tickets', 'verbeterpunten', 'reflecties', 'kennisbank'], fn($m) => $navRechten[$m] ?? false);
+$magAssets = array_filter(['voorraad', 'uitgiften', 'apparaten', 'printers', 'schijfgebruik'], fn($m) => $navRechten[$m] ?? false);
+$magSecurity = array_filter(['cyberrisicos'], fn($m) => $navRechten[$m] ?? false);
+$magIct = [...$magService, ...$magAssets, ...$magSecurity];
 $magCrm = array_filter(['medewerkers'], fn($m) => $navRechten[$m] ?? false);
 
 function navActive(string $module, string $active): string
@@ -34,12 +38,14 @@ $active = $activeModule ?? '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pageTitle ?? 'Intranet') ?> · Intranet</title>
+    <meta name="csrf-token" content="<?= htmlspecialchars($csrfToken ?? '') ?>">
     <script>
         (function () {
             var theme = localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
             document.documentElement.setAttribute('data-bs-theme', theme);
         })();
     </script>
+    <script src="/assets/js/csrf.js"></script>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -69,28 +75,62 @@ $active = $activeModule ?? '';
                 <?php endif; ?>
 
                 <?php if ($magIct): ?>
+                <li class="nav-item">
+                    <a class="nav-link<?= navActive('ict', $active) ?>" href="/ict">ICT overzicht</a>
+                </li>
+                <?php endif; ?>
+
+                <?php if ($magService): ?>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle<?= dropdownActive(['ict', 'tickets', 'verbeterpunten', 'reflecties', 'kennisbank', 'voorraad', 'uitgiften', 'apparaten', 'printers', 'cyberrisicos', 'schijfgebruik'], $active) ?>"
+                    <a class="nav-link dropdown-toggle<?= dropdownActive(['tickets', 'verbeterpunten', 'reflecties', 'kennisbank'], $active) ?>"
                        href="#"
-                       id="ictDropdown"
+                       id="serviceDropdown"
                        role="button"
                        data-bs-toggle="dropdown"
                        aria-expanded="false">
-                        ICT
+                        Service
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="ictDropdown">
-                        <li><a class="dropdown-item<?= navActive('ict', $active) ?>" href="/ict">Overzicht</a></li>
-                        <li><hr class="dropdown-divider"></li>
+                    <ul class="dropdown-menu" aria-labelledby="serviceDropdown">
                         <?php if ($navRechten['tickets'] ?? false): ?><li><a class="dropdown-item<?= navActive('tickets', $active) ?>" href="/tickets">Ticket systeem</a></li><?php endif; ?>
                         <?php if ($navRechten['verbeterpunten'] ?? false): ?><li><a class="dropdown-item<?= navActive('verbeterpunten', $active) ?>" href="/verbeterpunten">Verbeterpunten</a></li><?php endif; ?>
                         <?php if ($navRechten['reflecties'] ?? false): ?><li><a class="dropdown-item<?= navActive('reflecties', $active) ?>" href="/reflecties">Reflectie</a></li><?php endif; ?>
                         <?php if ($navRechten['kennisbank'] ?? false): ?><li><a class="dropdown-item<?= navActive('kennisbank', $active) ?>" href="/kennisbank">Kennisbank</a></li><?php endif; ?>
+                    </ul>
+                </li>
+                <?php endif; ?>
+
+                <?php if ($magAssets): ?>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle<?= dropdownActive(['voorraad', 'uitgiften', 'apparaten', 'printers', 'schijfgebruik'], $active) ?>"
+                       href="#"
+                       id="assetsDropdown"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        Assets
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="assetsDropdown">
                         <?php if ($navRechten['voorraad'] ?? false): ?><li><a class="dropdown-item<?= navActive('voorraad', $active) ?>" href="/voorraad">Voorraad</a></li><?php endif; ?>
                         <?php if ($navRechten['uitgiften'] ?? false): ?><li><a class="dropdown-item<?= navActive('uitgiften', $active) ?>" href="/uitgiften">Uitgifte</a></li><?php endif; ?>
                         <?php if ($navRechten['apparaten'] ?? false): ?><li><a class="dropdown-item<?= navActive('apparaten', $active) ?>" href="/apparaten">Apparaten</a></li><?php endif; ?>
                         <?php if ($navRechten['printers'] ?? false): ?><li><a class="dropdown-item<?= navActive('printers', $active) ?>" href="/printers">Printers</a></li><?php endif; ?>
-                        <?php if ($navRechten['cyberrisicos'] ?? false): ?><li><a class="dropdown-item<?= navActive('cyberrisicos', $active) ?>" href="/cyberrisicos">Cyberrisico's</a></li><?php endif; ?>
                         <?php if ($navRechten['schijfgebruik'] ?? false): ?><li><a class="dropdown-item<?= navActive('schijfgebruik', $active) ?>" href="/schijfgebruik">Schijfgebruik</a></li><?php endif; ?>
+                    </ul>
+                </li>
+                <?php endif; ?>
+
+                <?php if ($magSecurity): ?>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle<?= dropdownActive(['cyberrisicos'], $active) ?>"
+                       href="#"
+                       id="securityDropdown"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        Security
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="securityDropdown">
+                        <?php if ($navRechten['cyberrisicos'] ?? false): ?><li><a class="dropdown-item<?= navActive('cyberrisicos', $active) ?>" href="/cyberrisicos">Cyberrisico's</a></li><?php endif; ?>
                     </ul>
                 </li>
                 <?php endif; ?>

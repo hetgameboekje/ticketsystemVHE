@@ -3,6 +3,7 @@
 namespace App\Shared\Auth;
 
 use App\Core\Controller;
+use App\Core\Csrf;
 use App\Core\DevSync;
 use App\Modules\Medewerker\Models\MedewerkerModel;
 use App\Shared\Auth\Models\LoginAttemptModel;
@@ -32,6 +33,7 @@ class AuthController extends Controller
         ob_start();
         require APP_ROOT . '/app/Views/auth/login.php';
         $content = ob_get_clean();
+        $csrfToken = Csrf::token();
         require APP_ROOT . '/app/Views/layouts/guest.php';
     }
 

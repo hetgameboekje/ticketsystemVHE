@@ -185,11 +185,27 @@ class SchemaParser
         $ordered[] = $name;
     }
 
+    /**
+     * Alle id/primary-key-kolommen in de live database zijn BIGINT UNSIGNED (zo aangemaakt vóór
+     * database/xml/*.xml bestond) — XML zelf zegt overal "INT". MySQL staat een FOREIGN KEY alleen
+     * toe als het type van de refererende kolom exact overeenkomt met het type van de referenced
+     * kolom, dus elke "INT"-kolom die een primary key is of een "references" heeft, moet als
+     * BIGINT UNSIGNED gerenderd worden — anders faalt CREATE TABLE voor elke tabel die nog niet
+     * bestaat en naar een andere tabel verwijst (zie bv. login_attempts, devices, api_keys).
+     */
+    private static function resolveType(\SimpleXMLElement $column): string
+    {
+        $type = (string) $column['type'];
+        $isIdColumn = (string) $column['primary'] === 'true' || (string) $column['references'] !== '';
+
+        return $type === 'INT' && $isIdColumn ? 'BIGINT UNSIGNED' : $type;
+    }
+
     /** Bouwt de "kolomnaam TYPE(lengte) [modifiers]"-fragment, gebruikt door zowel CREATE TABLE als ALTER TABLE. */
     private static function buildColumnDefinition(\SimpleXMLElement $column): string
     {
         $colName = (string) $column['name'];
-        $type = (string) $column['type'];
+        $type = self::resolveType($column);
         $length = (string) $column['length'];
 
         $line = "{$colName} {$type}" . ($length !== '' ? "({$length})" : '');
