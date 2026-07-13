@@ -8,10 +8,7 @@ use App\Core\Model;
 class KennisbankModel extends Model
 {
     protected static string $table = 'kennisbank_artikelen';
-    protected static array $fillable = [
-        'titel', 'categorie', 'inhoud', 'auteur_id',
-        'quick_action_type', 'quick_action_omschrijving', 'quick_action_script',
-    ];
+    protected static array $fillable = ['titel', 'categorie', 'inhoud', 'auteur_id'];
     protected static bool $softDeletes = true;
 
     private const SELECT = "

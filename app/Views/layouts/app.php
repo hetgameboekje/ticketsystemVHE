@@ -7,9 +7,10 @@
 
 $navRechten = $navRechten ?? [];
 $magService = array_filter(['tickets', 'verbeterpunten', 'reflecties', 'kennisbank'], fn($m) => $navRechten[$m] ?? false);
-$magAssets = array_filter(['voorraad', 'uitgiften', 'apparaten', 'printers'], fn($m) => $navRechten[$m] ?? false);
+$magAssets = array_filter(['voorraad', 'uitgiften', 'printers'], fn($m) => $navRechten[$m] ?? false);
 $magSecurity = array_filter(['cyberrisicos'], fn($m) => $navRechten[$m] ?? false);
 $magCrm = array_filter(['medewerkers'], fn($m) => $navRechten[$m] ?? false);
+$magOnderhoud = array_filter(['schijfgebruik', 'apparaten', 'scripts'], fn($m) => $navRechten[$m] ?? false);
 
 function navActive(string $module, string $active): string
 {
@@ -106,7 +107,6 @@ $active = $activeModule ?? '';
                         <li><hr class="dropdown-divider"></li>
                         <?php if ($navRechten['voorraad'] ?? false): ?><li><a class="dropdown-item<?= navActive('voorraad', $active) ?>" href="/voorraad">Voorraad</a></li><?php endif; ?>
                         <?php if ($navRechten['uitgiften'] ?? false): ?><li><a class="dropdown-item<?= navActive('uitgiften', $active) ?>" href="/uitgiften">Uitgifte</a></li><?php endif; ?>
-                        <?php if ($navRechten['apparaten'] ?? false): ?><li><a class="dropdown-item<?= navActive('apparaten', $active) ?>" href="/apparaten">Apparaten</a></li><?php endif; ?>
                         <?php if ($navRechten['printers'] ?? false): ?><li><a class="dropdown-item<?= navActive('printers', $active) ?>" href="/printers">Printers</a></li><?php endif; ?>
                     </ul>
                 </li>
@@ -130,9 +130,23 @@ $active = $activeModule ?? '';
                 </li>
                 <?php endif; ?>
 
-                <?php if ($navRechten['schijfgebruik'] ?? false): ?>
-                <li class="nav-item">
-                    <a class="nav-link<?= navActive('schijfgebruik', $active) ?>" href="/schijfgebruik">Schijfgebruik</a>
+                <?php if ($magOnderhoud): ?>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle<?= dropdownActive(['onderhoud', 'schijfgebruik', 'apparaten', 'scripts'], $active) ?>"
+                       href="#"
+                       id="onderhoudDropdown"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        Onderhoud
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="onderhoudDropdown">
+                        <li><a class="dropdown-item<?= navActive('onderhoud', $active) ?>" href="/onderhoud">Overzicht</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <?php if ($navRechten['schijfgebruik'] ?? false): ?><li><a class="dropdown-item<?= navActive('schijfgebruik', $active) ?>" href="/schijfgebruik">Schijfgebruik</a></li><?php endif; ?>
+                        <?php if ($navRechten['apparaten'] ?? false): ?><li><a class="dropdown-item<?= navActive('apparaten', $active) ?>" href="/apparaten">Applicaties</a></li><?php endif; ?>
+                        <?php if ($navRechten['scripts'] ?? false): ?><li><a class="dropdown-item<?= navActive('scripts', $active) ?>" href="/scripts">Scripts</a></li><?php endif; ?>
+                    </ul>
                 </li>
                 <?php endif; ?>
 

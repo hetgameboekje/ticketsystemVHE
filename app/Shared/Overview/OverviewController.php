@@ -16,8 +16,13 @@ class OverviewController extends Controller
     private const ASSETS_TILES = [
         'voorraad' => ['titel' => 'Voorraad', 'omschrijving' => 'Voorraaditems en aantallen beheren.', 'link' => '/voorraad'],
         'uitgiften' => ['titel' => 'Uitgifte', 'omschrijving' => 'Items toewijzen aan medewerkers en retour nemen.', 'link' => '/uitgiften'],
-        'apparaten' => ['titel' => 'Apparaten', 'omschrijving' => 'Overzicht van apparaten en toewijzingen.', 'link' => '/apparaten'],
         'printers' => ['titel' => 'Printers', 'omschrijving' => 'Overzicht van printers en hun locaties.', 'link' => '/printers'],
+    ];
+
+    private const ONDERHOUD_TILES = [
+        'schijfgebruik' => ['titel' => 'Schijfgebruik', 'omschrijving' => 'Schijfruimte en apparaatgezondheid monitoren.', 'link' => '/schijfgebruik'],
+        'apparaten' => ['titel' => 'Applicaties', 'omschrijving' => 'Geïnstalleerde software per apparaat inzien.', 'link' => '/apparaten'],
+        'scripts' => ['titel' => 'Scripts', 'omschrijving' => 'Herbruikbare quick-action scripts beheren.', 'link' => '/scripts'],
     ];
 
     private const SECURITY_TILES = [
@@ -50,6 +55,12 @@ class OverviewController extends Controller
     {
         $this->requireAuth();
         $this->renderOverzicht('CRM', self::CRM_TILES);
+    }
+
+    public function onderhoud(): void
+    {
+        $this->requireAuth();
+        $this->renderOverzicht('Onderhoud', self::ONDERHOUD_TILES);
     }
 
     private function renderOverzicht(string $titel, array $tiles): void

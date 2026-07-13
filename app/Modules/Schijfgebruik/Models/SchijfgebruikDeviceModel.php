@@ -10,10 +10,22 @@ class SchijfgebruikDeviceModel extends Model
     protected static string $table = 'schijfgebruik_devices';
     protected static array $fillable = [
         'extern_id', 'organisatie', 'locatie', 'naam', 'type', 'rol', 'beleid',
-        'laatst_online', 'laatst_update', 'laatste_login', 'ip_adressen', 'mac_adressen',
+        'laatst_online', 'laatst_update', 'laatste_boot', 'garantie_tot', 'tags', 'laatste_login',
+        'ip_adressen', 'mac_adressen',
         'publiek_ip', 'geheugen_gib', 'os_naam', 'os_architectuur', 'os_build',
         'merk', 'model', 'serienummer', 'domein', 'processor', 'tijdzone',
     ];
+
+    public static function findWithSchijven(int $id): ?array
+    {
+        $device = static::find($id);
+        if ($device === null) {
+            return null;
+        }
+
+        $device['schijven'] = SchijfgebruikSchijfModel::forDevice($id);
+        return $device;
+    }
 
     /**
      * Vervangt de volledige inventaris in één transactie: wist alle bestaande apparaten/schijven en

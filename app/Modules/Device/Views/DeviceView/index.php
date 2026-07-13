@@ -14,7 +14,7 @@ $flashError = $_SESSION['flash_error'] ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 ?>
 <div class="page-header">
-  <div class="page-title">Apparaten</div>
+  <div class="page-title">Applicaties</div>
   <a class="btn btn-primary" href="/apparaten/create">+ Apparaat / CSV importeren</a>
 </div>
 
