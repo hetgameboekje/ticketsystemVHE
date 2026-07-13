@@ -6,14 +6,21 @@ use App\Core\Controller;
 
 class OverviewController extends Controller
 {
-    private const ICT_TILES = [
+    private const SERVICE_TILES = [
         'tickets' => ['titel' => 'Ticket systeem', 'omschrijving' => 'Meldingen registreren, opvolgen en afhandelen.', 'link' => '/tickets'],
         'verbeterpunten' => ['titel' => 'Verbeterpunten', 'omschrijving' => 'Ideeën en verbetervoorstellen indienen en beoordelen.', 'link' => '/verbeterpunten'],
         'reflecties' => ['titel' => 'Reflectie', 'omschrijving' => 'Periodieke reflectieverslagen bijhouden.', 'link' => '/reflecties'],
         'kennisbank' => ['titel' => 'Kennisbank', 'omschrijving' => "Handleidingen, FAQ's en quick-action scripts.", 'link' => '/kennisbank'],
+    ];
+
+    private const ASSETS_TILES = [
         'voorraad' => ['titel' => 'Voorraad', 'omschrijving' => 'Voorraaditems en aantallen beheren.', 'link' => '/voorraad'],
         'uitgiften' => ['titel' => 'Uitgifte', 'omschrijving' => 'Items toewijzen aan medewerkers en retour nemen.', 'link' => '/uitgiften'],
+        'apparaten' => ['titel' => 'Apparaten', 'omschrijving' => 'Overzicht van apparaten en toewijzingen.', 'link' => '/apparaten'],
         'printers' => ['titel' => 'Printers', 'omschrijving' => 'Overzicht van printers en hun locaties.', 'link' => '/printers'],
+    ];
+
+    private const SECURITY_TILES = [
         'cyberrisicos' => ['titel' => "Cyberrisico's", 'omschrijving' => 'Gemelde incidenten en risico\'s bijhouden.', 'link' => '/cyberrisicos'],
     ];
 
@@ -21,10 +28,22 @@ class OverviewController extends Controller
         'medewerkers' => ['titel' => 'Medewerkers', 'omschrijving' => 'Medewerkersgegevens en afdelingen beheren.', 'link' => '/medewerkers'],
     ];
 
-    public function ict(): void
+    public function service(): void
     {
         $this->requireAuth();
-        $this->renderOverzicht('ICT', self::ICT_TILES);
+        $this->renderOverzicht('Service', self::SERVICE_TILES);
+    }
+
+    public function assets(): void
+    {
+        $this->requireAuth();
+        $this->renderOverzicht('Assets', self::ASSETS_TILES);
+    }
+
+    public function security(): void
+    {
+        $this->requireAuth();
+        $this->renderOverzicht('Security', self::SECURITY_TILES);
     }
 
     public function crm(): void

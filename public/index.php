@@ -79,7 +79,9 @@ $router->post('/api/email-queue/verwerken', [AutomationController::class, 'email
 $router->post('/api/tickets/herinneringen', [AutomationController::class, 'ticketHerinneringenGenereren']);
 $router->get('/api/database/export', [AutomationController::class, 'databaseExport']);
 
-$router->get('/ict', [OverviewController::class, 'ict']);
+$router->get('/service', [OverviewController::class, 'service']);
+$router->get('/assets', [OverviewController::class, 'assets']);
+$router->get('/security', [OverviewController::class, 'security']);
 $router->get('/crm', [OverviewController::class, 'crm']);
 
 $router->get('/tools', [ToolsController::class, 'index']);
