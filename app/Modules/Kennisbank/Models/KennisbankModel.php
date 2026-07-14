@@ -32,11 +32,18 @@ class KennisbankModel extends Model
     }
 
     /** Bestaande categorieën, voor het voorstellen van dezelfde naam bij tickets (zie TicketController). */
-    public static function distinctCategorieen(): array
+    public static function distinctCategorieen(string $q = ''): array
     {
-        $stmt = Database::pdo()->query(
-            "SELECT DISTINCT categorie FROM kennisbank_artikelen WHERE deleted_at IS NULL ORDER BY categorie ASC"
-        );
+        $sql = "SELECT DISTINCT categorie FROM kennisbank_artikelen WHERE deleted_at IS NULL";
+        $params = [];
+        if ($q !== '') {
+            $sql .= " AND categorie LIKE ?";
+            $params[] = '%' . $q . '%';
+        }
+        $sql .= " ORDER BY categorie ASC";
+
+        $stmt = Database::pdo()->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll(\PDO::FETCH_COLUMN);
     }
 }

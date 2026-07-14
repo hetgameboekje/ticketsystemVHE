@@ -12,7 +12,11 @@
   <div class="card" style="margin-bottom:16px">
     <div style="padding:16px">
       <div class="form-group"><label class="form-label">Titel</label><input type="text" name="titel" value="<?= htmlspecialchars($item['titel']) ?>" required></div>
-      <div class="form-group"><label class="form-label">Categorie</label><input type="text" name="categorie" value="<?= htmlspecialchars($item['categorie']) ?>"></div>
+      <div class="form-group">
+        <label class="form-label">Categorie</label>
+        <input type="text" name="categorie" id="categorie-input" list="categorie-opties" value="<?= htmlspecialchars($item['categorie']) ?>" autocomplete="off">
+        <datalist id="categorie-opties"></datalist>
+      </div>
       <div class="form-group"><label class="form-label">Inhoud</label><textarea name="inhoud" style="min-height:160px" required><?= htmlspecialchars($item['inhoud']) ?></textarea></div>
     </div>
   </div>
@@ -22,3 +26,32 @@
     <a class="btn" href="/kennisbank/<?= $item['id'] ?>">Annuleren</a>
   </div>
 </form>
+
+<script>
+(function () {
+    var input = document.getElementById('categorie-input');
+    var list = document.getElementById('categorie-opties');
+    var timer = null;
+
+    input.addEventListener('input', function () {
+        clearTimeout(timer);
+        var q = input.value.trim();
+        if (q.length < 2) {
+            list.innerHTML = '';
+            return;
+        }
+        timer = setTimeout(function () {
+            fetch('/kennisbank/categorieen?q=' + encodeURIComponent(q))
+                .then(function (r) { return r.json(); })
+                .then(function (categorieen) {
+                    list.innerHTML = '';
+                    categorieen.forEach(function (c) {
+                        var opt = document.createElement('option');
+                        opt.value = c;
+                        list.appendChild(opt);
+                    });
+                });
+        }, 200);
+    });
+})();
+</script>

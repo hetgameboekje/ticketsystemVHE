@@ -34,6 +34,15 @@ class KennisbankController extends CrudController
         ]);
     }
 
+    public function categorieen(): void
+    {
+        $this->requirePermission($this->activeModule, 'lezen');
+        $q = trim($_GET['q'] ?? '');
+
+        header('Content-Type: application/json');
+        echo json_encode(KennisbankModel::distinctCategorieen($q));
+    }
+
     protected function validatedData(array $post, bool $isUpdate = false): array
     {
         $data = [

@@ -12,7 +12,7 @@ class TicketModel extends Model
     protected static array $fillable = [
         'titel', 'omschrijving', 'opdrachtgever_naam', 'categorie', 'afdeling_id', 'prioriteit',
         'impact', 'schatting_minuten', 'deadline', 'behandelaar_id', 'status', 'aangemaakt_door_id',
-        'escalatie_nummer', 'escalatie_instantie',
+        'escalatie_nummer', 'escalatie_instantie', 'is_cyberrisico',
     ];
     protected static bool $softDeletes = true;
 

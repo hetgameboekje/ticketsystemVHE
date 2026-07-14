@@ -508,21 +508,6 @@ document.addEventListener('DOMContentLoaded', function () {
     var chartDates = <?= json_encode($chartDates) ?>;
     var incidentsByDate = <?= json_encode($cyberrisicosByDate) ?>;
 
-    var STATUS_LABELS = {
-        nieuw: 'Nieuw',
-        in_onderzoek: 'In onderzoek',
-        bevestigd: 'Bevestigd',
-        opgelost: 'Opgelost',
-        geaccepteerd: 'Geaccepteerd risico'
-    };
-
-    var PRIORITEIT_LABELS = {
-        laag: 'Laag',
-        middel: 'Middel',
-        hoog: 'Hoog',
-        kritiek: 'Kritiek'
-    };
-
     function escapeHtml(text) {
         var div = document.createElement('div');
         div.textContent = text;
@@ -532,27 +517,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function formatDatumNl(iso) {
         var parts = iso.split('-');
         return parts[2] + '-' + parts[1] + '-' + parts[0];
-    }
-
-    function badgeClassForStatus(status) {
-        switch (status) {
-            case 'nieuw': return 'text-bg-primary';
-            case 'in_onderzoek': return 'text-bg-warning';
-            case 'bevestigd': return 'text-bg-danger';
-            case 'opgelost': return 'text-bg-success';
-            case 'geaccepteerd': return 'text-bg-secondary';
-            default: return 'text-bg-light';
-        }
-    }
-
-    function badgeClassForPrio(prio) {
-        switch (prio) {
-            case 'laag': return 'text-bg-secondary';
-            case 'middel': return 'text-bg-warning';
-            case 'hoog': return 'text-bg-danger';
-            case 'kritiek': return 'text-bg-dark';
-            default: return 'text-bg-light';
-        }
     }
 
     function showIncidentsForDate(date) {
@@ -571,15 +535,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
             incidents.forEach(function (inc) {
                 var a = document.createElement('a');
-                a.href = '/cyberrisicos/' + inc.id;
+                a.href = inc.link;
                 a.className = 'list-group-item list-group-item-action';
 
                 a.innerHTML =
                     '<div class="d-flex flex-wrap justify-content-between align-items-center gap-2">' +
                         '<div class="fw-medium">' + escapeHtml(inc.titel) + '</div>' +
                         '<div class="d-flex flex-wrap gap-2">' +
-                            '<span class="badge rounded-pill ' + badgeClassForStatus(inc.status) + '">' + (STATUS_LABELS[inc.status] || inc.status) + '</span>' +
-                            '<span class="badge rounded-pill ' + badgeClassForPrio(inc.prioriteit) + '">' + (PRIORITEIT_LABELS[inc.prioriteit] || inc.prioriteit) + '</span>' +
+                            '<span class="badge rounded-pill ' + inc.statusBadgeClass + '">' + escapeHtml(inc.statusLabel) + '</span>' +
+                            '<span class="badge rounded-pill ' + inc.prioriteitBadgeClass + '">' + escapeHtml(inc.prioriteitLabel) + '</span>' +
                         '</div>' +
                     '</div>';
 

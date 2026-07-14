@@ -34,6 +34,10 @@ return [
     // http://ticketsysteemvhe.test), zonder trailing slash.
     'appUrl' => rtrim(getenv('APP_URL') ?: 'http://localhost', '/'),
 
+    // Aantal dagen dat logregels (paginabezoeken, login-pogingen) bewaard blijven voordat ze
+    // opgeruimd worden door /api/logs/opschonen (zie App\Shared\Automation\AutomationController).
+    'logRetentieDagen' => (int) (getenv('LOG_RETENTIE_DAGEN') ?: 90),
+
     'mail' => [
         'host' => getenv('MAIL_HOST') ?: '',
         'port' => (int) (getenv('MAIL_PORT') ?: 587),

@@ -102,4 +102,12 @@ class LoginAttemptModel extends Model
             'total' => $total,
         ];
     }
+
+    /** Verwijdert inlogpogingen ouder dan $dagen dagen; @return int aantal verwijderde rijen. */
+    public static function verwijderOuderDan(int $dagen): int
+    {
+        $stmt = Database::pdo()->prepare('DELETE FROM login_attempts WHERE created_at < (NOW() - INTERVAL ? DAY)');
+        $stmt->execute([$dagen]);
+        return $stmt->rowCount();
+    }
 }

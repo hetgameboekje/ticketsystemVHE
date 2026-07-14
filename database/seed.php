@@ -12,12 +12,15 @@ require __DIR__ . '/../app/bootstrap.php';
 use App\Core\Database;
 
 $pdo = Database::pdo();
-$wachtwoord = 'demo123';
+$wachtwoord = getenv('SEED_USER_WACHTWOORD') ?: 'demo123';
 $hash = password_hash($wachtwoord, PASSWORD_DEFAULT);
 
 $gebruikers = [
-    ['Timo Bergthaler', 'timo@bergthaler.nl', 'admin']
-
+    [
+        getenv('SEED_USER_NAAM') ?: 'Timo Bergthaler',
+        getenv('SEED_USER_EMAIL') ?: 'timo@bergthaler.nl',
+        getenv('SEED_USER_ROL') ?: 'admin',
+    ],
 ];
 
 $stmt = $pdo->prepare(

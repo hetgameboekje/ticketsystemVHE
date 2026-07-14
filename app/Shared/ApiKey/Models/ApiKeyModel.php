@@ -25,6 +25,7 @@ class ApiKeyModel extends Model
         'email_queue' => 'E-mailwachtrij verwerken (Taakplanner)',
         'ticket_herinneringen' => 'Ticketherinneringen genereren (Taakplanner)',
         'database_export' => 'Database-export (dev-sync: live database ophalen naar lokale omgeving)',
+        'log_opschonen' => 'Oude logregels opschonen (Taakplanner)',
     ];
 
     /** @return array{id:int,plaintext:string} */

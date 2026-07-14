@@ -11,7 +11,7 @@ class PaginaBezoekModel extends Model
     protected static array $fillable = ['user_id', 'ip_adres', 'methode', 'url', 'parameters', 'user_agent'];
 
     /**
-     * @param array{user_id?:string, ip_adres?:string, q?:string} $filters
+     * @param array{user_id?:string, ip_adres?:string, q?:string} $filters user_id mag ook 'geen' zijn (niet-ingelogde bezoeken)
      * @return array{items: array, total: int}
      */
     public static function search(array $filters, int $page, int $perPage = 50): array
@@ -20,8 +20,12 @@ class PaginaBezoekModel extends Model
         $params = [];
 
         if (!empty($filters['user_id'])) {
-            $where[] = 'p.user_id = :user_id';
-            $params['user_id'] = (int) $filters['user_id'];
+            if ($filters['user_id'] === 'geen') {
+                $where[] = 'p.user_id IS NULL';
+            } else {
+                $where[] = 'p.user_id = :user_id';
+                $params['user_id'] = (int) $filters['user_id'];
+            }
         }
         if (!empty($filters['ip_adres'])) {
             $where[] = 'p.ip_adres = :ip_adres';
@@ -65,5 +69,13 @@ class PaginaBezoekModel extends Model
     {
         $stmt = Database::pdo()->query('SELECT DISTINCT ip_adres FROM paginabezoeken ORDER BY ip_adres');
         return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /** Verwijdert bezoeken ouder dan $dagen dagen; @return int aantal verwijderde rijen. */
+    public static function verwijderOuderDan(int $dagen): int
+    {
+        $stmt = Database::pdo()->prepare('DELETE FROM paginabezoeken WHERE created_at < (NOW() - INTERVAL ? DAY)');
+        $stmt->execute([$dagen]);
+        return $stmt->rowCount();
     }
 }

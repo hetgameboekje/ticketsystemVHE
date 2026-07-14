@@ -1,6 +1,8 @@
 <?php
 /** @var array $item */
 /** @var array $logs */
+/** @var array $tijdregistraties */
+/** @var int $tijdTotaal */
 /** @var array $gekoppeldeArtikelen */
 /** @var array $suggestiesArtikelen */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
@@ -27,8 +29,11 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['opmerkin
   <div class="area-col1">
     <div class="card" style="margin-bottom:10px">
       <div class="card-header"><span class="card-title">Omschrijving</span></div>
-      <div style="padding:16px;font-size:13px;line-height:1.7;color:var(--color-text-secondary);overflow-wrap:anywhere">
+      <div class="collapsible-text" style="padding:16px;font-size:13px;line-height:1.7;color:var(--color-text-secondary);overflow-wrap:anywhere;max-height:4.5em;overflow:hidden">
         <?= $item['omschrijving'] !== '' ? nl2br(htmlspecialchars($item['omschrijving'])) : '<span style="color:var(--color-text-tertiary)">Geen omschrijving</span>' ?>
+      </div>
+      <div class="collapsible-toggle" style="display:none;padding:0 16px 12px">
+        <a href="#" class="collapsible-toggle-link" style="font-size:12px">Meer tonen</a>
       </div>
     </div>
 
@@ -37,6 +42,10 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['opmerkin
 
       <div style="padding:16px;border-bottom:0.5px solid var(--color-border-tertiary)">
         <form method="post" action="/tickets/<?= $item['id'] ?>/log" id="ticketLogForm">
+          <div class="form-group">
+            <label class="form-label">Titel</label>
+            <input type="text" name="titel" placeholder="Korte titel voor deze opmerking">
+          </div>
           <div class="form-group">
             <label class="form-label">Opmerking toevoegen</label>
             <textarea name="opmerking" placeholder="Beschrijf wat je gedaan hebt of vraag om meer informatie..."></textarea>
@@ -55,7 +64,44 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['opmerkin
             <span class="log-user"><?= htmlspecialchars($log['user_naam'] ?? 'ACA') ?></span>
             <span class="log-time"><?= formatDatumTijd($log['created_at']) ?></span>
           </div>
+          <?php if (!empty($log['titel'])): ?>
+          <div class="log-title" style="font-weight:600;margin-bottom:2px"><?= htmlspecialchars($log['titel']) ?></div>
+          <?php endif; ?>
           <div class="log-text"><?= nl2br(htmlspecialchars($log['opmerking'])) ?></div>
+        </div>
+        <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
+    </div>
+
+    <div class="card" style="margin-top:10px">
+      <div class="card-header">
+        <span class="card-title">Tijdregistratie</span>
+        <span style="font-size:12px;color:var(--color-text-tertiary)">Totaal: <?= $tijdTotaal ?> min</span>
+      </div>
+
+      <div style="padding:16px;border-bottom:0.5px solid var(--color-border-tertiary)">
+        <form method="post" action="/tickets/<?= $item['id'] ?>/tijd">
+          <label class="form-label">Tijd registreren</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <?php foreach ([5, 10, 15, 30, 45, 60] as $blok): ?>
+              <button class="btn" type="submit" name="minuten" value="<?= $blok ?>"><?= $blok ?> min</button>
+            <?php endforeach; ?>
+          </div>
+        </form>
+      </div>
+
+      <?php if (empty($tijdregistraties)): ?>
+        <div class="empty-state">Nog geen tijd geregistreerd.</div>
+      <?php else: ?>
+        <div class="log-list" style="max-height:190px">
+        <?php foreach ($tijdregistraties as $tijd): ?>
+        <div class="log-item">
+          <div class="log-meta">
+            <span class="log-user"><?= htmlspecialchars($tijd['user_naam'] ?? 'Onbekend') ?></span>
+            <span class="log-time"><?= formatDatumTijd($tijd['created_at']) ?></span>
+          </div>
+          <div class="log-text"><?= (int) $tijd['minuten'] ?> min</div>
         </div>
         <?php endforeach; ?>
         </div>
@@ -140,6 +186,9 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['opmerkin
       <div style="padding:0 16px">
         <div class="meta-row"><span class="meta-key">Opdrachtgever</span><span><?= htmlspecialchars($item['opdrachtgever_naam']) ?></span></div>
         <div class="meta-row"><span class="meta-key">Categorie</span><span><?= htmlspecialchars($item['categorie'] ?? 'Algemeen') ?></span></div>
+        <?php if (!empty($item['is_cyberrisico'])): ?>
+        <div class="meta-row"><span class="meta-key">Cyber risico</span><span><?= prioBadge('kritiek') ?></span></div>
+        <?php endif; ?>
         <div class="meta-row"><span class="meta-key">Afdeling</span><span><?= htmlspecialchars($item['afdeling_naam'] ?? '—') ?></span></div>
         <div class="meta-row"><span class="meta-key">Prioriteit</span><span><?= prioBadge($item['prioriteit']) ?></span></div>
         <div class="meta-row"><span class="meta-key">Impact</span><span><?= htmlspecialchars($item['impact']) ?></span></div>
@@ -176,3 +225,34 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['opmerkin
   </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var scrollKey = 'scrollPos:' + window.location.pathname;
+    var savedScroll = sessionStorage.getItem(scrollKey);
+    if (savedScroll !== null) {
+        sessionStorage.removeItem(scrollKey);
+        window.scrollTo(0, parseInt(savedScroll, 10));
+    }
+    document.querySelectorAll('form').forEach(function (form) {
+        form.addEventListener('submit', function () {
+            sessionStorage.setItem(scrollKey, String(window.scrollY));
+        });
+    });
+
+    document.querySelectorAll('.collapsible-text').forEach(function (el) {
+        if (el.scrollHeight <= el.clientHeight + 1) {
+            return;
+        }
+        var toggle = el.nextElementSibling;
+        var link = toggle.querySelector('.collapsible-toggle-link');
+        toggle.style.display = 'block';
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            var expanded = el.style.maxHeight === 'none';
+            el.style.maxHeight = expanded ? '4.5em' : 'none';
+            link.textContent = expanded ? 'Meer tonen' : 'Minder tonen';
+        });
+    });
+});
+</script>

@@ -8,6 +8,7 @@ use App\Modules\Kennisbank\Models\KennisbankModel;
 use App\Modules\Ticket\Models\TicketKennisbankModel;
 use App\Modules\Ticket\Models\TicketLogModel;
 use App\Modules\Ticket\Models\TicketModel;
+use App\Modules\Ticket\Models\TicketTijdModel;
 use App\Shared\Afdeling\Models\AfdelingModel;
 use App\Shared\User\Models\UserModel;
 
@@ -103,6 +104,8 @@ class TicketController extends CrudController
         $this->render("{$this->viewDir}/show", [
             'item' => $item,
             'logs' => TicketLogModel::forTicket($id),
+            'tijdregistraties' => TicketTijdModel::forTicket($id),
+            'tijdTotaal' => TicketTijdModel::sumForTicket($id),
             'gekoppeldeArtikelen' => $gekoppeld,
             'suggestiesArtikelen' => array_filter(
                 TicketKennisbankModel::suggesties($id, $item['categorie']),
@@ -210,12 +213,20 @@ class TicketController extends CrudController
         $this->redirect('/tickets');
     }
 
+    public function categorieen(): void
+    {
+        $this->requirePermission($this->activeModule, 'lezen');
+        $q = trim($_GET['q'] ?? '');
+
+        header('Content-Type: application/json');
+        echo json_encode(KennisbankModel::distinctCategorieen($q));
+    }
+
     protected function formData(): array
     {
         return [
             'afdelingen' => AfdelingModel::all(),
             'gebruikers' => UserModel::all('naam ASC'),
-            'categorieen' => KennisbankModel::distinctCategorieen(),
         ];
     }
 
@@ -232,6 +243,7 @@ class TicketController extends CrudController
             'schatting_minuten' => $post['schatting_minuten'] !== '' ? (int) $post['schatting_minuten'] : null,
             'deadline' => $post['deadline'] !== '' ? $post['deadline'] : null,
             'behandelaar_id' => !empty($post['behandelaar_id']) ? (int) $post['behandelaar_id'] : null,
+            'is_cyberrisico' => !empty($post['is_cyberrisico']) ? 1 : 0,
         ];
 
         if (!$isUpdate) {

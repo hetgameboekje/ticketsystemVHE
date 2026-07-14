@@ -5,6 +5,8 @@ namespace App\Shared\Automation;
 use App\Core\Controller;
 use App\Core\DatabaseDump;
 use App\Modules\Ticket\TicketReminderService;
+use App\Shared\Auth\Models\LoginAttemptModel;
+use App\Shared\Log\Models\PaginaBezoekModel;
 use App\Shared\Mail\EmailQueueProcessor;
 
 /**
@@ -38,6 +40,27 @@ class AutomationController extends Controller
         }
 
         echo json_encode(['status' => 'ok'] + TicketReminderService::genereer());
+    }
+
+    public function logsOpschonen(): void
+    {
+        header('Content-Type: application/json');
+
+        if (!$this->heeftApiSleutelMetScope('log_opschonen')) {
+            http_response_code(401);
+            echo json_encode(['status' => 'error', 'message' => 'Ongeldige, ontbrekende of onvoldoende gemachtigde API-key.']);
+            return;
+        }
+
+        $config = require APP_ROOT . '/config/config.php';
+        $dagen = (int) $config['logRetentieDagen'];
+
+        echo json_encode([
+            'status' => 'ok',
+            'retentie_dagen' => $dagen,
+            'paginabezoeken_verwijderd' => PaginaBezoekModel::verwijderOuderDan($dagen),
+            'login_attempts_verwijderd' => LoginAttemptModel::verwijderOuderDan($dagen),
+        ]);
     }
 
     /**

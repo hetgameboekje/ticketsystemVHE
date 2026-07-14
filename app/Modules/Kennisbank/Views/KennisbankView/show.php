@@ -18,8 +18,11 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
   <div>
     <div class="card" style="margin-bottom:16px">
       <div class="card-header"><span class="card-title">Inhoud</span></div>
-      <div style="padding:16px;font-size:13px;line-height:1.7;color:var(--color-text-secondary)">
+      <div class="collapsible-text" style="padding:16px;font-size:13px;line-height:1.7;color:var(--color-text-secondary);max-height:4.5em;overflow:hidden">
         <?= nl2br(htmlspecialchars($item['inhoud'])) ?>
+      </div>
+      <div class="collapsible-toggle" style="display:none;padding:0 16px 12px">
+        <a href="#" class="collapsible-toggle-link" style="font-size:12px">Meer tonen</a>
       </div>
     </div>
 
@@ -71,6 +74,25 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.collapsible-text').forEach(function (el) {
+        if (el.scrollHeight <= el.clientHeight + 1) {
+            return;
+        }
+        var toggle = el.nextElementSibling;
+        var link = toggle.querySelector('.collapsible-toggle-link');
+        toggle.style.display = 'block';
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            var expanded = el.style.maxHeight === 'none';
+            el.style.maxHeight = expanded ? '4.5em' : 'none';
+            link.textContent = expanded ? 'Meer tonen' : 'Minder tonen';
+        });
+    });
+});
+</script>
 
 <script>
 (function () {

@@ -19,15 +19,20 @@ class TicketLogController extends Controller
             return;
         }
 
+        $titel = trim($_POST['titel'] ?? '');
         $opmerking = trim($_POST['opmerking'] ?? '');
+        // Een opmerking telt alleen mee als titel én tekst zijn ingevuld (zelfde silent-drop
+        // gedrag als Kennisbank's opmerkingen-formulier) — anders wordt hij niet opgeslagen.
+        $opmerkingGeldig = $titel !== '' && $opmerking !== '';
         $nieuweStatus = $_POST['status'] ?? '';
         $statusGewijzigd = $nieuweStatus !== '' && $nieuweStatus !== $ticket['status'];
 
-        if ($opmerking !== '' || $statusGewijzigd) {
+        if ($opmerkingGeldig || $statusGewijzigd) {
             TicketLogModel::create([
                 'ticket_id' => $ticketId,
                 'user_id' => $this->currentUserId(),
-                'opmerking' => $opmerking !== '' ? $opmerking : 'Status bijgewerkt.',
+                'titel' => $opmerkingGeldig ? $titel : null,
+                'opmerking' => $opmerkingGeldig ? $opmerking : 'Status bijgewerkt.',
                 'status_van' => $statusGewijzigd ? $ticket['status'] : null,
                 'status_naar' => $statusGewijzigd ? $nieuweStatus : null,
             ]);

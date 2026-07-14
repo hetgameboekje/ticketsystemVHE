@@ -50,3 +50,43 @@ Routing convention: most modules are wired via the `$modules` array in `public/i
 - `APP_URL` — base URL used to build absolute links in emails (e.g. reminder emails), since there's no active HTTP request context there.
 
 Deployment target is Hostnet shared hosting (no SSH): `APP_DEV=false`, `APP_GIT_PULL_ENABLED=false`, deploy via SFTP, schema applied through phpMyAdmin, `public/uploads/` must be writable.
+
+## Roadmap / openstaande verbeterpunten
+
+Backlog van kleinere verbeterpunten, verdeeld in fases op basis van omvang en afhankelijkheden. Fases zijn een volgorde-advies, geen harde deadlines.
+
+### Fase 1 — Logging (opruimen & hardening)
+Kleine, onafhankelijke aanpassingen aan `App\Shared\Log\PaginaBezoekLogger` en de bijbehorende Beheer-view.
+- Verdachte login pogingen mailen (bv. X mislukte pogingen binnen Y minuten → mail naar admin).
+- Filter "niet ingelogd" toevoegen naast het bestaande filter op gebruiker.
+- POST-data in een popup/modal tonen in plaats van inline in de tabelrij (scheelt ruimte in het overzicht).
+- Opschoontaak/cron voor logregels ouder dan X dagen (config-waarde voor X).
+
+### Fase 2 — Ticket & Kennisbank UX
+Ticket en Kennisbank raken dezelfde patronen (omschrijving, categorie-select) — samen oppakken zodat de UI-componenten herbruikbaar zijn.
+- Omschrijving uitklapbaar maken (collapsed/expand) in plaats van altijd volledig tonen — zowel bij Ticket als Kennisbank.
+- Categorie aanpassen via zoekend/async selecteren: AJAX-lookup na ~2 seconden geen toetsaanslag, i.p.v. statische dropdown. Herbruikbare component voor Ticket én Kennisbank.
+- Tijdregistratie op ticket in vaste blokken (5/10/15/30/45/60 min).
+- Titel-veld toevoegen aan opmerkingen/reacties op een ticket.
+- Ticket markeren als "Cyber risico" zodat hij meetelt in de CyberRisico-grafiek/module.
+
+### Fase 3 — Uitgifte & Schijfgebruik (kleine features)
+Losstaande, kleine toevoegingen aan bestaande modules.
+- Uitgifte: vinkje "toestemming manager" toevoegen aan het uitgifteproces/-formulier.
+- Schijfgebruik: device kunnen koppelen aan een medewerker.
+
+### Fase 4 — Verbeterpunten/Ticket functionele gelijktrekking
+Nadat Fase 2 (ticket UX) is opgeleverd: dezelfde functionaliteit (omschrijving uitklapbaar, categorie zoekend selecteren, tijdregistratie, opmerking-titel e.d.) toepassen op de Verbeterpunt-module, zodat beide modules qua functionaliteit gelijk lopen.
+
+### Fase 5 — CRM: hiërarchie & urenstaat (grotere uitbreiding)
+Grootste stuk nieuw werk, functioneel op te splitsen in twee delen:
+- **Hiërarchie/stamboom**: keyusers en organisatiestructuur van VHE inzichtelijk maken binnen CRM (boomstructuur/hiërarchie-view).
+- **Nieuwe extensie "Urenstaat"**: tijd registreren (tijdstip, locatie) gekoppeld aan CRM.
+  - Locaties worden beheerd via een aparte, persoonsgebonden of algemene extensie: een locatie kan zichtbaar zijn voor iedereen (bv. "kantoor"), alleen de aanmaker (bv. "thuis"), of een selectieve groep gebruikers (bv. klant "Raith" zichtbaar voor 3 specifieke personen). Dit vraagt een zichtbaarheids-/rechtenmodel per locatie (vergelijkbaar met bestaande `Rechten`-aanpak), los van de generieke module-rechten.
+  - Coördinaten per adres: voorlopig **handmatig invullen** naast het adresveld. Losse verkenning voor een geocoding-API blijft open (zie hieronder) — geen harde afhankelijkheid voor oplevering van de urenstaat-extensie zelf.
+
+### Losse verkenning — geocoding/routing API (nog geen fase toegewezen)
+Nog te onderzoeken, niet gekoppeld aan een deadline; input voor een eventuele latere fase (bv. reistijd-indicatie bij Urenstaat/locaties):
+- OpenCage Geocoding API is getest voor adres → coördinaten (`api.opencagedata.com/geocode/v1/json`); vereist eigen API-key, rate limits nog niet uitgezocht.
+- ANWB routing-API (`api.anwb.nl/routing/route/v1/route/car`) is getest voor reistijd/afstand tussen coördinaten (incl. tol-wegen); ongedocumenteerde publieke header (`x-anwb-caller-id`), gebruik hiervan in productie nader afwegen (stabiliteit/voorwaarden niet bevestigd).
+- Voor nu: coördinaten handmatig invullen (zie Fase 5); geen API-integratie inbouwen totdat hier bewust voor gekozen wordt.

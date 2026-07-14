@@ -8,7 +8,7 @@ use App\Core\Model;
 class TicketLogModel extends Model
 {
     protected static string $table = 'ticket_logs';
-    protected static array $fillable = ['ticket_id', 'user_id', 'opmerking', 'status_van', 'status_naar'];
+    protected static array $fillable = ['ticket_id', 'user_id', 'titel', 'opmerking', 'status_van', 'status_naar'];
 
     public static function forTicket(int $ticketId): array
     {

@@ -86,7 +86,12 @@ class SchemaParser
     public static function applyToDatabase(string $sql): array
     {
         $pdo = Database::pdo();
-        $statements = array_filter(array_map('trim', explode(';', $sql)));
+        // Regelcommentaar eerst verwijderen: anders smelt het "-- Gegenereerd door..."-kopblok samen
+        // met de eerste CREATE TABLE-statement na explode(';'), waardoor die ene statement met "--"
+        // begint en als comment wordt overgeslagen (de eerste tabel in schema.sql zou zo nooit
+        // aangemaakt worden).
+        $sqlZonderCommentaar = preg_replace('/^--.*$/m', '', $sql);
+        $statements = array_filter(array_map('trim', explode(';', $sqlZonderCommentaar)));
 
         $applied = 0;
         $skipped = 0;

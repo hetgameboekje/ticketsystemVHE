@@ -27,6 +27,7 @@ use App\Modules\Script\ScriptController;
 use App\Modules\Ticket\TicketController;
 use App\Modules\Ticket\TicketEmailIntakeController;
 use App\Modules\Ticket\TicketLogController;
+use App\Modules\Ticket\TicketTijdController;
 use App\Modules\Tools\PhonebookController;
 use App\Modules\Tools\SignatureController;
 use App\Modules\Tools\ToolsController;
@@ -79,6 +80,7 @@ $router->post('/api/tickets/vanuit-email', [TicketEmailIntakeController::class, 
 $router->post('/api/tickets/vanuit-aca-email', [TicketEmailIntakeController::class, 'storeAcaUpdate']);
 $router->post('/api/email-queue/verwerken', [AutomationController::class, 'emailQueueVerwerken']);
 $router->post('/api/tickets/herinneringen', [AutomationController::class, 'ticketHerinneringenGenereren']);
+$router->post('/api/logs/opschonen', [AutomationController::class, 'logsOpschonen']);
 $router->get('/api/database/export', [AutomationController::class, 'databaseExport']);
 
 $router->get('/service', [OverviewController::class, 'service']);
@@ -105,9 +107,12 @@ $router->post('/tools/handtekeningen/logos', [SignatureController::class, 'uploa
 $router->post('/tools/handtekeningen/logos/{id}/verwijderen', [SignatureController::class, 'destroyLogo']);
 $router->get('/tickets/export', [TicketController::class, 'export']);
 $router->post('/tickets/import', [TicketController::class, 'import']);
+$router->get('/tickets/categorieen', [TicketController::class, 'categorieen']);
+$router->post('/tickets/{id}/tijd', [TicketTijdController::class, 'store']);
 
 $router->post('/verbeterpunten/{id}/log', [VerbeterpuntLogController::class, 'store']);
 $router->post('/reflecties/{id}/log', [ReflectieLogController::class, 'store']);
+$router->get('/kennisbank/categorieen', [KennisbankController::class, 'categorieen']);
 $router->post('/kennisbank/{id}/log', [KennisbankLogController::class, 'store']);
 $router->post('/kennisbank/{id}/log/volgorde', [KennisbankLogController::class, 'reorder']);
 $router->post('/cyberrisicos/{id}/log', [CyberRisicoLogController::class, 'store']);

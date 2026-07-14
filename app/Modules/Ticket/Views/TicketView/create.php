@@ -1,7 +1,6 @@
 <?php
 /** @var array $afdelingen */
 /** @var array $gebruikers */
-/** @var array $categorieen */
 ?>
 <div class="page-header">
   <div style="display:flex;align-items:center;gap:12px">
@@ -27,12 +26,8 @@
       <div class="form-group" style="grid-column:1/-1"><label class="form-label">Omschrijving</label><textarea name="omschrijving" style="min-height:100px"></textarea></div>
       <div class="form-group">
         <label class="form-label">Categorie</label>
-        <input type="text" name="categorie" list="categorie-opties" placeholder="bijv. Printers, Netwerk, Accounts" value="Algemeen">
-        <datalist id="categorie-opties">
-          <?php foreach ($categorieen as $c): ?>
-            <option value="<?= htmlspecialchars($c) ?>">
-          <?php endforeach; ?>
-        </datalist>
+        <input type="text" name="categorie" id="categorie-input" list="categorie-opties" placeholder="bijv. Printers, Netwerk, Accounts" value="Algemeen" autocomplete="off">
+        <datalist id="categorie-opties"></datalist>
       </div>
       <div class="form-group">
         <label class="form-label">Prioriteit</label>
@@ -55,6 +50,9 @@
       <div class="form-group"><label class="form-label">Schatting (minuten)</label><input type="number" step="1" name="schatting_minuten"></div>
       <div class="form-group"><label class="form-label">Deadline</label><input type="date" name="deadline"></div>
       <div class="form-group">
+        <label class="form-label"><input type="checkbox" name="is_cyberrisico" value="1"> Cyber risico</label>
+      </div>
+      <div class="form-group">
         <label class="form-label">Behandelaar</label>
         <select name="behandelaar_id">
           <option value="">— Niet toegewezen —</option>
@@ -70,3 +68,32 @@
     </div>
   </form>
 </div>
+
+<script>
+(function () {
+    var input = document.getElementById('categorie-input');
+    var list = document.getElementById('categorie-opties');
+    var timer = null;
+
+    input.addEventListener('input', function () {
+        clearTimeout(timer);
+        var q = input.value.trim();
+        if (q.length < 2) {
+            list.innerHTML = '';
+            return;
+        }
+        timer = setTimeout(function () {
+            fetch('/tickets/categorieen?q=' + encodeURIComponent(q))
+                .then(function (r) { return r.json(); })
+                .then(function (categorieen) {
+                    list.innerHTML = '';
+                    categorieen.forEach(function (c) {
+                        var opt = document.createElement('option');
+                        opt.value = c;
+                        list.appendChild(opt);
+                    });
+                });
+        }, 200);
+    });
+})();
+</script>

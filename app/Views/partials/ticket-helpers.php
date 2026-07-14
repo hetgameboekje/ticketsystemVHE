@@ -141,8 +141,12 @@ if (!function_exists('filterSelect')) {
 }
 
 if (!function_exists('paginaBezoekParametersHtml')) {
-    /** Rendert de JSON-parameters van een paginabezoek (zie PaginaBezoekLogger) als leesbare key: value-regels. */
-    function paginaBezoekParametersHtml(?string $parametersJson): string
+    /**
+     * Rendert de JSON-parameters van een paginabezoek (zie PaginaBezoekLogger) als een knop die de
+     * key: value-regels in een popup (native <dialog>) toont, zodat de tabelrij niet de volledige
+     * hoogte van de parameterlijst inneemt.
+     */
+    function paginaBezoekParametersHtml(?string $parametersJson, int $bezoekId): string
     {
         if ($parametersJson === null || $parametersJson === '') {
             return '<span style="color:var(--color-text-tertiary)">—</span>';
@@ -159,7 +163,13 @@ if (!function_exists('paginaBezoekParametersHtml')) {
             $lines[] = '<div><strong>' . htmlspecialchars((string) $key) . ':</strong> ' . htmlspecialchars($waarde) . '</div>';
         }
 
-        return '<div style="font-size:12px;line-height:1.5">' . implode('', $lines) . '</div>';
+        $dialogId = 'paginabezoek-params-' . $bezoekId;
+
+        return '<button type="button" class="btn" onclick="document.getElementById(\'' . $dialogId . '\').showModal()">Bekijken (' . count($params) . ')</button>'
+            . '<dialog id="' . $dialogId . '" style="max-width:480px;width:90%;border-radius:8px;padding:16px">'
+            . '<form method="dialog" style="margin:0 0 10px;text-align:right"><button type="submit" class="btn">Sluiten</button></form>'
+            . '<div style="font-size:13px;line-height:1.6">' . implode('', $lines) . '</div>'
+            . '</dialog>';
     }
 }
 

@@ -106,7 +106,12 @@ def vind_postvak_in(namespace, mailbox_naam: str, folder_naam: str):
     for folder in namespace.Folders:
         if folder.Name.strip().lower() == mailbox_naam.strip().lower():
             return folder.Folders[folder_naam]
-    raise SystemExit(f'Mailbox "{mailbox_naam}" niet gevonden onder de geopende Outlook-profielen.')
+    beschikbaar = ", ".join(f'"{folder.Name}"' for folder in namespace.Folders)
+    raise SystemExit(
+        f'Mailbox "{mailbox_naam}" niet gevonden onder de geopende Outlook-profielen.\n'
+        f'Beschikbare mailboxen/postbussen in Outlook: {beschikbaar}\n'
+        f'Zet de exacte naam hierboven als mailbox_naam in config.ini.'
+    )
 
 
 def post_eindgebruiker_mail(base_url: str, api_key: str, afzender: str, titel: str, body: str, behandelaar_hint: str) -> dict:

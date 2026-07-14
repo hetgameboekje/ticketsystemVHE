@@ -8,3 +8,5 @@ database/seed.php
 /scripts/automation/outlook-intake/config.ini
 __pycache__/
 automation/outlook-intake/config.ini
+scripts/automation/outlook-intake/config.example.ini
+scripts/automation/outlook-intake/config.example.ini
