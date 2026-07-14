@@ -8,6 +8,7 @@
     <column name="teruggegeven_op" type="DATE"/>
     <column name="retour_opmerking" type="TEXT"/>
     <column name="opmerking" type="TEXT"/>
+    <column name="toestemming_manager" type="TINYINT" length="1" nullable="false" default="0"/>
     <column name="uitgegeven_door_id" type="INT"/>
     <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
   </columns>

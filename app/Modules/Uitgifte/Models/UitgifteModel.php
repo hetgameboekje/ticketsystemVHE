@@ -9,7 +9,7 @@ class UitgifteModel extends Model
 {
     protected static string $table = 'uitgiften';
     protected static array $fillable = [
-        'voorraad_item_id', 'medewerker_naam', 'uitgegeven_op', 'teruggegeven_op', 'opmerking', 'uitgegeven_door_id',
+        'voorraad_item_id', 'medewerker_naam', 'uitgegeven_op', 'teruggegeven_op', 'opmerking', 'toestemming_manager', 'uitgegeven_door_id',
     ];
 
     private const SELECT = "

@@ -13,7 +13,7 @@ class SchijfgebruikDeviceModel extends Model
         'laatst_online', 'laatst_update', 'laatste_boot', 'garantie_tot', 'tags', 'laatste_login',
         'ip_adressen', 'mac_adressen',
         'publiek_ip', 'geheugen_gib', 'os_naam', 'os_architectuur', 'os_build',
-        'merk', 'model', 'serienummer', 'domein', 'processor', 'tijdzone',
+        'merk', 'model', 'serienummer', 'domein', 'processor', 'tijdzone', 'medewerker_id',
     ];
 
     /**
@@ -31,13 +31,26 @@ class SchijfgebruikDeviceModel extends Model
 
     public static function findWithSchijven(int $id): ?array
     {
-        $device = static::find($id);
-        if ($device === null) {
+        $stmt = Database::pdo()->prepare("
+            SELECT d.*, CONCAT(m.voornaam, ' ', m.achternaam) AS medewerker_naam
+            FROM schijfgebruik_devices d
+            LEFT JOIN medewerkers m ON m.id = d.medewerker_id AND m.deleted_at IS NULL
+            WHERE d.id = ?
+        ");
+        $stmt->execute([$id]);
+        $device = $stmt->fetch();
+        if ($device === false) {
             return null;
         }
 
         $device['schijven'] = SchijfgebruikSchijfModel::forDevice($id);
         return $device;
+    }
+
+    public static function setMedewerker(int $id, ?int $medewerkerId): void
+    {
+        $stmt = Database::pdo()->prepare('UPDATE schijfgebruik_devices SET medewerker_id = ? WHERE id = ?');
+        $stmt->execute([$medewerkerId, $id]);
     }
 
     /**
@@ -55,6 +68,14 @@ class SchijfgebruikDeviceModel extends Model
         $pdo->beginTransaction();
 
         try {
+            // De import vervangt de hele tabel, dus handmatig gekoppelde medewerkers gaan anders
+            // verloren bij elke nieuwe CSV-upload — hier op naam bewaard en na het herinladen
+            // teruggezet.
+            $bestaandeKoppelingen = [];
+            foreach ($pdo->query('SELECT naam, medewerker_id FROM schijfgebruik_devices WHERE medewerker_id IS NOT NULL') as $rij) {
+                $bestaandeKoppelingen[strtolower($rij['naam'])] = $rij['medewerker_id'];
+            }
+
             $pdo->exec('DELETE FROM schijfgebruik_schijven');
             $pdo->exec('DELETE FROM schijfgebruik_devices');
 
@@ -62,6 +83,11 @@ class SchijfgebruikDeviceModel extends Model
             $schijven = 0;
 
             foreach ($parsed as $entry) {
+                $naamKey = strtolower($entry['device']['naam']);
+                if (isset($bestaandeKoppelingen[$naamKey])) {
+                    $entry['device']['medewerker_id'] = $bestaandeKoppelingen[$naamKey];
+                }
+
                 $deviceId = static::create($entry['device']);
                 $apparaten++;
 

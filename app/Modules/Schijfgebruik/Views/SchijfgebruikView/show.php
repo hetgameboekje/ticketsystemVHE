@@ -1,6 +1,7 @@
 <?php
 /** @var array $device */
 /** @var array $health */
+/** @var array $medewerkers */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 ?>
 <div class="page-header">
@@ -76,6 +77,22 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
         <div class="meta-row"><span class="meta-key">Tags</span><span><?= htmlspecialchars($device['tags'] ?? '—') ?></span></div>
         <div class="meta-row"><span class="meta-key">Tijdzone</span><span><?= htmlspecialchars($device['tijdzone'] ?? '—') ?></span></div>
       </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><span class="card-title">Medewerker</span></div>
+      <form method="post" action="/schijfgebruik/<?= $device['id'] ?>/medewerker" style="padding:16px">
+        <div class="form-group">
+          <label class="form-label">Gekoppelde medewerker</label>
+          <select name="medewerker_id">
+            <option value="">Geen</option>
+            <?php foreach ($medewerkers as $m): ?>
+              <option value="<?= $m['id'] ?>" <?= (int) ($device['medewerker_id'] ?? 0) === (int) $m['id'] ? 'selected' : '' ?>><?= htmlspecialchars($m['voornaam'] . ' ' . $m['achternaam']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Koppelen</button>
+      </form>
     </div>
 
     <div class="card" style="margin-bottom:16px">

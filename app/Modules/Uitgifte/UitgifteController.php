@@ -43,6 +43,7 @@ class UitgifteController extends CrudController
         $medewerkerNaam = trim($_POST['medewerker_naam'] ?? '');
         $uitgegevenOp = $_POST['uitgegeven_op'] !== '' ? $_POST['uitgegeven_op'] : date('Y-m-d');
         $opmerking = trim($_POST['opmerking'] ?? '') ?: null;
+        $toestemmingManager = !empty($_POST['toestemming_manager']) ? 1 : 0;
 
         if ($barcode === '' || $medewerkerNaam === '') {
             $_SESSION['flash_error'] = 'Barcode en naam zijn verplicht.';
@@ -65,6 +66,7 @@ class UitgifteController extends CrudController
             'medewerker_naam' => $medewerkerNaam,
             'uitgegeven_op' => $uitgegevenOp,
             'opmerking' => $opmerking,
+            'toestemming_manager' => $toestemmingManager,
             'uitgegeven_door_id' => $this->currentUserId(),
         ]);
 

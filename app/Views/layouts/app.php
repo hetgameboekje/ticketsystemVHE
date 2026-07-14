@@ -85,8 +85,6 @@ $active = $activeModule ?? '';
                         Service
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="serviceDropdown">
-                        <li><a class="dropdown-item<?= navActive('service', $active) ?>" href="/service">Overzicht</a></li>
-                        <li><hr class="dropdown-divider"></li>
                         <?php if ($navRechten['tickets'] ?? false): ?><li><a class="dropdown-item<?= navActive('tickets', $active) ?>" href="/tickets">Tickets</a></li><?php endif; ?>
                         <?php if ($navRechten['verbeterpunten'] ?? false): ?><li><a class="dropdown-item<?= navActive('verbeterpunten', $active) ?>" href="/verbeterpunten">Verbeterpunten</a></li><?php endif; ?>
                         <?php if ($navRechten['reflecties'] ?? false): ?><li><a class="dropdown-item<?= navActive('reflecties', $active) ?>" href="/reflecties">Reflectie</a></li><?php endif; ?>
@@ -106,8 +104,6 @@ $active = $activeModule ?? '';
                         Assets
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="assetsDropdown">
-                        <li><a class="dropdown-item<?= navActive('assets', $active) ?>" href="/assets">Overzicht</a></li>
-                        <li><hr class="dropdown-divider"></li>
                         <?php if ($navRechten['voorraad'] ?? false): ?><li><a class="dropdown-item<?= navActive('voorraad', $active) ?>" href="/voorraad">Voorraad</a></li><?php endif; ?>
                         <?php if ($navRechten['uitgiften'] ?? false): ?><li><a class="dropdown-item<?= navActive('uitgiften', $active) ?>" href="/uitgiften">Uitgifte</a></li><?php endif; ?>
                         <?php if ($navRechten['printers'] ?? false): ?><li><a class="dropdown-item<?= navActive('printers', $active) ?>" href="/printers">Printers</a></li><?php endif; ?>
@@ -126,8 +122,6 @@ $active = $activeModule ?? '';
                         Security
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="securityDropdown">
-                        <li><a class="dropdown-item<?= navActive('security', $active) ?>" href="/security">Overzicht</a></li>
-                        <li><hr class="dropdown-divider"></li>
                         <?php if ($navRechten['cyberrisicos'] ?? false): ?><li><a class="dropdown-item<?= navActive('cyberrisicos', $active) ?>" href="/cyberrisicos">Cyberrisico's</a></li><?php endif; ?>
                     </ul>
                 </li>
@@ -144,8 +138,6 @@ $active = $activeModule ?? '';
                         Onderhoud
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="onderhoudDropdown">
-                        <li><a class="dropdown-item<?= navActive('onderhoud', $active) ?>" href="/onderhoud">Overzicht</a></li>
-                        <li><hr class="dropdown-divider"></li>
                         <?php if ($navRechten['schijfgebruik'] ?? false): ?><li><a class="dropdown-item<?= navActive('schijfgebruik', $active) ?>" href="/schijfgebruik">Schijfgebruik</a></li><?php endif; ?>
                         <?php if ($navRechten['apparaten'] ?? false): ?><li><a class="dropdown-item<?= navActive('apparaten', $active) ?>" href="/apparaten">Applicaties</a></li><?php endif; ?>
                         <?php if ($navRechten['scripts'] ?? false): ?><li><a class="dropdown-item<?= navActive('scripts', $active) ?>" href="/scripts">Scripts</a></li><?php endif; ?>
@@ -181,8 +173,6 @@ $active = $activeModule ?? '';
                         CRM
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="crmDropdown">
-                        <li><a class="dropdown-item<?= navActive('crm', $active) ?>" href="/crm">Overzicht</a></li>
-                        <li><hr class="dropdown-divider"></li>
                         <?php if ($navRechten['medewerkers'] ?? false): ?><li><a class="dropdown-item<?= navActive('medewerkers', $active) ?>" href="/medewerkers">Medewerkers</a></li><?php endif; ?>
                     </ul>
                 </li>
@@ -209,7 +199,13 @@ $active = $activeModule ?? '';
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="/beheer/rechten"><i class="bi bi-shield-lock me-2"></i>Rechten</a></li>
                                 <li><a class="dropdown-item" href="/beheer/api-sleutels"><i class="bi bi-key me-2"></i>API-sleutels</a></li>
-                                <li><a class="dropdown-item" href="/beheer"><i class="bi bi-gear me-2"></i>Beheer</a></li>
+                                <li class="dropdown-submenu">
+                                    <a class="dropdown-item" href="#" onclick="return false"><i class="bi bi-gear me-2"></i>Beheer</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item<?= navActive('overzicht', $active) ?>" href="/overzicht">Overzicht</a></li>
+                                        <li><a class="dropdown-item<?= navActive('beheer', $active) ?>" href="/beheer">Instellingen</a></li>
+                                    </ul>
+                                </li>
                                 <li class="dropdown-submenu">
                                     <a class="dropdown-item" href="#" onclick="return false"><i class="bi bi-clock-history me-2"></i>Logs</a>
                                     <ul class="dropdown-menu">

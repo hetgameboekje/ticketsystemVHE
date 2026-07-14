@@ -23,6 +23,9 @@
         <label class="form-label">Datum</label>
         <input type="date" name="uitgegeven_op" value="<?= date('Y-m-d') ?>">
       </div>
+      <div class="form-group">
+        <label class="form-label"><input type="checkbox" name="toestemming_manager" value="1"> Toestemming manager</label>
+      </div>
       <div class="form-group" style="grid-column:1/-1">
         <label class="form-label">Opmerking</label>
         <textarea name="opmerking"></textarea>

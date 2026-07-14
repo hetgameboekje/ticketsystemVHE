@@ -21,6 +21,7 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
       <div class="meta-row"><span class="meta-key">Uitgegeven op</span><span><?= formatDatum($item['uitgegeven_op']) ?></span></div>
       <div class="meta-row"><span class="meta-key">Teruggegeven op</span><span><?= formatDatum($item['teruggegeven_op']) ?></span></div>
       <div class="meta-row"><span class="meta-key">Opmerking</span><span><?= htmlspecialchars($item['opmerking'] ?? '—') ?></span></div>
+      <div class="meta-row"><span class="meta-key">Toestemming manager</span><span><?= !empty($item['toestemming_manager']) ? 'Ja' : 'Nee' ?></span></div>
       <?php if ($item['status'] !== 'uitgegeven'): ?>
         <div class="meta-row"><span class="meta-key">Retour opmerking</span><span><?= htmlspecialchars($item['retour_opmerking'] ?? '—') ?></span></div>
       <?php endif; ?>

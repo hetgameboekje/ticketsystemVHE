@@ -33,45 +33,31 @@ class OverviewController extends Controller
         'medewerkers' => ['titel' => 'Medewerkers', 'omschrijving' => 'Medewerkersgegevens en afdelingen beheren.', 'link' => '/medewerkers'],
     ];
 
-    public function service(): void
+    public function index(): void
     {
         $this->requireAuth();
-        $this->renderOverzicht('Service', self::SERVICE_TILES);
-    }
 
-    public function assets(): void
-    {
-        $this->requireAuth();
-        $this->renderOverzicht('Assets', self::ASSETS_TILES);
-    }
+        $categorieen = [
+            'Service' => self::SERVICE_TILES,
+            'Assets' => self::ASSETS_TILES,
+            'Security' => self::SECURITY_TILES,
+            'Onderhoud' => self::ONDERHOUD_TILES,
+            'CRM' => self::CRM_TILES,
+        ];
 
-    public function security(): void
-    {
-        $this->requireAuth();
-        $this->renderOverzicht('Security', self::SECURITY_TILES);
-    }
-
-    public function crm(): void
-    {
-        $this->requireAuth();
-        $this->renderOverzicht('CRM', self::CRM_TILES);
-    }
-
-    public function onderhoud(): void
-    {
-        $this->requireAuth();
-        $this->renderOverzicht('Onderhoud', self::ONDERHOUD_TILES);
-    }
-
-    private function renderOverzicht(string $titel, array $tiles): void
-    {
-        $toegestaan = array_filter($tiles, fn (string $module) => $this->hasRecht($module), ARRAY_FILTER_USE_KEY);
+        $groups = [];
+        foreach ($categorieen as $label => $tiles) {
+            $toegestaan = array_filter($tiles, fn (string $module) => $this->hasRecht($module), ARRAY_FILTER_USE_KEY);
+            if ($toegestaan !== []) {
+                $groups[$label] = $toegestaan;
+            }
+        }
 
         $this->render('Shared/Overview/Views/OverviewView/index', [
-            'activeModule' => strtolower($titel),
-            'pageTitle' => $titel,
-            'titel' => $titel,
-            'tiles' => $toegestaan,
+            'activeModule' => 'overzicht',
+            'pageTitle' => 'Overzicht',
+            'titel' => 'Overzicht',
+            'groups' => $groups,
         ]);
     }
 }

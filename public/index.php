@@ -83,11 +83,7 @@ $router->post('/api/tickets/herinneringen', [AutomationController::class, 'ticke
 $router->post('/api/logs/opschonen', [AutomationController::class, 'logsOpschonen']);
 $router->get('/api/database/export', [AutomationController::class, 'databaseExport']);
 
-$router->get('/service', [OverviewController::class, 'service']);
-$router->get('/assets', [OverviewController::class, 'assets']);
-$router->get('/security', [OverviewController::class, 'security']);
-$router->get('/crm', [OverviewController::class, 'crm']);
-$router->get('/onderhoud', [OverviewController::class, 'onderhoud']);
+$router->get('/overzicht', [OverviewController::class, 'index']);
 
 $router->get('/tools', [ToolsController::class, 'index']);
 
@@ -122,6 +118,7 @@ $router->get('/voorraad/{id}/barcode', [VoorraadController::class, 'barcode']);
 $router->get('/schijfgebruik', [SchijfgebruikController::class, 'index']);
 $router->post('/schijfgebruik/import', [SchijfgebruikController::class, 'upload']);
 $router->get('/schijfgebruik/{id}', [SchijfgebruikController::class, 'show']);
+$router->post('/schijfgebruik/{id}/medewerker', [SchijfgebruikController::class, 'koppelMedewerker']);
 
 $router->get('/medewerkers/login-check', [MedewerkerController::class, 'loginCheck']);
 $router->post('/medewerkers/import', [MedewerkerController::class, 'import']);

@@ -4,6 +4,7 @@ namespace App\Modules\Schijfgebruik;
 
 use App\Core\Controller;
 use App\Core\TableQuery;
+use App\Modules\Medewerker\Models\MedewerkerModel;
 use App\Modules\Schijfgebruik\Models\SchijfgebruikDeviceModel;
 use App\Modules\Schijfgebruik\Models\SchijfgebruikSchijfModel;
 
@@ -88,9 +89,28 @@ class SchijfgebruikController extends Controller
         $this->render('Modules/Schijfgebruik/Views/SchijfgebruikView/show', [
             'device' => $device,
             'health' => $health,
+            'medewerkers' => MedewerkerModel::all('achternaam ASC'),
             'activeModule' => self::ACTIVE_MODULE,
             'pageTitle' => 'Schijfgebruik',
         ]);
+    }
+
+    public function koppelMedewerker(int $id): void
+    {
+        $this->requirePermission(self::ACTIVE_MODULE, 'schrijven');
+
+        $device = SchijfgebruikDeviceModel::find($id);
+        if ($device === null) {
+            http_response_code(404);
+            echo 'Niet gevonden.';
+            return;
+        }
+
+        $medewerkerId = ($_POST['medewerker_id'] ?? '') !== '' ? (int) $_POST['medewerker_id'] : null;
+        SchijfgebruikDeviceModel::setMedewerker($id, $medewerkerId);
+
+        $_SESSION['flash_success'] = 'Medewerker gekoppeld.';
+        $this->redirect("/schijfgebruik/{$id}");
     }
 
     public function upload(): void
