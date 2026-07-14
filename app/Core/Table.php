@@ -107,7 +107,11 @@ class Table
                 $content = $col['render'] !== null
                     ? ($col['render'])($row)
                     : htmlspecialchars((string) ($row[$col['key']] ?? '—'));
-                $html .= "<td{$style}>{$content}</td>";
+                // title-attribuut toont de volledige waarde als native tooltip zodra de cel
+                // door white-space:nowrap/text-overflow:ellipsis (zie app.css) is afgekapt.
+                $plainText = trim(strip_tags((string) $content));
+                $title = $plainText !== '' ? ' title="' . htmlspecialchars($plainText) . '"' : '';
+                $html .= "<td{$style}{$title}>{$content}</td>";
             }
 
             $html .= '</tr>';

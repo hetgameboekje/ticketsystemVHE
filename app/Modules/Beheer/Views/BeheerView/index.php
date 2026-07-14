@@ -76,6 +76,16 @@
     </div>
 
     <div class="card" style="margin-top:16px">
+      <div class="card-header"><span class="card-title">Locaties</span></div>
+      <div style="padding:16px">
+        <p style="font-size:13px;color:var(--color-text-secondary);margin-top:0">
+          Beheer de locaties die gebruikers kunnen kiezen bij het registreren van tijd in Urenstaat, inclusief wie elke locatie mag zien.
+        </p>
+        <a class="btn btn-primary" href="/beheer/locaties">Naar locaties</a>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
       <div class="card-header"><span class="card-title">E-mails</span></div>
       <div style="padding:16px">
         <p style="font-size:13px;color:var(--color-text-secondary);margin-top:0">

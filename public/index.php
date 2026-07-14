@@ -10,6 +10,7 @@ use App\Modules\Beheer\BeheerController;
 use App\Modules\Beheer\BeveiligingController;
 use App\Modules\Beheer\EmailQueueController;
 use App\Modules\Beheer\ExportController;
+use App\Modules\Beheer\LocatieController;
 use App\Modules\Beheer\LogController;
 use App\Modules\Beheer\RechtenController;
 use App\Modules\CyberRisico\CyberRisicoController;
@@ -32,6 +33,7 @@ use App\Modules\Tools\PhonebookController;
 use App\Modules\Tools\SignatureController;
 use App\Modules\Tools\ToolsController;
 use App\Modules\Uitgifte\UitgifteController;
+use App\Modules\Urenstaat\UrenstaatController;
 use App\Modules\Verbeterpunt\VerbeterpuntController;
 use App\Modules\Verbeterpunt\VerbeterpuntLogController;
 use App\Modules\Verbeterpunt\VerbeterpuntTijdController;
@@ -62,6 +64,7 @@ $modules = [
     'printers' => PrinterController::class,
     'cyberrisicos' => CyberRisicoController::class,
     'scripts' => ScriptController::class,
+    'urenstaat' => UrenstaatController::class,
 ];
 
 foreach ($modules as $routeBase => $controller) {
@@ -115,8 +118,15 @@ $router->get('/kennisbank/categorieen', [KennisbankController::class, 'categorie
 $router->post('/kennisbank/{id}/log', [KennisbankLogController::class, 'store']);
 $router->post('/kennisbank/{id}/log/volgorde', [KennisbankLogController::class, 'reorder']);
 $router->post('/cyberrisicos/{id}/log', [CyberRisicoLogController::class, 'store']);
+$router->get('/apparaten/software', [DeviceController::class, 'softwareIndex']);
+$router->post('/apparaten/software-import', [DeviceController::class, 'softwareImport']);
+$router->post('/apparaten/software/leegmaken', [DeviceController::class, 'softwareLeegmaken']);
 
 $router->get('/voorraad/{id}/barcode', [VoorraadController::class, 'barcode']);
+
+$router->post('/urenstaat/starten', [UrenstaatController::class, 'starten']);
+$router->post('/urenstaat/stoppen', [UrenstaatController::class, 'stoppen']);
+$router->post('/urenstaat/{id}/stoppen', [UrenstaatController::class, 'stoppenAjax']);
 
 $router->get('/schijfgebruik', [SchijfgebruikController::class, 'index']);
 $router->post('/schijfgebruik/import', [SchijfgebruikController::class, 'upload']);
@@ -164,6 +174,13 @@ $router->get('/beheer/api-sleutels/nieuw', [ApiSleutelController::class, 'aanmak
 $router->post('/beheer/api-sleutels', [ApiSleutelController::class, 'opslaan']);
 $router->post('/beheer/api-sleutels/{id}/intrekken', [ApiSleutelController::class, 'intrekken']);
 $router->post('/beheer/api-sleutels/{id}/heractiveren', [ApiSleutelController::class, 'heractiveren']);
+
+$router->get('/beheer/locaties', [LocatieController::class, 'index']);
+$router->get('/beheer/locaties/nieuw', [LocatieController::class, 'nieuw']);
+$router->post('/beheer/locaties', [LocatieController::class, 'aanmaken']);
+$router->get('/beheer/locaties/{id}/bewerken', [LocatieController::class, 'bewerken']);
+$router->post('/beheer/locaties/{id}', [LocatieController::class, 'opslaan']);
+$router->post('/beheer/locaties/{id}/verwijderen', [LocatieController::class, 'verwijderen']);
 
 $router->get('/beheer/log', [LogController::class, 'index']);
 $router->get('/beheer/beveiliging', [BeveiligingController::class, 'index']);

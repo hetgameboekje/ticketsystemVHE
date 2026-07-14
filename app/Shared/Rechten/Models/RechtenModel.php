@@ -26,6 +26,7 @@ class RechtenModel extends Model
         'cyberrisicos' => "Cyberrisico's",
         'schijfgebruik' => 'Schijfgebruik',
         'scripts' => 'Scripts',
+        'urenstaat' => 'Urenstaat',
     ];
 
     public static function has(int $userId, string $module, string $actie): bool

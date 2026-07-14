@@ -10,7 +10,7 @@ $navRechten = $navRechten ?? [];
 $magService = array_filter(['tickets', 'verbeterpunten', 'reflecties', 'kennisbank'], fn($m) => $navRechten[$m] ?? false);
 $magAssets = array_filter(['voorraad', 'uitgiften', 'printers'], fn($m) => $navRechten[$m] ?? false);
 $magSecurity = array_filter(['cyberrisicos'], fn($m) => $navRechten[$m] ?? false);
-$magCrm = array_filter(['medewerkers'], fn($m) => $navRechten[$m] ?? false);
+$magCrm = array_filter(['medewerkers', 'urenstaat'], fn($m) => $navRechten[$m] ?? false);
 $magOnderhoud = array_filter(['schijfgebruik', 'apparaten', 'scripts'], fn($m) => $navRechten[$m] ?? false);
 
 function navActive(string $module, string $active): string
@@ -164,7 +164,7 @@ $active = $activeModule ?? '';
 
                 <?php if ($magCrm): ?>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle<?= dropdownActive(['crm', 'medewerkers'], $active) ?>"
+                    <a class="nav-link dropdown-toggle<?= dropdownActive(['crm', 'medewerkers', 'urenstaat'], $active) ?>"
                        href="#"
                        id="crmDropdown"
                        role="button"
@@ -174,6 +174,7 @@ $active = $activeModule ?? '';
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="crmDropdown">
                         <?php if ($navRechten['medewerkers'] ?? false): ?><li><a class="dropdown-item<?= navActive('medewerkers', $active) ?>" href="/medewerkers">Medewerkers</a></li><?php endif; ?>
+                        <?php if ($navRechten['urenstaat'] ?? false): ?><li><a class="dropdown-item<?= navActive('urenstaat', $active) ?>" href="/urenstaat">Urenstaat</a></li><?php endif; ?>
                     </ul>
                 </li>
                 <?php endif; ?>

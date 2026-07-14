@@ -15,8 +15,23 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 ?>
 <div class="page-header">
   <div class="page-title">Applicaties</div>
-  <a class="btn btn-primary" href="/apparaten/create">+ Apparaat / CSV importeren</a>
+  <div style="display:flex;gap:8px;align-items:center">
+    <a class="btn" href="/apparaten/software">Software-inventaris</a>
+    <a href="/apparaten/create" style="font-size:12px;color:var(--color-text-tertiary)">Nieuw apparaat handmatig toevoegen</a>
+    <button type="button" class="btn" id="lokaal-import-knop">+ Lokaal</button>
+    <button type="button" class="btn btn-primary" id="globaal-import-knop">+ Globaal</button>
+  </div>
 </div>
+
+<!-- Verborgen forms voor de "+ Globaal"/"+ Lokaal"-knoppen: klikken opent direct de bestandsverkenner
+     (input.click()) en zodra er een bestand gekozen is, wordt automatisch geüpload — geen tussenstap
+     met een zichtbaar uploadformulier meer nodig. -->
+<form method="post" action="/apparaten/software-import" enctype="multipart/form-data" id="globaal-import-form" style="display:none">
+  <input type="file" name="bestand" accept=".csv" id="globaal-import-bestand">
+</form>
+<form method="post" action="/apparaten" enctype="multipart/form-data" id="lokaal-import-form" style="display:none">
+  <input type="file" name="bestand" accept=".csv" id="lokaal-import-bestand">
+</form>
 
 <?php if ($flashSuccess): ?>
   <div class="alert alert-success"><?= htmlspecialchars($flashSuccess) ?></div>
@@ -48,3 +63,26 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
   ?>
   <?= paginationLinks($pagination) ?>
 </div>
+
+<script>
+(function () {
+    function koppel(knopId, bestandId, formId) {
+        var knop = document.getElementById(knopId);
+        var bestand = document.getElementById(bestandId);
+        var form = document.getElementById(formId);
+        if (!knop || !bestand || !form) return;
+
+        knop.addEventListener('click', function () {
+            bestand.click();
+        });
+        bestand.addEventListener('change', function () {
+            if (bestand.files.length > 0) {
+                form.submit();
+            }
+        });
+    }
+
+    koppel('globaal-import-knop', 'globaal-import-bestand', 'globaal-import-form');
+    koppel('lokaal-import-knop', 'lokaal-import-bestand', 'lokaal-import-form');
+})();
+</script>

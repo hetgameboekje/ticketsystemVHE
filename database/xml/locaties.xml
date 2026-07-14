@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="locaties" engine="InnoDB">
+  <columns>
+    <column name="id" type="INT" primary="true" auto_increment="true"/>
+    <column name="naam" type="VARCHAR" length="255" nullable="false"/>
+    <column name="adres" type="VARCHAR" length="255"/>
+    <column name="latitude" type="DECIMAL" length="10,7"/>
+    <column name="longitude" type="DECIMAL" length="10,7"/>
+    <column name="zichtbaarheid" type="VARCHAR" length="20" nullable="false" default="'iedereen'"/>
+    <column name="aanmaker_id" type="INT" references="users.id"/>
+    <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
+    <column name="updated_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP" on_update="CURRENT_TIMESTAMP"/>
+    <column name="deleted_at" type="TIMESTAMP"/>
+  </columns>
+</table>
