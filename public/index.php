@@ -34,6 +34,7 @@ use App\Modules\Tools\ToolsController;
 use App\Modules\Uitgifte\UitgifteController;
 use App\Modules\Verbeterpunt\VerbeterpuntController;
 use App\Modules\Verbeterpunt\VerbeterpuntLogController;
+use App\Modules\Verbeterpunt\VerbeterpuntTijdController;
 use App\Modules\Voorraad\VoorraadController;
 use App\Shared\Automation\AutomationController;
 use App\Shared\Auth\AuthController;
@@ -106,6 +107,8 @@ $router->post('/tickets/import', [TicketController::class, 'import']);
 $router->get('/tickets/categorieen', [TicketController::class, 'categorieen']);
 $router->post('/tickets/{id}/tijd', [TicketTijdController::class, 'store']);
 
+$router->get('/verbeterpunten/categorieen', [VerbeterpuntController::class, 'categorieen']);
+$router->post('/verbeterpunten/{id}/tijd', [VerbeterpuntTijdController::class, 'store']);
 $router->post('/verbeterpunten/{id}/log', [VerbeterpuntLogController::class, 'store']);
 $router->post('/reflecties/{id}/log', [ReflectieLogController::class, 'store']);
 $router->get('/kennisbank/categorieen', [KennisbankController::class, 'categorieen']);

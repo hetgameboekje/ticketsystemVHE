@@ -8,7 +8,7 @@ use App\Core\Model;
 class VerbeterpuntModel extends Model
 {
     protected static string $table = 'verbeterpunten';
-    protected static array $fillable = ['titel', 'omschrijving', 'afdeling_id', 'ingediend_door_id', 'status'];
+    protected static array $fillable = ['titel', 'omschrijving', 'categorie', 'afdeling_id', 'ingediend_door_id', 'status'];
     protected static bool $softDeletes = true;
 
     private const SELECT = "

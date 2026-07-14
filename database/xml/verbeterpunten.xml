@@ -4,6 +4,7 @@
     <column name="id" type="INT" primary="true" auto_increment="true"/>
     <column name="titel" type="VARCHAR" length="255" nullable="false"/>
     <column name="omschrijving" type="TEXT" nullable="false"/>
+    <column name="categorie" type="VARCHAR" length="100" nullable="false" default="'Algemeen'"/>
     <column name="afdeling_id" type="INT" references="afdelingen.id"/>
     <column name="ingediend_door_id" type="INT" references="users.id"/>
     <column name="status" type="VARCHAR" length="30" nullable="false" default="'nieuw'"/>

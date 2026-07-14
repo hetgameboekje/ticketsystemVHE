@@ -21,15 +21,17 @@ class VerbeterpuntLogController extends Controller
 
         $titel = trim($_POST['titel'] ?? '');
         $opmerking = trim($_POST['opmerking'] ?? '');
+        // Een opmerking telt alleen mee als titel én tekst zijn ingevuld (zelfde gedrag als Ticket).
+        $opmerkingGeldig = $titel !== '' && $opmerking !== '';
         $nieuweStatus = $_POST['status'] ?? '';
         $statusGewijzigd = $nieuweStatus !== '' && $nieuweStatus !== $verbeterpunt['status'];
 
-        if ($opmerking !== '' || $statusGewijzigd) {
+        if ($opmerkingGeldig || $statusGewijzigd) {
             VerbeterpuntLogModel::create([
                 'verbeterpunt_id' => $verbeterpuntId,
                 'user_id' => $this->currentUserId(),
-                'titel' => $titel !== '' ? $titel : null,
-                'opmerking' => $opmerking !== '' ? $opmerking : 'Status bijgewerkt.',
+                'titel' => $opmerkingGeldig ? $titel : null,
+                'opmerking' => $opmerkingGeldig ? $opmerking : 'Status bijgewerkt.',
                 'status_van' => $statusGewijzigd ? $verbeterpunt['status'] : null,
                 'status_naar' => $statusGewijzigd ? $nieuweStatus : null,
             ]);

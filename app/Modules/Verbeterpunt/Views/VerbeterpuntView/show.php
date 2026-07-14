@@ -1,10 +1,12 @@
 <?php
 /** @var array $item */
 /** @var array $logs */
+/** @var array $tijdregistraties */
+/** @var int $tijdTotaal */
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 $statussen = ['nieuw' => 'Nieuw', 'in_overweging' => 'In overweging', 'goedgekeurd' => 'Goedgekeurd', 'afgewezen' => 'Afgewezen', 'uitgevoerd' => 'Uitgevoerd'];
 $statusLogs = array_values(array_filter($logs, fn ($log) => $log['status_naar'] !== null));
-$opmerkingen = array_values(array_filter($logs, fn ($log) => $log['status_naar'] === null));
+$opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['opmerking'] ?? '') !== '' && $log['opmerking'] !== 'Status bijgewerkt.'));
 ?>
 <div class="page-header">
   <div style="display:flex;align-items:center;gap:12px">
@@ -22,8 +24,11 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => $log['status_naar']
   <div>
     <div class="card" style="margin-bottom:16px">
       <div class="card-header"><span class="card-title">Omschrijving</span></div>
-      <div style="padding:16px;font-size:13px;line-height:1.7;color:var(--color-text-secondary)">
+      <div class="collapsible-text" style="padding:16px;font-size:13px;line-height:1.7;color:var(--color-text-secondary);overflow-wrap:anywhere;max-height:4.5em;overflow:hidden">
         <?= nl2br(htmlspecialchars($item['omschrijving'])) ?>
+      </div>
+      <div class="collapsible-toggle" style="display:none;padding:0 16px 12px">
+        <a href="#" class="collapsible-toggle-link" style="font-size:12px">Meer tonen</a>
       </div>
     </div>
 
@@ -68,6 +73,7 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => $log['status_naar']
       <div class="card-header"><span class="card-title">Details</span></div>
       <div style="padding:0 16px">
         <div class="meta-row"><span class="meta-key">Afdeling</span><span><?= htmlspecialchars($item['afdeling_naam'] ?? '—') ?></span></div>
+        <div class="meta-row"><span class="meta-key">Categorie</span><span><?= htmlspecialchars($item['categorie'] ?? 'Algemeen') ?></span></div>
         <div class="meta-row"><span class="meta-key">Ingediend door</span><span><?= htmlspecialchars($item['ingediend_door_naam'] ?? '—') ?></span></div>
         <div class="meta-row"><span class="meta-key">Aangemaakt</span><span><?= formatDatum($item['created_at']) ?></span></div>
       </div>
@@ -87,6 +93,40 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => $log['status_naar']
         </div>
         <button class="btn btn-primary" type="submit" form="verbeterpuntLogForm" style="width:100%;justify-content:center">Status bijwerken</button>
       </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header">
+        <span class="card-title">Tijdregistratie</span>
+        <span style="font-size:12px;color:var(--color-text-tertiary)">Totaal: <?= $tijdTotaal ?> min</span>
+      </div>
+
+      <div style="padding:16px;border-bottom:0.5px solid var(--color-border-tertiary)">
+        <form method="post" action="/verbeterpunten/<?= $item['id'] ?>/tijd">
+          <label class="form-label">Tijd registreren</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <?php foreach ([5, 10, 15, 30, 45, 60] as $blok): ?>
+              <button class="btn" type="submit" name="minuten" value="<?= $blok ?>"><?= $blok ?> min</button>
+            <?php endforeach; ?>
+          </div>
+        </form>
+      </div>
+
+      <?php if (empty($tijdregistraties)): ?>
+        <div class="empty-state">Nog geen tijd geregistreerd.</div>
+      <?php else: ?>
+        <div class="log-list" style="max-height:190px">
+        <?php foreach ($tijdregistraties as $tijd): ?>
+        <div class="log-item">
+          <div class="log-meta">
+            <span class="log-user"><?= htmlspecialchars($tijd['user_naam'] ?? 'Onbekend') ?></span>
+            <span class="log-time"><?= formatDatumTijd($tijd['created_at']) ?></span>
+          </div>
+          <div class="log-text"><?= (int) $tijd['minuten'] ?> min</div>
+        </div>
+        <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
     </div>
 
     <div class="card">
@@ -112,3 +152,22 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => $log['status_naar']
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.collapsible-text').forEach(function (el) {
+        if (el.scrollHeight <= el.clientHeight + 1) {
+            return;
+        }
+        var toggle = el.nextElementSibling;
+        var link = toggle.querySelector('.collapsible-toggle-link');
+        toggle.style.display = 'block';
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            var expanded = el.style.maxHeight === 'none';
+            el.style.maxHeight = expanded ? '4.5em' : 'none';
+            link.textContent = expanded ? 'Meer tonen' : 'Minder tonen';
+        });
+    });
+});
+</script>

@@ -3,8 +3,10 @@
 namespace App\Modules\Verbeterpunt;
 
 use App\Core\CrudController;
+use App\Modules\Kennisbank\Models\KennisbankModel;
 use App\Modules\Verbeterpunt\Models\VerbeterpuntLogModel;
 use App\Modules\Verbeterpunt\Models\VerbeterpuntModel;
+use App\Modules\Verbeterpunt\Models\VerbeterpuntTijdModel;
 use App\Shared\Afdeling\Models\AfdelingModel;
 
 class VerbeterpuntController extends CrudController
@@ -47,10 +49,21 @@ class VerbeterpuntController extends CrudController
         $this->render("{$this->viewDir}/show", [
             'item' => $item,
             'logs' => VerbeterpuntLogModel::forVerbeterpunt($id),
+            'tijdregistraties' => VerbeterpuntTijdModel::forVerbeterpunt($id),
+            'tijdTotaal' => VerbeterpuntTijdModel::sumForVerbeterpunt($id),
             'activeModule' => $this->activeModule,
             'pageTitle' => $this->pageTitle,
             'routeBase' => $this->routeBase,
         ]);
+    }
+
+    public function categorieen(): void
+    {
+        $this->requirePermission($this->activeModule, 'lezen');
+        $q = trim($_GET['q'] ?? '');
+
+        header('Content-Type: application/json');
+        echo json_encode(KennisbankModel::distinctCategorieen($q));
     }
 
     protected function formData(): array
@@ -63,6 +76,7 @@ class VerbeterpuntController extends CrudController
         $data = [
             'titel' => trim($post['titel'] ?? ''),
             'omschrijving' => trim($post['omschrijving'] ?? ''),
+            'categorie' => trim($post['categorie'] ?? '') ?: 'Algemeen',
             'afdeling_id' => $post['afdeling_id'] !== '' ? (int) $post['afdeling_id'] : null,
             'status' => $post['status'] ?? 'nieuw',
         ];

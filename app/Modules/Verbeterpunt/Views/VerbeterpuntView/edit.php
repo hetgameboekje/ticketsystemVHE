@@ -23,6 +23,11 @@ $statussen = ['nieuw' => 'Nieuw', 'in_overweging' => 'In overweging', 'goedgekeu
     </div>
     <div class="form-group"><label class="form-label">Omschrijving</label><textarea name="omschrijving" style="min-height:100px" required><?= htmlspecialchars($item['omschrijving']) ?></textarea></div>
     <div class="form-group">
+      <label class="form-label">Categorie</label>
+      <input type="text" name="categorie" id="categorie-input" list="categorie-opties" value="<?= htmlspecialchars($item['categorie'] ?? 'Algemeen') ?>" autocomplete="off">
+      <datalist id="categorie-opties"></datalist>
+    </div>
+    <div class="form-group">
       <label class="form-label">Status</label>
       <select name="status">
         <?php foreach ($statussen as $val => $label): ?>
@@ -36,3 +41,32 @@ $statussen = ['nieuw' => 'Nieuw', 'in_overweging' => 'In overweging', 'goedgekeu
     </div>
   </form>
 </div>
+
+<script>
+(function () {
+    var input = document.getElementById('categorie-input');
+    var list = document.getElementById('categorie-opties');
+    var timer = null;
+
+    input.addEventListener('input', function () {
+        clearTimeout(timer);
+        var q = input.value.trim();
+        if (q.length < 2) {
+            list.innerHTML = '';
+            return;
+        }
+        timer = setTimeout(function () {
+            fetch('/verbeterpunten/categorieen?q=' + encodeURIComponent(q))
+                .then(function (r) { return r.json(); })
+                .then(function (categorieen) {
+                    list.innerHTML = '';
+                    categorieen.forEach(function (c) {
+                        var opt = document.createElement('option');
+                        opt.value = c;
+                        list.appendChild(opt);
+                    });
+                });
+        }, 200);
+    });
+})();
+</script>
