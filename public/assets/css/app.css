@@ -182,23 +182,24 @@ a.page-link:hover{background:var(--color-background-secondary);color:var(--color
 .detail-layout>*{min-width:0}
 .detail-layout-3col{
   display:grid;
-  grid-template-columns:2fr 1fr 1fr;
-  grid-template-areas:"col1 right right";
+  grid-template-columns:2fr 1fr;
+  grid-template-areas:"col1 right" "kb kb";
   gap:10px;
   align-items:start;
 }
 .detail-layout-3col .area-col1{grid-area:col1;min-width:0}
+.detail-layout-3col .area-kb{grid-area:kb;min-width:0}
 .detail-layout-3col .area-right{
   grid-area:right;
   min-width:0;
   display:grid;
-  grid-template-columns:1fr 1fr;
-  grid-template-areas:"kb kb" "details escalatie" "statuslog statuslog";
+  grid-template-columns:1fr;
+  grid-template-areas:"escalatie" "tijd" "details" "statuslog";
   gap:10px;
   align-items:start;
 }
-.area-right .area-kb{grid-area:kb;min-width:0}
 .area-right .area-escalatie{grid-area:escalatie;min-width:0}
+.area-right .area-tijd{grid-area:tijd;min-width:0}
 .area-right .area-details{grid-area:details;min-width:0}
 .area-right .area-statuslog{grid-area:statuslog;min-width:0}
 .barcode-wrap{overflow-x:auto}
@@ -207,9 +208,8 @@ a.page-link:hover{background:var(--color-background-secondary);color:var(--color
 @media (max-width:1000px){
   .detail-layout-3col{
     grid-template-columns:1fr;
-    grid-template-areas:"col1" "right";
+    grid-template-areas:"col1" "right" "kb";
   }
-  .area-right{grid-template-columns:1fr;grid-template-areas:"kb" "details" "escalatie" "statuslog"}
 }
 
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}

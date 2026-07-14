@@ -73,8 +73,44 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['opmerkin
         </div>
       <?php endif; ?>
     </div>
+  </div>
 
-    <div class="card" style="margin-top:10px">
+  <div class="area-right">
+  <div class="area-escalatie">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Status wijzigen</span></div>
+      <div style="padding:16px">
+        <!-- Hoort bij #ticketLogForm (het opmerking-formulier hierboven), via het form="" attribuut —
+             zo wordt een eventueel ingevulde opmerking niet verloren wanneer je hier de status wijzigt. -->
+        <div class="form-group">
+          <select name="status" form="ticketLogForm" style="width:100%">
+            <?php foreach ($statussen as $val => $label): ?>
+              <option value="<?= $val ?>" <?= $item['status'] === $val ? 'selected' : '' ?>><?= $label ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <button class="btn btn-primary" type="submit" form="ticketLogForm" style="width:100%;justify-content:center">Status bijwerken</button>
+      </div>
+
+      <div class="card-header"><span class="card-title">Escalatie</span></div>
+      <div style="padding:16px">
+        <!-- Deelt #ticketLogForm met Opmerkingen/Status wijzigen, zodat het invullen van deze velden
+             niet verloren gaat als je op een van de andere knoppen op deze pagina klikt. -->
+        <div class="form-group">
+          <label class="form-label">Escalatienummer</label>
+          <input type="text" name="escalatie_nummer" form="ticketLogForm" value="<?= htmlspecialchars($item['escalatie_nummer'] ?? '') ?>" placeholder="Bijv. CAS-109311-L4Z5L7 - ACA:000133869">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Instantie</label>
+          <input type="text" name="escalatie_instantie" form="ticketLogForm" value="<?= htmlspecialchars($item['escalatie_instantie'] ?? '') ?>" placeholder="Bijv. ACA, ClearSolutions">
+        </div>
+        <button class="btn btn-primary" type="submit" form="ticketLogForm">Opslaan</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="area-tijd">
+    <div class="card">
       <div class="card-header">
         <span class="card-title">Tijdregistratie</span>
         <span style="font-size:12px;color:var(--color-text-tertiary)">Totaal: <?= $tijdTotaal ?> min</span>
@@ -106,77 +142,6 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['opmerkin
         <?php endforeach; ?>
         </div>
       <?php endif; ?>
-    </div>
-  </div>
-
-  <div class="area-right">
-  <div class="area-kb">
-    <div class="card">
-      <div class="card-header"><span class="card-title">Gerelateerde kennisbank artikelen</span></div>
-
-      <?php if (empty($gekoppeldeArtikelen)): ?>
-        <div class="empty-state">Nog geen artikelen gekoppeld.</div>
-      <?php else: ?>
-        <?php foreach ($gekoppeldeArtikelen as $artikel): ?>
-        <div class="log-item">
-          <div class="log-meta" style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-            <a href="/kennisbank/<?= $artikel['id'] ?>"><?= htmlspecialchars($artikel['titel']) ?></a>
-            <form method="post" action="/tickets/<?= $item['id'] ?>/kennisbank/<?= $artikel['id'] ?>/verwijderen"
-                  onsubmit="return confirm('Koppeling met dit artikel verwijderen?')">
-              <button class="btn btn-danger" type="submit" style="padding:2px 8px;font-size:11px">&times;</button>
-            </form>
-          </div>
-        </div>
-        <?php endforeach; ?>
-      <?php endif; ?>
-
-      <?php if (!empty($suggestiesArtikelen)): ?>
-        <div style="padding:12px 16px;border-top:0.5px solid var(--color-border-tertiary)">
-          <div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:8px">
-            Suggesties (categorie "<?= htmlspecialchars($item['categorie'] ?? 'Algemeen') ?>")
-          </div>
-          <?php foreach ($suggestiesArtikelen as $artikel): ?>
-            <form method="post" action="/tickets/<?= $item['id'] ?>/kennisbank" style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px">
-              <a href="/kennisbank/<?= $artikel['id'] ?>"><?= htmlspecialchars($artikel['titel']) ?></a>
-              <input type="hidden" name="kennisbank_artikel_id" value="<?= $artikel['id'] ?>">
-              <button class="btn" type="submit" style="padding:2px 8px;font-size:11px">Koppelen</button>
-            </form>
-          <?php endforeach; ?>
-        </div>
-      <?php endif; ?>
-    </div>
-  </div>
-
-  <div class="area-escalatie">
-    <div class="card">
-      <div class="card-header"><span class="card-title">Status wijzigen</span></div>
-      <div style="padding:16px">
-        <!-- Hoort bij #ticketLogForm (het opmerking-formulier hierboven), via het form="" attribuut —
-             zo wordt een eventueel ingevulde opmerking niet verloren wanneer je hier de status wijzigt. -->
-        <div class="form-group">
-          <select name="status" form="ticketLogForm" style="width:100%">
-            <?php foreach ($statussen as $val => $label): ?>
-              <option value="<?= $val ?>" <?= $item['status'] === $val ? 'selected' : '' ?>><?= $label ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-        <button class="btn btn-primary" type="submit" form="ticketLogForm" style="width:100%;justify-content:center">Status bijwerken</button>
-      </div>
-
-      <div class="card-header"><span class="card-title">Escalatie</span></div>
-      <div style="padding:16px">
-        <!-- Deelt #ticketLogForm met Opmerkingen/Status wijzigen, zodat het invullen van deze velden
-             niet verloren gaat als je op een van de andere knoppen op deze pagina klikt. -->
-        <div class="form-group">
-          <label class="form-label">Escalatienummer</label>
-          <input type="text" name="escalatie_nummer" form="ticketLogForm" value="<?= htmlspecialchars($item['escalatie_nummer'] ?? '') ?>" placeholder="Bijv. CAS-109311-L4Z5L7 - ACA:000133869">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Instantie</label>
-          <input type="text" name="escalatie_instantie" form="ticketLogForm" value="<?= htmlspecialchars($item['escalatie_instantie'] ?? '') ?>" placeholder="Bijv. ACA, ClearSolutions">
-        </div>
-        <button class="btn btn-primary" type="submit" form="ticketLogForm">Opslaan</button>
-      </div>
     </div>
   </div>
 
@@ -223,6 +188,43 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['opmerkin
       <?php endif; ?>
     </div>
   </div>
+  </div>
+
+  <div class="area-kb">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Gerelateerde kennisbank artikelen</span></div>
+
+      <?php if (empty($gekoppeldeArtikelen)): ?>
+        <div class="empty-state">Nog geen artikelen gekoppeld.</div>
+      <?php else: ?>
+        <?php foreach ($gekoppeldeArtikelen as $artikel): ?>
+        <div class="log-item">
+          <div class="log-meta" style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <a href="/kennisbank/<?= $artikel['id'] ?>"><?= htmlspecialchars($artikel['titel']) ?></a>
+            <form method="post" action="/tickets/<?= $item['id'] ?>/kennisbank/<?= $artikel['id'] ?>/verwijderen"
+                  onsubmit="return confirm('Koppeling met dit artikel verwijderen?')">
+              <button class="btn btn-danger" type="submit" style="padding:2px 8px;font-size:11px">&times;</button>
+            </form>
+          </div>
+        </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
+
+      <?php if (!empty($suggestiesArtikelen)): ?>
+        <div style="padding:12px 16px;border-top:0.5px solid var(--color-border-tertiary)">
+          <div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:8px">
+            Suggesties (categorie "<?= htmlspecialchars($item['categorie'] ?? 'Algemeen') ?>")
+          </div>
+          <?php foreach ($suggestiesArtikelen as $artikel): ?>
+            <form method="post" action="/tickets/<?= $item['id'] ?>/kennisbank" style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px">
+              <a href="/kennisbank/<?= $artikel['id'] ?>"><?= htmlspecialchars($artikel['titel']) ?></a>
+              <input type="hidden" name="kennisbank_artikel_id" value="<?= $artikel['id'] ?>">
+              <button class="btn" type="submit" style="padding:2px 8px;font-size:11px">Koppelen</button>
+            </form>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
+    </div>
   </div>
 </div>
 
