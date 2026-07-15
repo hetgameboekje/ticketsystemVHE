@@ -32,6 +32,14 @@
         <label class="form-label">E-mailadres</label>
         <input type="email" name="email" required value="<?= htmlspecialchars($user['email']) ?>">
       </div>
+      <div class="form-group">
+        <label class="form-label">Telefoonnummer</label>
+        <input type="text" name="telefoon" value="<?= htmlspecialchars($user['telefoon'] ?? '') ?>">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Adres</label>
+        <input type="text" name="adres" value="<?= htmlspecialchars($user['adres'] ?? '') ?>">
+      </div>
       <div class="form-group" style="grid-column:1/-1">
         <label class="form-label">Nieuw wachtwoord (optioneel)</label>
         <input type="password" name="wachtwoord" placeholder="Laat leeg om huidige wachtwoord te behouden" autocomplete="new-password">

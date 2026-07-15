@@ -11,6 +11,8 @@
 /** @var array $cyberCategorieen */
 /** @var array $cyberPrioriteiten */
 /** @var array|null $laatsteTelefoonlijst */
+/** @var array $urenstaatLocaties */
+/** @var array|null $urenstaatOpen */
 
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 
@@ -78,6 +80,19 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
                 </span>
             <?php endif; ?>
         </button>
+        <?php endif; ?>
+
+        <?php if ($mag['urenstaat']['schrijven']): ?>
+        <span id="dashDagStartenWrap" <?= $urenstaatOpen ? 'class="d-none"' : '' ?>>
+            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#dashDagStartenModal">
+                <i class="bi bi-play-circle"></i> Dag starten
+            </button>
+        </span>
+        <span id="dashDagStoppenWrap" <?= $urenstaatOpen ? '' : 'class="d-none"' ?>>
+            <button type="button" class="btn btn-outline-secondary" id="dashDagStoppenBtn">
+                <i class="bi bi-stop-circle"></i> Dag afsluiten
+            </button>
+        </span>
         <?php endif; ?>
     </div>
 </div>
@@ -349,6 +364,35 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
                     <button type="submit" class="btn btn-primary">Risico registreren</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if ($mag['urenstaat']['schrijven']): ?>
+<div class="modal fade" id="dashDagStartenModal" tabindex="-1" aria-labelledby="dashDagStartenModalTitel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="dashDagStartenForm" method="post" action="/urenstaat/starten">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dashDagStartenModalTitel">Dag starten</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+                </div>
+
+                <div class="modal-body">
+                    <label class="form-label">Locatie</label>
+                    <select class="form-select" name="locatie_id">
+                        <?php foreach ($urenstaatLocaties as $l): ?>
+                            <option value="<?= (int) $l['id'] ?>" <?= $l['naam'] === 'Hoofdlocatie' ? 'selected' : '' ?>><?= htmlspecialchars($l['naam']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+                    <button type="submit" class="btn btn-primary">Starten</button>
                 </div>
             </form>
         </div>
@@ -760,5 +804,62 @@ document.addEventListener('DOMContentLoaded', function () {
 
     datumInput.value = vandaagStr();
     laadDag();
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var startenWrap = document.getElementById('dashDagStartenWrap');
+    var stoppenWrap = document.getElementById('dashDagStoppenWrap');
+    if (!startenWrap || !stoppenWrap) {
+        return;
+    }
+
+    // Bij succes stuurt de server een redirect terug; die volgen we bewust niet
+    // (redirect: 'manual', herkenbaar aan type 'opaqueredirect'), zodat je op het dashboard blijft.
+    function postZonderRedirect(url) {
+        return fetch(url, { method: 'POST', body: new FormData(), redirect: 'manual' })
+            .then(function (r) {
+                if (!r.ok && r.type !== 'opaqueredirect') {
+                    throw new Error('Actie is mislukt.');
+                }
+            });
+    }
+
+    var startForm = document.getElementById('dashDagStartenForm');
+    var startModalEl = document.getElementById('dashDagStartenModal');
+    var startModal = bootstrap.Modal.getOrCreateInstance(startModalEl);
+
+    startForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        fetch(startForm.action, {
+            method: 'POST',
+            body: new FormData(startForm),
+            redirect: 'manual'
+        })
+        .then(function (r) {
+            if (!r.ok && r.type !== 'opaqueredirect') {
+                throw new Error('Starten is mislukt.');
+            }
+            startModal.hide();
+            startenWrap.classList.add('d-none');
+            stoppenWrap.classList.remove('d-none');
+        })
+        .catch(function () {
+            window.alert('Dag starten is mislukt.');
+        });
+    });
+
+    document.getElementById('dashDagStoppenBtn').addEventListener('click', function () {
+        postZonderRedirect('/urenstaat/stoppen')
+            .then(function () {
+                stoppenWrap.classList.add('d-none');
+                startenWrap.classList.remove('d-none');
+            })
+            .catch(function () {
+                window.alert('Dag afsluiten is mislukt.');
+            });
+    });
 });
 </script>

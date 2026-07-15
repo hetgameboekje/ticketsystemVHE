@@ -42,6 +42,8 @@ class AccountController extends Controller
 
         $naam = trim($_POST['naam'] ?? '');
         $email = trim($_POST['email'] ?? '');
+        $telefoon = trim($_POST['telefoon'] ?? '');
+        $adres = trim($_POST['adres'] ?? '');
 
         if ($naam === '' || $email === '') {
             $_SESSION['flash_error'] = 'Naam en e-mailadres zijn verplicht.';
@@ -54,7 +56,12 @@ class AccountController extends Controller
             $this->redirect('/account/bewerken');
         }
 
-        $data = ['naam' => $naam, 'email' => $email];
+        $data = [
+            'naam' => $naam,
+            'email' => $email,
+            'telefoon' => $telefoon !== '' ? $telefoon : null,
+            'adres' => $adres !== '' ? $adres : null,
+        ];
 
         $nieuwWachtwoord = $_POST['wachtwoord'] ?? '';
         if ($nieuwWachtwoord !== '') {

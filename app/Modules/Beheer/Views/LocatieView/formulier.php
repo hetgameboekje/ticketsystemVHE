@@ -4,14 +4,19 @@
 /** @var int[] $geselecteerdeGebruikers */
 /** @var array $oud */
 /** @var string|null $fout */
+/** @var string $actieBasis */
+/** @var array $zichtbaarheidOpties */
 
 use App\Modules\Beheer\Models\LocatieModel;
 
-$actie = $locatie === null ? '/beheer/locaties' : "/beheer/locaties/{$locatie['id']}";
+$actieBasis = $actieBasis ?? '/beheer/locaties';
+$backUrl = $backUrl ?? $actieBasis;
+$zichtbaarheidOpties = $zichtbaarheidOpties ?? LocatieModel::ZICHTBAARHEID_OPTIES;
+$actie = $locatie === null ? $actieBasis : "{$actieBasis}/{$locatie['id']}";
 ?>
 <div class="page-header">
   <div style="display:flex;align-items:center;gap:12px">
-    <a class="btn" href="/beheer/locaties" style="padding:6px 10px">&larr;</a>
+    <a class="btn" href="<?= htmlspecialchars($backUrl) ?>" style="padding:6px 10px">&larr;</a>
     <div class="page-title"><?= $locatie === null ? 'Nieuwe locatie' : 'Locatie bewerken' ?></div>
   </div>
 </div>
@@ -31,7 +36,7 @@ $actie = $locatie === null ? '/beheer/locaties' : "/beheer/locaties/{$locatie['i
     <div class="form-group">
       <label class="form-label">Zichtbaarheid</label>
       <select name="zichtbaarheid" id="zichtbaarheid-select">
-        <?php foreach (LocatieModel::ZICHTBAARHEID_OPTIES as $waarde => $label): ?>
+        <?php foreach ($zichtbaarheidOpties as $waarde => $label): ?>
           <option value="<?= htmlspecialchars($waarde) ?>" <?= ($oud['zichtbaarheid'] ?? 'iedereen') === $waarde ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
         <?php endforeach; ?>
       </select>
@@ -47,7 +52,7 @@ $actie = $locatie === null ? '/beheer/locaties' : "/beheer/locaties/{$locatie['i
     </div>
     <div style="display:flex;gap:8px;margin-top:16px">
       <button class="btn btn-primary" type="submit">Opslaan</button>
-      <a class="btn" href="/beheer/locaties">Annuleren</a>
+      <a class="btn" href="<?= htmlspecialchars($backUrl) ?>">Annuleren</a>
     </div>
   </form>
 </div>

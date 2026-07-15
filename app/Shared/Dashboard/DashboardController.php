@@ -3,12 +3,14 @@
 namespace App\Shared\Dashboard;
 
 use App\Core\Controller;
+use App\Modules\Beheer\Models\LocatieModel;
 use App\Modules\CyberRisico\Models\CyberRisicoModel;
 use App\Modules\Medewerker\Models\MedewerkerModel;
 use App\Modules\Ticket\Models\TicketModel;
 use App\Modules\Tools\Models\PhonebookJobModel;
 use App\Modules\Verbeterpunt\Models\VerbeterpuntModel;
 use App\Modules\Voorraad\Models\VoorraadItemModel;
+use App\Modules\Urenstaat\Models\UrenstaatModel;
 use App\Shared\Afdeling\Models\AfdelingModel;
 use App\Shared\User\Models\UserModel;
 
@@ -41,6 +43,7 @@ class DashboardController extends Controller
             'voorraad' => ['lezen' => $this->hasRecht('voorraad')],
             'cyberrisicos' => ['lezen' => $this->hasRecht('cyberrisicos'), 'schrijven' => $this->hasRecht('cyberrisicos', 'schrijven')],
             'agenda' => ['lezen' => $this->hasRecht('agenda'), 'schrijven' => $this->hasRecht('agenda', 'schrijven')],
+            'urenstaat' => ['lezen' => $this->hasRecht('urenstaat'), 'schrijven' => $this->hasRecht('urenstaat', 'schrijven')],
         ];
 
         $this->render('Views/dashboard/index', [
@@ -63,6 +66,8 @@ class DashboardController extends Controller
             'gebruikers' => UserModel::all('naam ASC'),
             'cyberCategorieen' => self::CYBER_CATEGORIE_LABELS,
             'cyberPrioriteiten' => self::CYBER_PRIORITEIT_LABELS,
+            'urenstaatLocaties' => $mag['urenstaat']['schrijven'] ? LocatieModel::visibleForUser((int) $this->currentUserId()) : [],
+            'urenstaatOpen' => $mag['urenstaat']['schrijven'] ? UrenstaatModel::openForUser((int) $this->currentUserId()) : null,
         ]);
     }
 }

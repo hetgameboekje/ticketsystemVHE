@@ -153,6 +153,12 @@ $router->post('/agenda/{id}/verwijderen', [AgendaController::class, 'destroy']);
 $router->get('/account', [AccountController::class, 'profiel']);
 $router->get('/account/bewerken', [AccountController::class, 'bewerken']);
 $router->post('/account', [AccountController::class, 'bijwerken']);
+$router->get('/account/locaties', [LocatieController::class, 'indexZelf']);
+$router->get('/account/locaties/nieuw', [LocatieController::class, 'nieuwZelf']);
+$router->post('/account/locaties', [LocatieController::class, 'aanmakenZelf']);
+$router->get('/account/locaties/{id}/bewerken', [LocatieController::class, 'bewerkenZelf']);
+$router->post('/account/locaties/{id}', [LocatieController::class, 'opslaanZelf']);
+$router->post('/account/locaties/{id}/verwijderen', [LocatieController::class, 'verwijderenZelf']);
 
 $router->get('/beheer', [BeheerController::class, 'index']);
 $router->post('/beheer/git-pull', [BeheerController::class, 'gitPull']);

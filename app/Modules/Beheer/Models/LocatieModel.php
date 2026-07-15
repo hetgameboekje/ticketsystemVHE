@@ -17,6 +17,14 @@ class LocatieModel extends Model
         'selectie' => 'Selectie van gebruikers',
     ];
 
+    /** Locaties die $userId zelf heeft aangemaakt — gebruikt op de zelfbedieningspagina "Mijn locaties". */
+    public static function createdByUser(int $userId): array
+    {
+        $stmt = Database::pdo()->prepare('SELECT * FROM locaties WHERE aanmaker_id = ? AND deleted_at IS NULL ORDER BY naam ASC');
+        $stmt->execute([$userId]);
+        return $stmt->fetchAll();
+    }
+
     /** Locaties die zichtbaar zijn voor $userId volgens het zichtbaarheidsmodel — gebruikt bij het invullen van Urenstaat. */
     public static function visibleForUser(int $userId): array
     {

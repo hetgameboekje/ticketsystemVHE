@@ -40,8 +40,12 @@ class UrenstaatController extends CrudController
 
         $userId = (int) $this->currentUserId();
         if (UrenstaatModel::openForUser($userId) === null) {
+            $locatieId = (int) ($_POST['locatie_id'] ?? 0);
+            $toegestaneLocaties = array_column(LocatieModel::visibleForUser($userId), 'id');
+
             UrenstaatModel::create([
                 'user_id' => $userId,
+                'locatie_id' => in_array($locatieId, $toegestaneLocaties, false) ? $locatieId : null,
                 'datum' => date('Y-m-d'),
                 'start_tijd' => date('H:i:s'),
                 'eind_tijd' => null,

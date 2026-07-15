@@ -4,7 +4,10 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 ?>
 <div class="page-header">
   <div class="page-title">Mijn profiel</div>
-  <a class="btn btn-primary" href="/account/bewerken">Bewerken</a>
+  <div style="display:flex;gap:8px">
+    <a class="btn" href="/account/locaties">Mijn locaties</a>
+    <a class="btn btn-primary" href="/account/bewerken">Bewerken</a>
+  </div>
 </div>
 
 <div class="card">
@@ -23,6 +26,8 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
   </div>
   <div style="padding:0 20px">
     <div class="meta-row"><span class="meta-key">Rol</span><span><?= htmlspecialchars(ucfirst($user['rol'])) ?></span></div>
+    <div class="meta-row"><span class="meta-key">Telefoonnummer</span><span><?= htmlspecialchars($user['telefoon'] ?? '—') ?></span></div>
+    <div class="meta-row"><span class="meta-key">Adres</span><span><?= htmlspecialchars($user['adres'] ?? '—') ?></span></div>
     <div class="meta-row"><span class="meta-key">Account aangemaakt</span><span><?= formatDatum($user['created_at']) ?></span></div>
   </div>
 </div>

@@ -7,6 +7,8 @@
     <column name="wachtwoord_hash" type="VARCHAR" length="255" nullable="false"/>
     <column name="rol" type="VARCHAR" length="50" nullable="false" default="'medewerker'"/>
     <column name="foto" type="VARCHAR" length="255" nullable="true"/>
+    <column name="telefoon" type="VARCHAR" length="50" nullable="true"/>
+    <column name="adres" type="VARCHAR" length="255" nullable="true"/>
     <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
     <column name="updated_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP" on_update="CURRENT_TIMESTAMP"/>
     <column name="deleted_at" type="TIMESTAMP" nullable="true"/>
