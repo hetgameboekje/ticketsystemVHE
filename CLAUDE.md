@@ -90,3 +90,10 @@ Nog te onderzoeken, niet gekoppeld aan een deadline; input voor een eventuele la
 - OpenCage Geocoding API is getest voor adres → coördinaten (`api.opencagedata.com/geocode/v1/json`); vereist eigen API-key, rate limits nog niet uitgezocht.
 - ANWB routing-API (`api.anwb.nl/routing/route/v1/route/car`) is getest voor reistijd/afstand tussen coördinaten (incl. tol-wegen); ongedocumenteerde publieke header (`x-anwb-caller-id`), gebruik hiervan in productie nader afwegen (stabiliteit/voorwaarden niet bevestigd).
 - Voor nu: coördinaten handmatig invullen (zie Fase 5); geen API-integratie inbouwen totdat hier bewust voor gekozen wordt.
+
+
+
+
+
+
+1. Enforce a Strict "No Ticket, No Help" PolicyStop Walk-ups: Politely but firmly tell users you cannot troubleshoot without a ticket.Guided Creation: Sit with them to submit the ticket while they are at your desk. This teaches them the submission process without shaming them.Standardized Intake: Use ticketing platforms like EasyDesk to ensure forms collect all necessary info immediately.2. Promote the "Path of Least Resistance"Centralize Resources: Make the IT portal the easiest place to get help, rather than relying on direct emails.Instant Context: Add a knowledge base right at the ticket submission page so users can self-solve before clicking "Submit".Proactive Communication: Send brief updates on common issue resolutions so users know self-service options are actually working.3. Implement Automation and DeflectionAutomate the Basics: Utilize endpoint management tools to automate software deployment and patching.Password Resets: Deploy self-service password reset software (SSPR) with multi-factor authentication so users can unlock accounts without IT intervention.Visual Guides: Place visual troubleshooting guides near high-traffic equipment (e.g., printers, conference room setups) to immediately cut recurring questions.
