@@ -149,7 +149,7 @@ class SchemaParser
                     continue;
                 }
 
-                $statement = "ALTER TABLE `{$name}` ADD COLUMN " . self::buildColumnDefinition($column);
+                $statement = "ALTER TABLE `{$name}` ADD COLUMN " . self::buildColumnDefinition($column, $name);
 
                 try {
                     $pdo->exec($statement);
@@ -191,26 +191,48 @@ class SchemaParser
     }
 
     /**
-     * Alle id/primary-key-kolommen in de live database zijn BIGINT UNSIGNED (zo aangemaakt vóór
-     * database/xml/*.xml bestond) — XML zelf zegt overal "INT". MySQL staat een FOREIGN KEY alleen
-     * toe als het type van de refererende kolom exact overeenkomt met het type van de referenced
-     * kolom, dus elke "INT"-kolom die een primary key is of een "references" heeft, moet als
-     * BIGINT UNSIGNED gerenderd worden — anders faalt CREATE TABLE voor elke tabel die nog niet
-     * bestaat en naar een andere tabel verwijst (zie bv. login_attempts, devices, api_keys).
+     * Tabellen die al bestonden vóór database/xml/*.xml bestond, aangemaakt via het oorspronkelijke
+     * handmatige database/schema.sql. Hun id-kolom is daar plain "INT" (geen UNSIGNED) — anders dan
+     * alle tabellen die pas via dit XML-systeem zijn aangemaakt, die wél BIGINT UNSIGNED zijn (zie
+     * resolveType()). Op de live database wordt een bestaande kolom nooit van type gewijzigd, dus
+     * dit lijstje moet met de hand in sync blijven met wat er echt staat.
      */
-    private static function resolveType(\SimpleXMLElement $column): string
+    private const LEGACY_PLAIN_INT_TABLES = [
+        'users', 'afdelingen', 'tickets', 'ticket_logs', 'verbeterpunten',
+        'reflecties', 'kennisbank_artikelen', 'hardware_uitgaven', 'medewerkers',
+    ];
+
+    /**
+     * Id/primary-key-kolommen van tabellen die via dit XML-systeem zijn aangemaakt, zijn BIGINT
+     * UNSIGNED — XML zelf zegt overal "INT". MySQL staat een FOREIGN KEY alleen toe als het type
+     * van de refererende kolom exact overeenkomt met het type van de referenced kolom, dus elke
+     * "INT"-kolom die een primary key is of een "references" heeft, moet als BIGINT UNSIGNED
+     * gerenderd worden — anders faalt CREATE TABLE voor elke tabel die nog niet bestaat en naar
+     * een andere tabel verwijst (zie bv. login_attempts, devices, api_keys). Uitzondering: de
+     * LEGACY_PLAIN_INT_TABLES hierboven blijven plain INT, zowel hun eigen id-kolom als elke
+     * kolom die ernaar verwijst — anders komt een nieuwe FK-kolom (BIGINT UNSIGNED) niet overeen
+     * met hun bestaande, plain INT id-kolom op de live database.
+     */
+    private static function resolveType(\SimpleXMLElement $column, string $tableName): string
     {
         $type = (string) $column['type'];
         $isIdColumn = (string) $column['primary'] === 'true' || (string) $column['references'] !== '';
 
-        return $type === 'INT' && $isIdColumn ? 'BIGINT UNSIGNED' : $type;
+        if ($type !== 'INT' || !$isIdColumn) {
+            return $type;
+        }
+
+        $ref = (string) $column['references'];
+        $refTable = $ref !== '' ? explode('.', $ref)[0] : $tableName;
+
+        return in_array($refTable, self::LEGACY_PLAIN_INT_TABLES, true) ? 'INT' : 'BIGINT UNSIGNED';
     }
 
     /** Bouwt de "kolomnaam TYPE(lengte) [modifiers]"-fragment, gebruikt door zowel CREATE TABLE als ALTER TABLE. */
-    private static function buildColumnDefinition(\SimpleXMLElement $column): string
+    private static function buildColumnDefinition(\SimpleXMLElement $column, string $tableName): string
     {
         $colName = (string) $column['name'];
-        $type = self::resolveType($column);
+        $type = self::resolveType($column, $tableName);
         $length = (string) $column['length'];
 
         $line = "{$colName} {$type}" . ($length !== '' ? "({$length})" : '');
@@ -251,7 +273,7 @@ class SchemaParser
         $foreignKeys = [];
 
         foreach ($table->columns->column as $column) {
-            $lines[] = '    ' . self::buildColumnDefinition($column);
+            $lines[] = '    ' . self::buildColumnDefinition($column, $name);
 
             if ((string) $column['primary'] === 'true') {
                 $primary = (string) $column['name'];
