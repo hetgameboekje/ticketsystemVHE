@@ -49,9 +49,9 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
         <div style="font-size:12px;color:var(--color-text-tertiary);padding:8px 16px 0">Sleep aan <i class="bi bi-grip-vertical"></i> om de volgorde aan te passen.</div>
         <div id="opmerkingenList">
           <?php foreach ($logs as $log): ?>
-          <div class="log-item" draggable="true" data-id="<?= (int) $log['id'] ?>" style="cursor:grab">
+          <div class="log-item" data-id="<?= (int) $log['id'] ?>">
             <div class="log-meta">
-              <span style="color:var(--color-text-tertiary)"><i class="bi bi-grip-vertical"></i></span>
+              <span class="log-drag-handle" style="color:var(--color-text-tertiary);cursor:grab"><i class="bi bi-grip-vertical"></i></span>
               <span class="log-user"><?= htmlspecialchars($log['user_naam'] ?? 'Onbekend') ?></span>
               <span class="log-time"><?= formatDatumTijd($log['created_at']) ?></span>
             </div>
@@ -102,6 +102,23 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     var dragging = null;
+
+    list.addEventListener('mousedown', function (e) {
+        var handle = e.target.closest('.log-drag-handle');
+        if (!handle) {
+            return;
+        }
+        var item = handle.closest('.log-item');
+        if (item) {
+            item.setAttribute('draggable', 'true');
+        }
+    });
+
+    list.addEventListener('mouseup', function () {
+        list.querySelectorAll('.log-item[draggable]').forEach(function (item) {
+            item.removeAttribute('draggable');
+        });
+    });
 
     list.addEventListener('dragstart', function (e) {
         var item = e.target.closest('.log-item');
