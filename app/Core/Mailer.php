@@ -9,7 +9,11 @@ namespace App\Core;
  */
 class Mailer
 {
-    public static function verstuur(string $naar, string $onderwerp, string $inhoudHtml): void
+    /**
+     * @param string[] $cc E-mailadressen die in de Cc-header en als RCPT TO worden meegestuurd.
+     * @param string[] $bcc E-mailadressen die alleen als RCPT TO worden meegestuurd (geen header, dus onzichtbaar voor de andere ontvangers).
+     */
+    public static function verstuur(string $naar, string $onderwerp, string $inhoudHtml, array $cc = [], array $bcc = []): void
     {
         $config = self::config();
 
@@ -50,6 +54,9 @@ class Mailer
 
             self::commando($socket, "MAIL FROM:<{$config['from_address']}>", 250);
             self::commando($socket, "RCPT TO:<{$naar}>", 250);
+            foreach ([...$cc, ...$bcc] as $ontvanger) {
+                self::commando($socket, "RCPT TO:<{$ontvanger}>", 250);
+            }
             self::commando($socket, 'DATA', 354);
 
             $van = $config['from_name'] !== '' ? "{$config['from_name']} <{$config['from_address']}>" : $config['from_address'];
@@ -60,6 +67,9 @@ class Mailer
                 'MIME-Version: 1.0',
                 'Content-Type: text/html; charset=UTF-8',
             ];
+            if ($cc !== []) {
+                $headers[] = 'Cc: ' . implode(', ', $cc);
+            }
 
             // Regels die met een punt beginnen moeten volgens RFC 5321 "byte-stuffed" worden (dubbele punt),
             // anders interpreteert de SMTP-server een losse "." als het einde van de DATA-sectie.

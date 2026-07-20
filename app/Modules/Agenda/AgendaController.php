@@ -66,6 +66,48 @@ class AgendaController extends Controller
         echo json_encode($events);
     }
 
+    /** JSON-feed voor FullCalendar, teamoverzicht: GET /agenda/team-events?start=&end=&alleen_in_behandeling=1 */
+    public function teamEvents(): void
+    {
+        $this->requirePermission('agenda', 'lezen');
+
+        $vanaf = $_GET['start'] ?? null;
+        $tot = $_GET['end'] ?? null;
+        $alleenInBehandeling = ($_GET['alleen_in_behandeling'] ?? '') === '1';
+
+        $items = AgendaItemModel::forTeam($vanaf, $tot, $alleenInBehandeling);
+
+        $kleuren = ['afspraak' => '#378ADD', 'ticket' => '#e2a94a', 'verbeterpunt' => '#7ecb57'];
+
+        $events = array_map(static function (array $item) use ($kleuren): array {
+            $titel = $item['user_naam'] . ': ' . $item['titel'];
+            if (!empty($item['gekoppeld_titel'])) {
+                $titel .= ' (' . $item['gekoppeld_titel'] . ')';
+            }
+
+            return [
+                'id' => $item['id'],
+                'title' => $titel,
+                'start' => str_replace(' ', 'T', $item['start_op']),
+                'end' => str_replace(' ', 'T', $item['eind_op']),
+                'color' => $kleuren[$item['type']] ?? '#378ADD',
+                'extendedProps' => [
+                    'omschrijving' => $item['omschrijving'],
+                    'type' => $item['type'],
+                    'gekoppeld_id' => $item['gekoppeld_id'],
+                    'gekoppeld_titel' => $item['gekoppeld_titel'],
+                    'gekoppeld_status' => $item['gekoppeld_status'],
+                    'locatie' => $item['locatie'],
+                    'user_id' => (int) $item['user_id'],
+                    'user_naam' => $item['user_naam'],
+                ],
+            ];
+        }, $items);
+
+        header('Content-Type: application/json');
+        echo json_encode($events);
+    }
+
     public function store(): void
     {
         $this->requireJsonPermission('agenda', 'schrijven');

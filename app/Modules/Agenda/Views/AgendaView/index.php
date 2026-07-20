@@ -11,12 +11,18 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 ?>
 <div class="page-header">
   <div class="page-title">Agenda</div>
-  <div style="display:flex;align-items:center;gap:10px">
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
     <select id="agenda-persoon" class="form-select" style="width:auto">
       <?php foreach ($gebruikers as $g): ?>
         <option value="<?= $g['id'] ?>" <?= (int) $g['id'] === (int) $huidigeGebruikerId ? 'selected' : '' ?>><?= htmlspecialchars($g['naam']) ?></option>
       <?php endforeach; ?>
     </select>
+    <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400">
+      <input type="checkbox" id="agenda-alle-gebruikers"> Alle gebruikers
+    </label>
+    <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400">
+      <input type="checkbox" id="agenda-alleen-in-behandeling"> Alleen tickets "in behandeling"
+    </label>
     <button class="btn btn-primary" type="button" id="agenda-nieuw-btn">+ Nieuwe afspraak</button>
   </div>
 </div>
@@ -103,6 +109,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var calendarEl = document.getElementById('agenda-calendar');
     var personSelect = document.getElementById('agenda-persoon');
+    var alleGebruikersCheckbox = document.getElementById('agenda-alle-gebruikers');
+    var alleenInBehandelingCheckbox = document.getElementById('agenda-alleen-in-behandeling');
     var modalEl = document.getElementById('agendaModal');
     var modal = new bootstrap.Modal(modalEl);
 
@@ -177,10 +185,25 @@ document.addEventListener('DOMContentLoaded', function () {
         editable: true,
         selectable: true,
         events: function (info, success, failure) {
-            fetch('/agenda/events?user_id=' + personSelect.value + '&start=' + info.startStr + '&end=' + info.endStr)
+            var url;
+            if (alleGebruikersCheckbox.checked) {
+                url = '/agenda/team-events?start=' + info.startStr + '&end=' + info.endStr
+                    + '&alleen_in_behandeling=' + (alleenInBehandelingCheckbox.checked ? '1' : '0');
+            } else {
+                url = '/agenda/events?user_id=' + personSelect.value + '&start=' + info.startStr + '&end=' + info.endStr;
+            }
+            fetch(url)
                 .then(function (r) { return r.json(); })
                 .then(success)
                 .catch(failure);
+        },
+        eventDidMount: function (info) {
+            var props = info.event.extendedProps;
+            var tekst = info.event.title;
+            if (props.gekoppeld_status) {
+                tekst += ' — status: ' + props.gekoppeld_status;
+            }
+            info.el.title = tekst;
         },
         select: function (info) {
             openCreateModal(info.startStr, info.endStr);
@@ -198,6 +221,15 @@ document.addEventListener('DOMContentLoaded', function () {
     calendar.render();
 
     personSelect.addEventListener('change', function () {
+        calendar.refetchEvents();
+    });
+
+    alleGebruikersCheckbox.addEventListener('change', function () {
+        personSelect.disabled = alleGebruikersCheckbox.checked;
+        calendar.refetchEvents();
+    });
+
+    alleenInBehandelingCheckbox.addEventListener('change', function () {
         calendar.refetchEvents();
     });
 

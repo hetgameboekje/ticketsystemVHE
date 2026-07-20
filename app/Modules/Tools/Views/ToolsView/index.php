@@ -41,4 +41,14 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
       <a class="btn btn-primary" href="/tools/handtekeningen">Openen</a>
     </div>
   </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Herstart-herinneringen</span></div>
+    <div style="padding:16px">
+      <p style="font-size:13px;color:var(--color-text-secondary);margin-top:0">
+        Overzicht van apparaten die al lang niet herstart zijn, met een instelbare herinneringsmail naar de gekoppelde medewerker.
+      </p>
+      <a class="btn btn-primary" href="/tools/herstart-herinneringen">Openen</a>
+    </div>
+  </div>
 </div>

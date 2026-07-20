@@ -122,6 +122,7 @@ function urenstaatSluitDagAf(id, knop) {
       ->column('start_tijd', 'Tijd', fn (array $r) => substr($r['start_tijd'], 0, 5) . '–' . ($r['eind_tijd'] !== null ? substr($r['eind_tijd'], 0, 5) : 'loopt'), ['class' => 'col-2'])
       ->column('duur', 'Duur', $duur, ['class' => 'col-1', 'sortable' => false])
       ->column('locatie_naam', 'Locatie', fn (array $r) => htmlspecialchars($r['locatie_naam'] ?? '—'), ['class' => 'col-2'])
+      ->column('keyuser_naam', 'Keyuser/klant', fn (array $r) => htmlspecialchars($r['keyuser_naam'] ?? '—'), ['class' => 'col-2'])
       ->column('gebruiker_naam', 'Gebruiker', fn (array $r) => htmlspecialchars($r['gebruiker_naam'] ?? '—'), ['class' => 'col-2'])
       ->column('omschrijving', 'Omschrijving', fn (array $r) => htmlspecialchars($r['omschrijving'] ?? '—'))
       ->rows($items);

@@ -4,6 +4,7 @@
     <column name="id" type="INT" primary="true" auto_increment="true"/>
     <column name="user_id" type="INT" nullable="false" references="users.id"/>
     <column name="locatie_id" type="INT" references="locaties.id"/>
+    <column name="keyuser_id" type="INT" nullable="true" references="medewerkers.id" on_delete="SET NULL"/>
     <column name="datum" type="DATE" nullable="false"/>
     <column name="start_tijd" type="TIME" nullable="false"/>
     <column name="eind_tijd" type="TIME"/>

@@ -9,16 +9,18 @@ class MedewerkerModel extends Model
 {
     protected static string $table = 'medewerkers';
     protected static array $fillable = [
-        'voornaam', 'achternaam', 'email', 'telefoon', 'functie', 'afdeling_id', 'startdatum', 'status', 'user_id',
-        'apparaat_hostnames',
+        'voornaam', 'achternaam', 'email', 'telefoon', 'functie', 'afdeling_id', 'manager_id', 'is_keyuser',
+        'startdatum', 'status', 'user_id', 'apparaat_hostnames',
     ];
     protected static bool $softDeletes = true;
 
     private const SELECT = "
-        SELECT m.*, a.naam AS afdeling_naam, u.naam AS login_naam, u.email AS login_email, u.deleted_at AS login_deleted_at
+        SELECT m.*, a.naam AS afdeling_naam, u.naam AS login_naam, u.email AS login_email, u.deleted_at AS login_deleted_at,
+               CONCAT(mgr.voornaam, ' ', mgr.achternaam) AS manager_naam
         FROM medewerkers m
         LEFT JOIN afdelingen a ON a.id = m.afdeling_id
         LEFT JOIN users u ON u.id = m.user_id
+        LEFT JOIN medewerkers mgr ON mgr.id = m.manager_id
         WHERE m.deleted_at IS NULL
     ";
 
@@ -86,6 +88,46 @@ class MedewerkerModel extends Model
         $stmt->execute([$userId]);
         $value = $stmt->fetchColumn();
         return $value === false || $value === null ? null : (int) $value;
+    }
+
+    /** Alle actieve medewerkers met naam, afdeling en manager-naam, voor de hiërarchie-view. */
+    public static function alleVoorHierarchie(): array
+    {
+        $sql = "
+            SELECT m.id, m.voornaam, m.achternaam, m.functie, m.afdeling_id, m.manager_id, m.is_keyuser,
+                   a.naam AS afdeling_naam
+            FROM medewerkers m
+            LEFT JOIN afdelingen a ON a.id = m.afdeling_id
+            WHERE m.deleted_at IS NULL
+            ORDER BY m.achternaam ASC
+        ";
+        return Database::pdo()->query($sql)->fetchAll();
+    }
+
+    /** Medewerkers als keuzelijst voor een manager-select, met optionele uitsluiting (zichzelf niet als eigen manager). */
+    public static function alleVoorManagerSelect(?int $exceptId = null): array
+    {
+        $sql = 'SELECT id, voornaam, achternaam FROM medewerkers WHERE deleted_at IS NULL';
+        $params = [];
+        if ($exceptId !== null) {
+            $sql .= ' AND id != ?';
+            $params[] = $exceptId;
+        }
+        $sql .= ' ORDER BY achternaam ASC';
+
+        $stmt = Database::pdo()->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
+    /** Actieve medewerkers gemarkeerd als keyuser, voor koppeling vanuit bv. Urenstaat. */
+    public static function alleKeyusers(): array
+    {
+        $stmt = Database::pdo()->query(
+            "SELECT id, voornaam, achternaam FROM medewerkers
+             WHERE deleted_at IS NULL AND is_keyuser = 1 ORDER BY achternaam ASC"
+        );
+        return $stmt->fetchAll();
     }
 
     public static function searchNamen(string $q): array

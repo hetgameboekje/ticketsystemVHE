@@ -14,7 +14,10 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 ?>
 <div class="page-header">
   <div class="page-title">Medewerkers</div>
-  <a class="btn btn-primary" href="/medewerkers/create">+ Nieuwe medewerker</a>
+  <div style="display:flex;gap:8px">
+    <a class="btn" href="/medewerkers/hierarchie">Hiërarchie</a>
+    <a class="btn btn-primary" href="/medewerkers/create">+ Nieuwe medewerker</a>
+  </div>
 </div>
 
 <?php if ($flashSuccess): ?>

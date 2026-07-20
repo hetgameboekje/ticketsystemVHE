@@ -20,7 +20,10 @@ class MedewerkerController extends CrudController
 
     protected function formData(): array
     {
-        return ['afdelingen' => AfdelingModel::all()];
+        return [
+            'afdelingen' => AfdelingModel::all(),
+            'managers' => MedewerkerModel::alleVoorManagerSelect(),
+        ];
     }
 
     public function edit(int $id): void
@@ -37,6 +40,38 @@ class MedewerkerController extends CrudController
         $this->render("{$this->viewDir}/edit", [
             'item' => $item,
             'afdelingen' => AfdelingModel::all(),
+            'managers' => MedewerkerModel::alleVoorManagerSelect($id),
+            'activeModule' => $this->activeModule,
+            'pageTitle' => $this->pageTitle,
+            'routeBase' => $this->routeBase,
+        ]);
+    }
+
+    /** Boomstructuur van medewerkers op basis van manager_id, met keyusers gemarkeerd. */
+    public function hierarchie(): void
+    {
+        $this->requirePermission($this->activeModule, 'lezen');
+
+        $medewerkers = MedewerkerModel::alleVoorHierarchie();
+
+        $byId = [];
+        foreach ($medewerkers as $m) {
+            $m['children'] = [];
+            $byId[$m['id']] = $m;
+        }
+
+        $roots = [];
+        foreach ($byId as $id => $m) {
+            if ($m['manager_id'] !== null && isset($byId[$m['manager_id']])) {
+                $byId[$m['manager_id']]['children'][] = &$byId[$id];
+            } else {
+                $roots[] = &$byId[$id];
+            }
+        }
+        unset($m);
+
+        $this->render("{$this->viewDir}/hierarchie", [
+            'roots' => $roots,
             'activeModule' => $this->activeModule,
             'pageTitle' => $this->pageTitle,
             'routeBase' => $this->routeBase,
@@ -60,6 +95,9 @@ class MedewerkerController extends CrudController
 
         $data = $this->validatedData($_POST, isUpdate: true);
         $data['user_id'] = $this->gekoppeldeUserId(trim($_POST['email'] ?? ''), $id);
+        if ($data['manager_id'] === $id) {
+            $data['manager_id'] = null;
+        }
 
         MedewerkerModel::update($id, $data);
         $this->redirect("/medewerkers/{$id}");
@@ -196,6 +234,8 @@ class MedewerkerController extends CrudController
             'telefoon' => trim($post['telefoon'] ?? ''),
             'functie' => trim($post['functie'] ?? ''),
             'afdeling_id' => $post['afdeling_id'] !== '' ? (int) $post['afdeling_id'] : null,
+            'manager_id' => ($post['manager_id'] ?? '') !== '' ? (int) $post['manager_id'] : null,
+            'is_keyuser' => isset($post['is_keyuser']) ? 1 : 0,
             'startdatum' => $post['startdatum'] !== '' ? $post['startdatum'] : null,
             'status' => $post['status'] ?? 'actief',
         ];

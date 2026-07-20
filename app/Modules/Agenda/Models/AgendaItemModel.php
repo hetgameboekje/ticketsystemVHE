@@ -46,6 +46,43 @@ class AgendaItemModel extends Model
         return $stmt->fetchAll();
     }
 
+    /**
+     * Agenda-items van alle gebruikers (teamoverzicht), met status en titel van het gekoppelde
+     * ticket/verbeterpunt erbij zodat direct zichtbaar is waar een afspraak voor is. Optioneel beperkt tot
+     * items waarvan het gekoppelde ticket status "in_behandeling" heeft.
+     */
+    public static function forTeam(?string $vanaf = null, ?string $tot = null, bool $alleenInBehandeling = false): array
+    {
+        $sql = "SELECT a.*, u.naam AS user_naam,
+                       CASE a.type WHEN 'ticket' THEN t.status WHEN 'verbeterpunt' THEN v.status ELSE NULL END AS gekoppeld_status,
+                       CASE a.type WHEN 'ticket' THEN t.titel WHEN 'verbeterpunt' THEN v.titel ELSE NULL END AS gekoppeld_titel
+                FROM agenda_items a
+                JOIN users u ON u.id = a.user_id
+                LEFT JOIN tickets t ON a.type = 'ticket' AND t.id = a.gekoppeld_id
+                LEFT JOIN verbeterpunten v ON a.type = 'verbeterpunt' AND v.id = a.gekoppeld_id
+                WHERE a.deleted_at IS NULL";
+        $params = [];
+
+        if ($vanaf !== null) {
+            $sql .= ' AND a.eind_op >= :vanaf';
+            $params['vanaf'] = $vanaf;
+        }
+        if ($tot !== null) {
+            $sql .= ' AND a.start_op <= :tot';
+            $params['tot'] = $tot;
+        }
+        if ($alleenInBehandeling) {
+            $sql .= " AND a.type = 'ticket' AND t.status = 'in_behandeling'";
+        }
+
+        $sql .= ' ORDER BY a.start_op ASC';
+
+        $stmt = Database::pdo()->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll();
+    }
+
     public static function findWithRelations(int $id): ?array
     {
         $stmt = Database::pdo()->prepare(

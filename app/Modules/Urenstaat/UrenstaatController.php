@@ -4,6 +4,7 @@ namespace App\Modules\Urenstaat;
 
 use App\Core\CrudController;
 use App\Modules\Beheer\Models\LocatieModel;
+use App\Modules\Medewerker\Models\MedewerkerModel;
 use App\Modules\Urenstaat\Models\UrenstaatModel;
 
 class UrenstaatController extends CrudController
@@ -89,6 +90,7 @@ class UrenstaatController extends CrudController
     {
         return [
             'locaties' => LocatieModel::visibleForUser((int) $this->currentUserId()),
+            'keyusers' => MedewerkerModel::alleKeyusers(),
         ];
     }
 
@@ -100,6 +102,7 @@ class UrenstaatController extends CrudController
         $data = [
             'user_id' => $this->currentUserId(),
             'locatie_id' => in_array($locatieId, $toegestaneLocaties, false) ? $locatieId : null,
+            'keyuser_id' => ($post['keyuser_id'] ?? '') !== '' ? (int) $post['keyuser_id'] : null,
             'datum' => $post['datum'] ?? null,
             'start_tijd' => $post['start_tijd'] ?? null,
             'eind_tijd' => $post['eind_tijd'] ?? null,

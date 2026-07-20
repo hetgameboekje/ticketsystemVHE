@@ -55,45 +55,43 @@ Deployment target is Hostnet shared hosting (no SSH): `APP_DEV=false`, `APP_GIT_
 
 Backlog van kleinere verbeterpunten, verdeeld in fases op basis van omvang en afhankelijkheden. Fases zijn een volgorde-advies, geen harde deadlines.
 
-### Fase 1 — Logging (opruimen & hardening)
-Kleine, onafhankelijke aanpassingen aan `App\Shared\Log\PaginaBezoekLogger` en de bijbehorende Beheer-view.
-- Verdachte login pogingen mailen (bv. X mislukte pogingen binnen Y minuten → mail naar admin).
-- Filter "niet ingelogd" toevoegen naast het bestaande filter op gebruiker.
-- POST-data in een popup/modal tonen in plaats van inline in de tabelrij (scheelt ruimte in het overzicht).
-- Opschoontaak/cron voor logregels ouder dan X dagen (config-waarde voor X).
+**Al opgeleverd** (gecontroleerd tegen de code op 2026-07-20, staat er niet meer als open werk):
+Logging (verdachte-login mail, "niet ingelogd"-filter, POST-data popup, opschoon-cron), Uitgifte-manager-vinkje, Ticket UX (uitklapbare omschrijving, cyber-risico-vlag + grafiek, tijdregistratie in vaste blokken, opmerking-titel, zoekende categorie-select), Kennisbank zoekende categorie-select, Schijfgebruik device↔medewerker-koppeling, en Verbeterpunt-Ticket gelijktrekking (Verbeterpunt heeft al dezelfde uitklapbare omschrijving/titel/tijdregistratie/categorie-select als Ticket).
 
-### Fase 2 — Ticket & Kennisbank UX
-Ticket en Kennisbank raken dezelfde patronen (omschrijving, categorie-select) — samen oppakken zodat de UI-componenten herbruikbaar zijn.
-- Omschrijving uitklapbaar maken (collapsed/expand) in plaats van altijd volledig tonen — zowel bij Ticket als Kennisbank.
-- Categorie aanpassen via zoekend/async selecteren: AJAX-lookup na ~2 seconden geen toetsaanslag, i.p.v. statische dropdown. Herbruikbare component voor Ticket én Kennisbank.
-- Tijdregistratie op ticket in vaste blokken (5/10/15/30/45/60 min).
-- Titel-veld toevoegen aan opmerkingen/reacties op een ticket.
-- Ticket markeren als "Cyber risico" zodat hij meetelt in de CyberRisico-grafiek/module.
+Kleine kanttekening: de categorie-zoekfunctie (Ticket/Kennisbank/Verbeterpunt) gebruikt nu een debounce van ~200ms in plaats van de gewenste ~2s — pas aan als dit als hinderlijk ervaren wordt (te veel requests tijdens typen).
 
-### Fase 3 — Uitgifte & Schijfgebruik (kleine features)
-Losstaande, kleine toevoegingen aan bestaande modules.
-- Uitgifte: vinkje "toestemming manager" toevoegen aan het uitgifteproces/-formulier.
-- Schijfgebruik: device kunnen koppelen aan een medewerker.
+**Fase 1–4 zijn gebouwd** (2026-07-20, nog niet lokaal getest — geen PHP CLI beschikbaar in de omgeving waarin dit gebouwd is; run `php database/parse.php` of gebruik Beheer → "Database toepassen" om de nieuwe kolommen/tabellen toe te passen, en loop de flows hieronder na in de browser):
 
-### Fase 4 — Verbeterpunten/Ticket functionele gelijktrekking
-Nadat Fase 2 (ticket UX) is opgeleverd: dezelfde functionaliteit (omschrijving uitklapbaar, categorie zoekend selecteren, tijdregistratie, opmerking-titel e.d.) toepassen op de Verbeterpunt-module, zodat beide modules qua functionaliteit gelijk lopen.
+### Fase 1 — CRM: hiërarchie/stamboom ✅
+`medewerkers` heeft nu `manager_id` (self-referencing FK) en `is_keyuser` (tinyint). Nieuwe view `GET /medewerkers/hierarchie` toont een boomstructuur (`MedewerkerController::hierarchie()`, `MedewerkerModel::alleVoorHierarchie()`), keyusers krijgen een badge. Manager-select en keyuser-vinkje toegevoegd aan het medewerker create/edit-formulier.
 
-### Fase 5 — CRM: hiërarchie & urenstaat (grotere uitbreiding)
-Grootste stuk nieuw werk, functioneel op te splitsen in twee delen:
-- **Hiërarchie/stamboom**: keyusers en organisatiestructuur van VHE inzichtelijk maken binnen CRM (boomstructuur/hiërarchie-view).
-- **Nieuwe extensie "Urenstaat"**: tijd registreren (tijdstip, locatie) gekoppeld aan CRM.
-  - Locaties worden beheerd via een aparte, persoonsgebonden of algemene extensie: een locatie kan zichtbaar zijn voor iedereen (bv. "kantoor"), alleen de aanmaker (bv. "thuis"), of een selectieve groep gebruikers (bv. klant "Raith" zichtbaar voor 3 specifieke personen). Dit vraagt een zichtbaarheids-/rechtenmodel per locatie (vergelijkbaar met bestaande `Rechten`-aanpak), los van de generieke module-rechten.
-  - Coördinaten per adres: voorlopig **handmatig invullen** naast het adresveld. Losse verkenning voor een geocoding-API blijft open (zie hieronder) — geen harde afhankelijkheid voor oplevering van de urenstaat-extensie zelf.
+### Fase 2 — Urenstaat koppelen aan CRM/klant ✅
+`urenstaat_registraties` heeft een nieuwe nullable `keyuser_id` (FK → `medewerkers.id`), instelbaar via een "Keyuser/klant"-select in het urenstaat create/edit-formulier en zichtbaar in index/show (`MedewerkerModel::alleKeyusers()`).
+
+### Fase 3 — Agenda: overzicht "in behandeling" ✅
+Nieuwe route `GET /agenda/team-events` (`AgendaController::teamEvents()`, `AgendaItemModel::forTeam()`) toont afspraken van alle gebruikers, met een "Alle gebruikers"-vinkje en een "Alleen tickets 'in behandeling'"-filter naast de bestaande persoon-select. Titel/tooltip van elke afspraak toont nu wie hij is en waar hij aan gekoppeld is (gekoppelde titel + status), i.p.v. alleen de kale afspraaktitel.
+
+### Fase 4 — Tools: herstart-mail export ✅
+Nieuwe module `RestartReminderController` (`GET/POST /tools/herstart-herinneringen*`): toont apparaten met `SchijfgebruikHealth::evaluate()['herstart_nodig'] === true` + gekoppelde medewerker/e-mail, met CSV-export en een "Verstuur herinneringen"-knop die per medewerker een gepersonaliseerde mail verstuurt (`{naam}`/`{apparaat}`/`{dagen}`-placeholders). Onderwerp/inhoud/cc/bcc zijn instelbaar via een nieuwe tabel `herstart_herinnering_instellingen`. `Mailer::verstuur()` ondersteunt nu ook `$cc`/`$bcc` (echte SMTP Cc-header + RCPT TO, Bcc alleen RCPT TO). Verzending gaat rechtstreeks via `Mailer` (niet via de `email_queue`), omdat die wachtrij maar één mail tegelijk toestaat en dus niet geschikt is voor een bulkverzending naar meerdere medewerkers in één keer.
+Let op: een losse "CSV-import terug in het systeem" bleek niet nodig — de bestaande Schijfgebruik CSV-import (die `laatste_boot` bijwerkt) voedt de `herstart_nodig`-berekening al; er is geen apart importpad gebouwd.
 
 ### Losse verkenning — geocoding/routing API (nog geen fase toegewezen)
-Nog te onderzoeken, niet gekoppeld aan een deadline; input voor een eventuele latere fase (bv. reistijd-indicatie bij Urenstaat/locaties):
-- OpenCage Geocoding API is getest voor adres → coördinaten (`api.opencagedata.com/geocode/v1/json`); vereist eigen API-key, rate limits nog niet uitgezocht.
-- ANWB routing-API (`api.anwb.nl/routing/route/v1/route/car`) is getest voor reistijd/afstand tussen coördinaten (incl. tol-wegen); ongedocumenteerde publieke header (`x-anwb-caller-id`), gebruik hiervan in productie nader afwegen (stabiliteit/voorwaarden niet bevestigd).
-- Voor nu: coördinaten handmatig invullen (zie Fase 5); geen API-integratie inbouwen totdat hier bewust voor gekozen wordt.
+Nog te onderzoeken, niet gekoppeld aan een deadline; input voor een eventuele latere fase (bv. reistijd-indicatie bij Urenstaat/locaties). Coördinaten worden voor nu handmatig ingevuld naast het adresveld (zie `LocatieModel`); geen API-integratie inbouwen totdat hier bewust voor gekozen wordt.
+- OpenCage Geocoding API voor adres → coördinaten (`api.opencagedata.com/geocode/v1/json`); vereist eigen API-key, rate limits nog niet uitgezocht.
+- ANWB routing-API voor reistijd/afstand tussen coördinaten (incl. tolwegen) — bevestigd werkend via PowerShell:
+  ```powershell
+  $headers = @{ "x-anwb-caller-id" = "routing/traffic-info-web" }
+  $response = Invoke-RestMethod -Uri "https://api.anwb.nl/routing/route/v1/route/car?locations=51.193943%2C6.001977%3A51.454764%2C5.389512&tollInfo=true&traffic=true&routeType=fastest&includeAlternatives=true" -Headers $headers
+  $response.value | ForEach-Object {
+      [PSCustomObject]@{
+          RouteId = $_.id
+          AfstandKm = [math]::Round($_.summary.distanceInMeters / 1000, 1)
+          DuurMinuten = [math]::Round($_.summary.durationInSeconds / 60, 0)
+          Wegen = $_.summary.roadNumbers -join ", "
+          Tol = $_.summary.tollRoads
+      }
+  } | Format-Table -AutoSize
+  ```
+  Header `x-anwb-caller-id` is ongedocumenteerd/publiek; stabiliteit en gebruiksvoorwaarden voor productiegebruik nog niet bevestigd.
 
 
-
-
-
-
-1. Enforce a Strict "No Ticket, No Help" PolicyStop Walk-ups: Politely but firmly tell users you cannot troubleshoot without a ticket.Guided Creation: Sit with them to submit the ticket while they are at your desk. This teaches them the submission process without shaming them.Standardized Intake: Use ticketing platforms like EasyDesk to ensure forms collect all necessary info immediately.2. Promote the "Path of Least Resistance"Centralize Resources: Make the IT portal the easiest place to get help, rather than relying on direct emails.Instant Context: Add a knowledge base right at the ticket submission page so users can self-solve before clicking "Submit".Proactive Communication: Send brief updates on common issue resolutions so users know self-service options are actually working.3. Implement Automation and DeflectionAutomate the Basics: Utilize endpoint management tools to automate software deployment and patching.Password Resets: Deploy self-service password reset software (SSPR) with multi-factor authentication so users can unlock accounts without IT intervention.Visual Guides: Place visual troubleshooting guides near high-traffic equipment (e.g., printers, conference room setups) to immediately cut recurring questions.

@@ -1,6 +1,7 @@
 <?php
 /** @var array $item */
 /** @var array $locaties */
+/** @var array $keyusers */
 ?>
 <div class="page-header">
   <div style="display:flex;align-items:center;gap:12px">
@@ -17,6 +18,14 @@
           <option value="">Kies een locatie...</option>
           <?php foreach ($locaties as $locatie): ?>
             <option value="<?= (int) $locatie['id'] ?>" <?= (int) $item['locatie_id'] === (int) $locatie['id'] ? 'selected' : '' ?>><?= htmlspecialchars($locatie['naam']) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Keyuser/klant</label>
+        <select name="keyuser_id">
+          <option value="">— Geen —</option>
+          <?php foreach ($keyusers as $k): ?>
+            <option value="<?= (int) $k['id'] ?>" <?= (int) ($item['keyuser_id'] ?? 0) === (int) $k['id'] ? 'selected' : '' ?>><?= htmlspecialchars($k['achternaam'] . ', ' . $k['voornaam']) ?></option>
           <?php endforeach; ?>
         </select>
       </div>

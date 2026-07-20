@@ -47,6 +47,22 @@ class SchijfgebruikDeviceModel extends Model
         return $device;
     }
 
+    /**
+     * Eén rij per apparaat (geen schijf-detail nodig) met de gekoppelde medewerker erbij, als basis
+     * voor de herstart-herinneringsmail: welke medewerker moet gevraagd worden zijn/haar apparaat te
+     * herstarten. Filtering op SchijfgebruikHealth::evaluate()['herstart_nodig'] gebeurt in de aanroepende code.
+     */
+    public static function alleMetMedewerker(): array
+    {
+        return Database::pdo()->query("
+            SELECT d.id, d.naam, d.laatst_online, d.laatste_boot, d.medewerker_id,
+                   m.voornaam, m.achternaam, m.email
+            FROM schijfgebruik_devices d
+            LEFT JOIN medewerkers m ON m.id = d.medewerker_id AND m.deleted_at IS NULL
+            ORDER BY d.naam ASC
+        ")->fetchAll();
+    }
+
     public static function setMedewerker(int $id, ?int $medewerkerId): void
     {
         $stmt = Database::pdo()->prepare('UPDATE schijfgebruik_devices SET medewerker_id = ? WHERE id = ?');

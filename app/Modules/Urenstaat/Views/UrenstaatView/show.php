@@ -19,6 +19,7 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
     <div class="meta-row"><span class="meta-key">Datum</span><span><?= formatDatum($item['datum']) ?></span></div>
     <div class="meta-row"><span class="meta-key">Tijd</span><span><?= substr($item['start_tijd'], 0, 5) ?>–<?= $item['eind_tijd'] !== null ? substr($item['eind_tijd'], 0, 5) : 'loopt nog' ?></span></div>
     <div class="meta-row"><span class="meta-key">Locatie</span><span><?= htmlspecialchars($item['locatie_naam'] ?? '—') ?></span></div>
+    <div class="meta-row"><span class="meta-key">Keyuser/klant</span><span><?= !empty($item['keyuser_id']) ? htmlspecialchars($item['keyuser_naam']) : '—' ?></span></div>
     <div class="meta-row"><span class="meta-key">Gebruiker</span><span><?= htmlspecialchars($item['gebruiker_naam'] ?? '—') ?></span></div>
     <div class="meta-row"><span class="meta-key">Omschrijving</span><span><?= htmlspecialchars($item['omschrijving'] ?? '—') ?></span></div>
   </div>

@@ -1,5 +1,6 @@
 <?php
 /** @var array $afdelingen */
+/** @var array $managers */
 ?>
 <div class="page-header">
   <div style="display:flex;align-items:center;gap:12px">
@@ -31,7 +32,22 @@
           <?php endforeach; ?>
         </select>
       </div>
+      <div class="form-group">
+        <label class="form-label">Manager</label>
+        <select name="manager_id">
+          <option value="">— Geen —</option>
+          <?php foreach ($managers as $m): ?>
+            <option value="<?= $m['id'] ?>"><?= htmlspecialchars($m['achternaam'] . ', ' . $m['voornaam']) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
       <div class="form-group"><label class="form-label">Startdatum</label><input type="date" name="startdatum"></div>
+      <div class="form-group">
+        <label class="form-label">&nbsp;</label>
+        <label style="display:flex;align-items:center;gap:6px;font-weight:400">
+          <input type="checkbox" name="is_keyuser" value="1"> Keyuser
+        </label>
+      </div>
     </div>
     <div style="display:flex;gap:8px;margin-top:8px">
       <button class="btn btn-primary" type="submit">Opslaan</button>

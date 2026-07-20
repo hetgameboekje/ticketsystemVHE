@@ -30,6 +30,7 @@ use App\Modules\Ticket\TicketEmailIntakeController;
 use App\Modules\Ticket\TicketLogController;
 use App\Modules\Ticket\TicketTijdController;
 use App\Modules\Tools\PhonebookController;
+use App\Modules\Tools\RestartReminderController;
 use App\Modules\Tools\SignatureController;
 use App\Modules\Tools\ToolsController;
 use App\Modules\Uitgifte\UitgifteController;
@@ -105,6 +106,11 @@ $router->post('/tools/handtekeningen/{id}', [SignatureController::class, 'update
 $router->post('/tools/handtekeningen/{id}/verwijderen', [SignatureController::class, 'destroy']);
 $router->post('/tools/handtekeningen/logos', [SignatureController::class, 'uploadLogo']);
 $router->post('/tools/handtekeningen/logos/{id}/verwijderen', [SignatureController::class, 'destroyLogo']);
+
+$router->get('/tools/herstart-herinneringen', [RestartReminderController::class, 'index']);
+$router->post('/tools/herstart-herinneringen/instellingen', [RestartReminderController::class, 'instellingenOpslaan']);
+$router->get('/tools/herstart-herinneringen/export', [RestartReminderController::class, 'exportCsv']);
+$router->post('/tools/herstart-herinneringen/versturen', [RestartReminderController::class, 'versturen']);
 $router->get('/tickets/export', [TicketController::class, 'export']);
 $router->post('/tickets/import', [TicketController::class, 'import']);
 $router->get('/tickets/categorieen', [TicketController::class, 'categorieen']);
@@ -135,6 +141,7 @@ $router->post('/schijfgebruik/{id}/medewerker', [SchijfgebruikController::class,
 
 $router->get('/medewerkers/login-check', [MedewerkerController::class, 'loginCheck']);
 $router->post('/medewerkers/import', [MedewerkerController::class, 'import']);
+$router->get('/medewerkers/hierarchie', [MedewerkerController::class, 'hierarchie']);
 
 $router->get('/uitgiften', [UitgifteController::class, 'index']);
 $router->get('/uitgiften/namen', [UitgifteController::class, 'namen']);
@@ -146,6 +153,7 @@ $router->post('/uitgiften/{id}/retour', [UitgifteController::class, 'retour']);
 
 $router->get('/agenda', [AgendaController::class, 'index']);
 $router->get('/agenda/events', [AgendaController::class, 'events']);
+$router->get('/agenda/team-events', [AgendaController::class, 'teamEvents']);
 $router->post('/agenda', [AgendaController::class, 'store']);
 $router->post('/agenda/{id}', [AgendaController::class, 'update']);
 $router->post('/agenda/{id}/verwijderen', [AgendaController::class, 'destroy']);

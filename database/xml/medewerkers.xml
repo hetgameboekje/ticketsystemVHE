@@ -8,6 +8,8 @@
     <column name="telefoon" type="VARCHAR" length="50"/>
     <column name="functie" type="VARCHAR" length="150"/>
     <column name="afdeling_id" type="INT" references="afdelingen.id"/>
+    <column name="manager_id" type="INT" nullable="true" references="medewerkers.id" on_delete="SET NULL"/>
+    <column name="is_keyuser" type="TINYINT" nullable="false" default="0"/>
     <column name="startdatum" type="DATE"/>
     <column name="status" type="VARCHAR" length="20" nullable="false" default="'actief'"/>
     <column name="user_id" type="INT" nullable="true" unique="true" references="users.id" on_delete="SET NULL"/>

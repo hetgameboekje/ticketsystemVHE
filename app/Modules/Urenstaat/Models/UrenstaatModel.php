@@ -8,14 +8,18 @@ use App\Core\Model;
 class UrenstaatModel extends Model
 {
     protected static string $table = 'urenstaat_registraties';
-    protected static array $fillable = ['user_id', 'locatie_id', 'datum', 'start_tijd', 'eind_tijd', 'omschrijving'];
+    protected static array $fillable = [
+        'user_id', 'locatie_id', 'keyuser_id', 'datum', 'start_tijd', 'eind_tijd', 'omschrijving',
+    ];
     protected static bool $softDeletes = true;
 
     private const SELECT = "
-        SELECT r.*, u.naam AS gebruiker_naam, l.naam AS locatie_naam
+        SELECT r.*, u.naam AS gebruiker_naam, l.naam AS locatie_naam,
+               CONCAT(k.voornaam, ' ', k.achternaam) AS keyuser_naam
         FROM urenstaat_registraties r
         LEFT JOIN users u ON u.id = r.user_id
         LEFT JOIN locaties l ON l.id = r.locatie_id
+        LEFT JOIN medewerkers k ON k.id = r.keyuser_id
         WHERE r.deleted_at IS NULL
     ";
 
