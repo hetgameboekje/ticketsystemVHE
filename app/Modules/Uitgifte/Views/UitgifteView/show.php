@@ -33,6 +33,15 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
       <div class="card-header"><span class="card-title">Retour nemen</span></div>
       <form method="post" action="/uitgiften/<?= $item['id'] ?>/retour" style="padding:16px">
         <div class="form-group">
+          <label class="form-label">Resultaat</label>
+          <label style="display:flex;align-items:center;gap:6px;font-weight:normal;margin-bottom:4px">
+            <input type="radio" name="resultaat" value="op_voorraad" checked> Terug op voorraad
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-weight:normal">
+            <input type="radio" name="resultaat" value="afgeschreven"> Afschrijven (defect / einde levensduur)
+          </label>
+        </div>
+        <div class="form-group">
           <label class="form-label">Opmerking over staat (optioneel)</label>
           <textarea name="opmerking" placeholder="Bijv. krasje op deksel, kabel ontbreekt..."></textarea>
         </div>

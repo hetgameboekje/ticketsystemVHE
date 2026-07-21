@@ -4,6 +4,7 @@ namespace App\Modules\Voorraad;
 
 use App\Core\Barcode;
 use App\Core\CrudController;
+use App\Modules\Voorraad\DxDiagParser;
 use App\Modules\Voorraad\Models\VoorraadItemModel;
 use App\Modules\Voorraad\Models\VoorraadTypeModel;
 
@@ -19,6 +20,7 @@ class VoorraadController extends CrudController
     private const STATUS_LABELS = [
         'op_voorraad' => 'Op voorraad',
         'uitgegeven' => 'Uitgegeven',
+        'afgeschreven' => 'Afgeschreven',
     ];
 
     protected function filterOptions(array $allItems): array
@@ -77,6 +79,21 @@ class VoorraadController extends CrudController
 
         $serienummers = array_values($serienummers);
 
+        $specificaties = null;
+        if (!empty($_FILES['dxdiag_bestand']['tmp_name']) && $_FILES['dxdiag_bestand']['error'] === UPLOAD_ERR_OK) {
+            if ($aantal > 1) {
+                $_SESSION['flash_error'] = 'Een DxDiag-rapport hoort bij precies één apparaat — verwijder het bestand of zet het aantal op 1.';
+                $this->redirect('/voorraad/create');
+            }
+
+            try {
+                $specificaties = json_encode(DxDiagParser::parse($_FILES['dxdiag_bestand']['tmp_name']), JSON_THROW_ON_ERROR);
+            } catch (\RuntimeException $e) {
+                $_SESSION['flash_error'] = $e->getMessage();
+                $this->redirect('/voorraad/create');
+            }
+        }
+
         $lastId = null;
         $barcode = null;
         for ($i = 0; $i < $aantal; $i++) {
@@ -90,6 +107,7 @@ class VoorraadController extends CrudController
                 'barcode' => $barcode,
                 'locatie' => $locatie,
                 'opmerking' => $opmerking,
+                'specificaties' => $specificaties,
                 'aangemaakt_door_id' => $this->currentUserId(),
             ]);
         }
@@ -131,14 +149,25 @@ class VoorraadController extends CrudController
 
         $barcode = self::buildBarcode($type['code'], $variant, $serienummer);
 
-        VoorraadItemModel::update($id, [
+        $updateData = [
             'type_id' => $typeId,
             'variant' => $variant,
             'serienummer' => $serienummer,
             'barcode' => $barcode,
             'locatie' => $locatie,
             'opmerking' => $opmerking,
-        ]);
+        ];
+
+        if (!empty($_FILES['dxdiag_bestand']['tmp_name']) && $_FILES['dxdiag_bestand']['error'] === UPLOAD_ERR_OK) {
+            try {
+                $updateData['specificaties'] = json_encode(DxDiagParser::parse($_FILES['dxdiag_bestand']['tmp_name']), JSON_THROW_ON_ERROR);
+            } catch (\RuntimeException $e) {
+                $_SESSION['flash_error'] = $e->getMessage();
+                $this->redirect("/voorraad/{$id}/edit");
+            }
+        }
+
+        VoorraadItemModel::update($id, $updateData);
 
         $_SESSION['flash_success'] = "Item bijgewerkt (barcode: {$barcode}).";
         $this->redirect("/voorraad/{$id}");

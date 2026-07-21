@@ -51,4 +51,14 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
       <a class="btn btn-primary" href="/tools/herstart-herinneringen">Openen</a>
     </div>
   </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Installatie</span></div>
+    <div style="padding:16px">
+      <p style="font-size:13px;color:var(--color-text-secondary);margin-top:0">
+        Beheer de installatie-checklist (applicaties + profielen), print een blanco afvinklijst of wijs hem toe aan een apparaat om digitaal af te vinken.
+      </p>
+      <a class="btn btn-primary" href="/tools/installatie">Openen</a>
+    </div>
+  </div>
 </div>

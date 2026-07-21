@@ -52,11 +52,11 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
           <td><?= htmlspecialchars($mail['ontvanger']) ?></td>
           <td>
             <?= htmlspecialchars($mail['onderwerp']) ?>
-            <?php if ($mail['status'] === 'error' && !empty($mail['foutmelding'])): ?>
+            <?php if (($mail['status'] ?? null) === 'error' && !empty($mail['foutmelding'])): ?>
               <div style="font-size:11px;color:#b3261e"><?= htmlspecialchars($mail['foutmelding']) ?></div>
             <?php endif; ?>
           </td>
-          <td><span class="badge badge-<?= htmlspecialchars($mail['status']) ?>"><?= htmlspecialchars($statusLabels[$mail['status']] ?? $mail['status']) ?></span></td>
+          <td><span class="badge badge-<?= htmlspecialchars($mail['status'] ?? '') ?>"><?= htmlspecialchars($statusLabels[$mail['status'] ?? ''] ?? ($mail['status'] ?? '')) ?></span></td>
         </tr>
         <?php endforeach; ?>
       </tbody>

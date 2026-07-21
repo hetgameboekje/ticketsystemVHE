@@ -10,7 +10,7 @@
 </div>
 
 <div class="card">
-  <form class="new-form" method="post" action="/voorraad/<?= $item['id'] ?>">
+  <form class="new-form" method="post" action="/voorraad/<?= $item['id'] ?>" enctype="multipart/form-data">
     <div class="form-grid">
       <div class="form-group">
         <label class="form-label">Type</label>
@@ -36,6 +36,13 @@
       <div class="form-group" style="grid-column:1/-1">
         <label class="form-label">Opmerking</label>
         <textarea name="opmerking"><?= htmlspecialchars($item['opmerking'] ?? '') ?></textarea>
+      </div>
+      <div class="form-group" style="grid-column:1/-1">
+        <label class="form-label">DxDiag-rapport (optioneel, .txt)</label>
+        <input type="file" name="dxdiag_bestand" accept=".txt">
+        <p style="font-size:12px;color:var(--color-text-secondary);margin:4px 0 0">
+          <?= !empty($item['specificaties']) ? 'Er staan al specificaties bij dit item — upload een nieuw bestand om ze te vervangen.' : 'Upload het .txt-bestand van "DxDiag" (Windows: dxdiag.exe &rarr; Alles opslaan) om systeem- en videokaartgegevens beknopt bij dit item op te slaan.' ?>
+        </p>
       </div>
     </div>
     <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">

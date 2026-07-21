@@ -12,6 +12,12 @@ use App\Core\Table;
 $flashSuccess = $_SESSION['flash_success'] ?? null;
 $flashError = $_SESSION['flash_error'] ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
+
+$statusBadges = [
+    'op_voorraad' => ['open', 'Op voorraad'],
+    'uitgegeven' => ['gesloten', 'Uitgegeven'],
+    'afgeschreven' => ['keyuser', 'Afgeschreven'],
+];
 ?>
 <div class="page-header">
   <div class="page-title">Voorraad</div>
@@ -45,7 +51,10 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
       ->column('type_naam', 'Type', fn (array $i) => htmlspecialchars($i['type_naam'] ?? '—'))
       ->column('variant', 'Variant', fn (array $i) => htmlspecialchars($i['variant'] ?? '—'), ['class' => 'col-2'])
       ->column('serienummer', 'Serienummer', fn (array $i) => htmlspecialchars($i['serienummer'] ?? '—'), ['class' => 'col-2'])
-      ->column('status', 'Status', fn (array $i) => '<span class="badge badge-' . ($i['status'] === 'op_voorraad' ? 'open' : 'gesloten') . '">' . ($i['status'] === 'op_voorraad' ? 'Op voorraad' : 'Uitgegeven') . '</span>', ['class' => 'col-2'])
+      ->column('status', 'Status', function (array $i) use ($statusBadges) {
+          [$class, $label] = $statusBadges[$i['status']] ?? ['gesloten', $i['status']];
+          return '<span class="badge badge-' . $class . '">' . htmlspecialchars($label) . '</span>';
+      }, ['class' => 'col-2'])
       ->column('locatie', 'Locatie', fn (array $i) => htmlspecialchars($i['locatie'] ?? '—'), ['class' => 'col-2'])
       ->rows($items);
   echo $table->render();

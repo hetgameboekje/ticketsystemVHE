@@ -21,8 +21,8 @@ class VerbeterpuntLogController extends Controller
 
         $titel = trim($_POST['titel'] ?? '');
         $opmerking = trim($_POST['opmerking'] ?? '');
-        // Een opmerking telt alleen mee als titel én tekst zijn ingevuld (zelfde gedrag als Ticket).
-        $opmerkingGeldig = $titel !== '' && $opmerking !== '';
+        // Titel is verplicht voor een opmerking, omschrijving niet (zelfde gedrag als Ticket).
+        $opmerkingGeldig = $titel !== '';
         $nieuweStatus = $_POST['status'] ?? '';
         $statusGewijzigd = $nieuweStatus !== '' && $nieuweStatus !== $verbeterpunt['status'];
 

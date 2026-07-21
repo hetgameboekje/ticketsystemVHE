@@ -7,7 +7,7 @@
 </div>
 
 <div class="card">
-  <form class="new-form" method="post" action="/voorraad">
+  <form class="new-form" method="post" action="/voorraad" enctype="multipart/form-data">
     <div class="form-grid">
       <div class="form-group">
         <label class="form-label">Type</label>
@@ -47,6 +47,16 @@
       <label class="form-label">Opmerking</label>
       <textarea name="opmerking"></textarea>
     </div>
+
+    <div class="form-group">
+      <label class="form-label">DxDiag-rapport (optioneel, .txt — alleen bij aantal = 1, bv. een laptop)</label>
+      <input type="file" name="dxdiag_bestand" accept=".txt">
+      <p style="font-size:12px;color:var(--color-text-secondary);margin:4px 0 0">
+        Upload het .txt-bestand van "DxDiag" (Windows: dxdiag.exe &rarr; Alles opslaan) om systeem- en videokaartgegevens
+        beknopt bij dit item op te slaan.
+      </p>
+    </div>
+
     <div style="display:flex;gap:8px;margin-top:8px">
       <button class="btn btn-primary" type="submit">Toevoegen</button>
       <a class="btn" href="/voorraad">Annuleren</a>
