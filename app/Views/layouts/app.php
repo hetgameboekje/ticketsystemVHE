@@ -159,6 +159,8 @@ $active = $activeModule ?? '';
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="/tools/telefoonlijst">Telefoonlijst naar VCF</a></li>
                         <li><a class="dropdown-item" href="/tools/handtekeningen">Handtekeningen</a></li>
+                        <li><a class="dropdown-item" href="/tools/herstart-herinneringen">Herstart-herinneringen</a></li>
+                        <li><a class="dropdown-item" href="/tools/installatie">Installatie</a></li>
                     </ul>
                 </li>
 
@@ -174,6 +176,7 @@ $active = $activeModule ?? '';
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="crmDropdown">
                         <?php if ($navRechten['medewerkers'] ?? false): ?><li><a class="dropdown-item<?= navActive('medewerkers', $active) ?>" href="/medewerkers">Medewerkers</a></li><?php endif; ?>
+                        <?php if ($navRechten['medewerkers'] ?? false): ?><li><a class="dropdown-item" href="/medewerkers/hierarchie">Hiërarchie</a></li><?php endif; ?>
                         <?php if ($navRechten['urenstaat'] ?? false): ?><li><a class="dropdown-item<?= navActive('urenstaat', $active) ?>" href="/urenstaat">Urenstaat</a></li><?php endif; ?>
                     </ul>
                 </li>
@@ -205,6 +208,8 @@ $active = $activeModule ?? '';
                                     <ul class="dropdown-menu">
                                         <li><a class="dropdown-item<?= navActive('overzicht', $active) ?>" href="/overzicht">Overzicht</a></li>
                                         <li><a class="dropdown-item<?= navActive('beheer', $active) ?>" href="/beheer">Instellingen</a></li>
+                                        <li><a class="dropdown-item" href="/beheer/locaties">Locaties</a></li>
+                                        <li><a class="dropdown-item" href="/beheer/exporteren">Exporteren</a></li>
                                     </ul>
                                 </li>
                                 <li class="dropdown-submenu">

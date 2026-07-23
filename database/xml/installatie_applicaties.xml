@@ -2,8 +2,23 @@
 <table name="installatie_applicaties" engine="InnoDB">
   <columns>
     <column name="id" type="INT" primary="true" auto_increment="true"/>
-    <column name="naam" type="VARCHAR" length="150" nullable="false"/>
+    <column name="naam" type="VARCHAR" length="150" nullable="false" unique="true"/>
     <column name="volgorde" type="INT" nullable="false" default="0"/>
     <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
   </columns>
+  <seed>
+    <row><value column="naam">Zerox</value><value column="volgorde">1</value></row>
+    <row><value column="naam">Sumatra</value><value column="volgorde">2</value></row>
+    <row><value column="naam">Firebird</value><value column="volgorde">3</value></row>
+    <row><value column="naam">sqlncli</value><value column="volgorde">4</value></row>
+    <row><value column="naam">msodbcsql</value><value column="volgorde">5</value></row>
+    <row><value column="naam">FortiClient VPN</value><value column="volgorde">6</value></row>
+    <row><value column="naam">Chrome</value><value column="volgorde">7</value></row>
+    <row><value column="naam">SentinelOne</value><value column="volgorde">8</value></row>
+    <row><value column="naam">NinjaOne</value><value column="volgorde">9</value></row>
+    <row><value column="naam">Exact</value><value column="volgorde">10</value></row>
+    <row><value column="naam">corp.vhe.nl</value><value column="volgorde">11</value></row>
+    <row><value column="naam">Windows updates</value><value column="volgorde">12</value></row>
+    <row><value column="naam">Office 365</value><value column="volgorde">13</value></row>
+  </seed>
 </table>

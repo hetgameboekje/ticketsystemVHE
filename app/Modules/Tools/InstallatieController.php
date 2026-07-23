@@ -8,6 +8,7 @@ use App\Modules\Tools\Models\InstallatieApplicatieModel;
 use App\Modules\Tools\Models\InstallatieOpdrachtModel;
 use App\Modules\Tools\Models\InstallatieProfielItemModel;
 use App\Modules\Tools\Models\InstallatieProfielModel;
+use App\Modules\Voorraad\Models\VoorraadItemModel;
 
 class InstallatieController extends Controller
 {
@@ -110,7 +111,8 @@ class InstallatieController extends Controller
      * Koppelt de opdracht aan een apparaat via naam: bestaat het al (exacte of gedeeltelijke match,
      * zie DeviceModel::findByNaamMatch()), dan wordt dat hergebruikt; anders wordt er direct een
      * nieuw apparaat aangemaakt — zelfde auto-aanmaak-patroon als onbekende voorraad-barcodes in
-     * UitgifteController::store().
+     * UitgifteController::store(). Staat het apparaat nog niet in Voorraad, dan wordt daar ook
+     * automatisch een item voor aangemaakt (VoorraadItemModel::createVoorApparaat()).
      */
     public function opdrachtStore(): void
     {
@@ -125,13 +127,17 @@ class InstallatieController extends Controller
         $device = DeviceModel::findByNaamMatch($apparaatNaam);
         $deviceId = $device !== null ? (int) $device['id'] : DeviceModel::create(['naam' => $apparaatNaam]);
 
+        if (VoorraadItemModel::findByDeviceId($deviceId) === null) {
+            VoorraadItemModel::createVoorApparaat($deviceId, $apparaatNaam, $this->currentUserId());
+        }
+
         $profielIds = array_map('intval', $_POST['profielen'] ?? []);
         $opmerking = trim($_POST['opmerking'] ?? '') ?: null;
 
         $opdrachtId = InstallatieOpdrachtModel::aanmaken($deviceId, $profielIds, $opmerking, $this->currentUserId());
 
         $_SESSION['flash_success'] = $device === null
-            ? "Checklist aangemaakt — \"{$apparaatNaam}\" stond nog niet in Apparaten en is automatisch toegevoegd."
+            ? "Checklist aangemaakt — \"{$apparaatNaam}\" stond nog niet in Apparaten en is automatisch toegevoegd (ook in Voorraad)."
             : "Checklist toegewezen aan {$device['naam']}.";
         $this->redirect("/tools/installatie/opdrachten/{$opdrachtId}");
     }

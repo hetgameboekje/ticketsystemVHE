@@ -9,14 +9,15 @@ class VoorraadItemModel extends Model
 {
     protected static string $table = 'voorraad_items';
     protected static array $fillable = [
-        'type_id', 'variant', 'serienummer', 'barcode', 'status', 'locatie', 'opmerking', 'specificaties', 'aangemaakt_door_id',
+        'type_id', 'device_id', 'variant', 'serienummer', 'barcode', 'status', 'locatie', 'opmerking', 'specificaties', 'aangemaakt_door_id',
     ];
     protected static bool $softDeletes = true;
 
     private const SELECT = "
-        SELECT vi.*, vt.naam AS type_naam, vt.code AS type_code
+        SELECT vi.*, vt.naam AS type_naam, vt.code AS type_code, d.naam AS device_naam
         FROM voorraad_items vi
         LEFT JOIN voorraad_types vt ON vt.id = vi.type_id
+        LEFT JOIN devices d ON d.id = vi.device_id
         WHERE vi.deleted_at IS NULL
     ";
 
@@ -86,6 +87,34 @@ class VoorraadItemModel extends Model
     {
         $stmt = Database::pdo()->prepare('UPDATE voorraad_items SET status = ? WHERE id = ?');
         $stmt->execute([$status, $id]);
+    }
+
+    public static function findByDeviceId(int $deviceId): ?array
+    {
+        $stmt = Database::pdo()->prepare(self::SELECT . ' AND vi.device_id = ? LIMIT 1');
+        $stmt->execute([$deviceId]);
+        $row = $stmt->fetch();
+        return $row === false ? null : $row;
+    }
+
+    /**
+     * Maakt automatisch een voorraad-item aan voor een apparaat waaraan net een installatie-opdracht
+     * is gekoppeld en dat nog niet in de voorraadcatalogus stond (zie InstallatieController::opdrachtStore()).
+     * Komt net als createOnbekend() onder het vaste type 'Overig' te staan.
+     */
+    public static function createVoorApparaat(int $deviceId, string $naam, ?int $aangemaaktDoorId): int
+    {
+        $typeId = VoorraadTypeModel::findOrCreateOverig();
+
+        return self::create([
+            'type_id' => $typeId,
+            'device_id' => $deviceId,
+            'variant' => substr($naam, 0, 50),
+            'barcode' => 'APPARAAT-' . uniqid(),
+            'status' => 'op_voorraad',
+            'opmerking' => "Automatisch aangemaakt vanuit installatie-opdracht voor apparaat \"{$naam}\".",
+            'aangemaakt_door_id' => $aangemaaktDoorId,
+        ]);
     }
 
     /**

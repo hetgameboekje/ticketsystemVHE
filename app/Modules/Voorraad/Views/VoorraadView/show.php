@@ -56,6 +56,9 @@ $videokaartLabels = [
     <div class="meta-row"><span class="meta-key">Type</span><span><?= htmlspecialchars($item['type_naam']) ?></span></div>
     <div class="meta-row"><span class="meta-key">Variant</span><span><?= htmlspecialchars($item['variant'] ?? '—') ?></span></div>
     <div class="meta-row"><span class="meta-key">Serienummer</span><span><?= htmlspecialchars($item['serienummer'] ?? '—') ?></span></div>
+    <?php if (!empty($item['device_naam'])): ?>
+      <div class="meta-row"><span class="meta-key">Apparaat</span><span><a href="/apparaten/<?= $item['device_id'] ?>"><?= htmlspecialchars($item['device_naam']) ?></a></span></div>
+    <?php endif; ?>
     <div class="meta-row"><span class="meta-key">Locatie</span><span><?= htmlspecialchars($item['locatie'] ?? '—') ?></span></div>
     <div class="meta-row"><span class="meta-key">Opmerking</span><span><?= htmlspecialchars($item['opmerking'] ?? '—') ?></span></div>
     <div class="meta-row"><span class="meta-key">Toegevoegd op</span><span><?= htmlspecialchars(substr((string) $item['created_at'], 0, 10)) ?></span></div>
