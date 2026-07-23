@@ -26,6 +26,10 @@ class TicketLogController extends Controller
         $nieuweStatus = $_POST['status'] ?? '';
         $statusGewijzigd = $nieuweStatus !== '' && $nieuweStatus !== $ticket['status'];
 
+        if ($opmerking !== '' && !$opmerkingGeldig) {
+            $_SESSION['flash_error'] = 'Vul een titel in om deze opmerking op te slaan.';
+        }
+
         if ($opmerkingGeldig || $statusGewijzigd) {
             TicketLogModel::create([
                 'ticket_id' => $ticketId,
