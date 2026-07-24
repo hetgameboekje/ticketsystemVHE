@@ -22,6 +22,9 @@
 
 :root{
   --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-body:'Inter',var(--font-sans);
+  --font-display:'Space Grotesk',var(--font-sans);
+  --font-mono:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
   --border-radius-md:6px;
   --border-radius-lg:10px;
   color-scheme:light;
@@ -45,6 +48,13 @@
   --color-text-success:#27500A;
   --color-text-danger:#b3261e;
 
+  /* Amber accent (zie docs/design/ticketsysteem-overzicht.html) — de nieuwe primaire
+     actiekleur, los van --color-background-info gehouden omdat die variabele al de
+     betekenis "open/informatief" draagt in badges en filter-chips. */
+  --color-accent-bg:#FBF1E1;
+  --color-accent-text:#7A4A0E;
+  --color-accent-border:#E6C084;
+
   /* Aliassen voor losse view-specifieke <style>-blokken met net iets andere naamgeving
      (bv. dashboard), zodat die automatisch meedoen met het thema i.p.v. hardcoded
      fallbackkleuren te gebruiken. */
@@ -56,24 +66,31 @@
 [data-bs-theme="dark"]{
   color-scheme:dark;
 
-  --color-text-primary:#eeece6;
-  --color-text-secondary:#a7a49c;
-  --color-text-tertiary:#7d7a72;
+  --color-text-primary:#EDEFF3;
+  --color-text-secondary:#9CA4B3;
+  --color-text-tertiary:#656E7F;
 
-  --color-background-primary:#232220;
-  --color-background-secondary:#2c2b28;
-  --color-background-tertiary:#181715;
+  /* Navy/charcoal palette uit de referentiemockup i.p.v. het vorige neutraal-bruine dark theme. */
+  --color-background-primary:#1B2029;
+  --color-background-secondary:#212733;
+  --color-background-tertiary:#12151B;
 
-  --color-border-secondary:#423f3a;
-  --color-border-tertiary:#35332f;
+  --color-border-secondary:#3A4150;
+  --color-border-tertiary:#2B313D;
 
   --color-background-info:#16283a;
   --color-text-info:#7fb8ec;
   --color-border-info:#2c4f70;
 
   --color-text-warning:#e2a94a;
-  --color-text-success:#7ecb57;
-  --color-text-danger:#ea766d;
+  --color-text-success:#4FC1A6;
+  --color-text-danger:#E2665A;
+
+  /* Donkere modus krijgt de volle amber, omdat hij hier ook de rol van primaire
+     actiekleur overneemt (zie --amber in de referentiemockup). */
+  --color-accent-bg:#3A2F1C;
+  --color-accent-text:#E0A756;
+  --color-accent-border:#8A6A34;
 }
 
 [data-bs-theme="dark"] .card,
@@ -82,14 +99,16 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font-sans);font-size:14px;color:var(--color-text-primary);background:var(--color-background-tertiary)}
+body{font-family:var(--font-body);font-size:14px;color:var(--color-text-primary);background:var(--color-background-tertiary)}
 a{color:inherit;text-decoration:none}
+.mono{font-family:var(--font-mono)}
+.page-title,.navbar-brand,.brand-text,.card-title{font-family:var(--font-display)}
 
 .avatar{width:32px;height:32px;border-radius:50%;background:var(--color-background-info);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--color-text-info)}
 
 .navbar .nav-link{color:var(--color-text-secondary);font-size:13px}
-.navbar .nav-link:hover,.navbar .nav-link.active{color:var(--color-text-info)}
-.navbar .dropdown-item.active{color:var(--color-text-info);background:var(--color-background-info)}
+.navbar .nav-link:hover,.navbar .nav-link.active{color:var(--color-accent-text)}
+.navbar .dropdown-item.active{color:var(--color-accent-text);background:var(--color-accent-bg)}
 
 .nav-close{position:absolute;top:14px;right:14px;width:36px;height:36px;border:none;background:none;font-size:26px;line-height:1;color:var(--color-text-secondary);cursor:pointer}
 
@@ -102,6 +121,13 @@ a{color:inherit;text-decoration:none}
 .btn-primary{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
 .btn-primary:hover{opacity:.85}
 .btn-danger{color:var(--color-text-danger);border-color:#f0c4c1}
+
+/* Nieuwe primaire actiekleur (amber accent, zie docs/design/ticketsysteem-overzicht.html) —
+   bedoeld voor de belangrijkste knop op een pagina (bv. "Opslaan", "Inloggen", "Nieuw ticket").
+   Gebruik dit i.p.v. .btn-primary voor nieuw werk; bestaande .btn-primary-knoppen hoeven niet
+   in één keer omgezet te worden (zie CLAUDE.md > Frontend design direction). */
+.btn-accent{background:var(--color-accent-bg);color:var(--color-accent-text);border-color:var(--color-accent-border);font-weight:600}
+.btn-accent:hover{opacity:.85}
 
 .stat{display:block;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px 14px;box-shadow:0 1px 2px rgba(28,28,26,.03);transition:background-color .12s ease}
 a.stat{cursor:pointer}

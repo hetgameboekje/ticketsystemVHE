@@ -8,8 +8,8 @@ use App\Modules\CyberRisico\Models\CyberRisicoModel;
 use App\Modules\Medewerker\Models\MedewerkerModel;
 use App\Modules\Ticket\Models\TicketModel;
 use App\Modules\Tools\Models\PhonebookJobModel;
+use App\Modules\Uitgifte\Models\UitgifteModel;
 use App\Modules\Verbeterpunt\Models\VerbeterpuntModel;
-use App\Modules\Voorraad\Models\VoorraadItemModel;
 use App\Modules\Urenstaat\Models\UrenstaatModel;
 use App\Shared\Afdeling\Models\AfdelingModel;
 use App\Shared\User\Models\UserModel;
@@ -34,6 +34,11 @@ class DashboardController extends Controller
 
     public function index(): void
     {
+        if (empty($_SESSION['user'])) {
+            $this->renderLandingpagina();
+            return;
+        }
+
         $this->requireAuth();
 
         $mag = [
@@ -41,6 +46,7 @@ class DashboardController extends Controller
             'verbeterpunten' => ['lezen' => $this->hasRecht('verbeterpunten')],
             'medewerkers' => ['lezen' => $this->hasRecht('medewerkers')],
             'voorraad' => ['lezen' => $this->hasRecht('voorraad')],
+            'uitgiften' => ['lezen' => $this->hasRecht('uitgiften')],
             'cyberrisicos' => ['lezen' => $this->hasRecht('cyberrisicos'), 'schrijven' => $this->hasRecht('cyberrisicos', 'schrijven')],
             'agenda' => ['lezen' => $this->hasRecht('agenda'), 'schrijven' => $this->hasRecht('agenda', 'schrijven')],
             'urenstaat' => ['lezen' => $this->hasRecht('urenstaat'), 'schrijven' => $this->hasRecht('urenstaat', 'schrijven')],
@@ -57,7 +63,7 @@ class DashboardController extends Controller
                 'medewerkers' => $mag['medewerkers']['lezen'] ? count(MedewerkerModel::all()) : 0,
             ],
             'actieveTickets' => $mag['tickets']['lezen'] ? TicketModel::actief(5) : [],
-            'voorraadOverview' => $mag['voorraad']['lezen'] ? VoorraadItemModel::countByType() : [],
+            'topUitgegevenHardware' => $mag['uitgiften']['lezen'] ? UitgifteModel::topUitgegeven(5) : [],
             'cyberrisicosOpen' => $mag['cyberrisicos']['lezen'] ? CyberRisicoModel::countOpen() : 0,
             'cyberrisicosPerDag' => $mag['cyberrisicos']['lezen'] ? CyberRisicoModel::countLast30Days() : [],
             'cyberrisicosByDate' => $mag['cyberrisicos']['lezen'] ? CyberRisicoModel::listLast30DaysGrouped() : [],
@@ -69,5 +75,14 @@ class DashboardController extends Controller
             'urenstaatLocaties' => $mag['urenstaat']['schrijven'] ? LocatieModel::visibleForUser((int) $this->currentUserId()) : [],
             'urenstaatOpen' => $mag['urenstaat']['schrijven'] ? UrenstaatModel::openForUser((int) $this->currentUserId()) : null,
         ]);
+    }
+
+    /**
+     * Publieke landingspagina voor niet-ingelogde bezoekers op "/" — een losstaand HTML-bestand
+     * (zie CLAUDE.md > Frontend design direction), bewust buiten de app-layout om (geen nav/sidebar).
+     */
+    private function renderLandingpagina(): void
+    {
+        readfile(APP_ROOT . '/docs/design/ticketsysteem-overzicht.html');
     }
 }
