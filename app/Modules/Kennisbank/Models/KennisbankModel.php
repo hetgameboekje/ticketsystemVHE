@@ -8,7 +8,7 @@ use App\Core\Model;
 class KennisbankModel extends Model
 {
     protected static string $table = 'kennisbank_artikelen';
-    protected static array $fillable = ['titel', 'categorie', 'inhoud', 'auteur_id'];
+    protected static array $fillable = ['titel', 'categorie', 'subcategorie', 'samenvatting', 'tags', 'inhoud', 'auteur_id'];
     protected static bool $softDeletes = true;
 
     private const SELECT = "
@@ -45,5 +45,105 @@ class KennisbankModel extends Model
         $stmt = Database::pdo()->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /** Bestaande subcategorieën binnen een categorie, voor de autocomplete in create/edit. */
+    public static function distinctSubcategorieen(string $categorie, string $q = ''): array
+    {
+        $sql = "SELECT DISTINCT subcategorie FROM kennisbank_artikelen
+                WHERE deleted_at IS NULL AND subcategorie IS NOT NULL AND subcategorie <> ''
+                AND categorie = ?";
+        $params = [$categorie];
+        if ($q !== '') {
+            $sql .= " AND subcategorie LIKE ?";
+            $params[] = '%' . $q . '%';
+        }
+        $sql .= " ORDER BY subcategorie ASC";
+
+        $stmt = Database::pdo()->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /** Alle losse tags over alle artikelen heen (tags staan comma-separated in de kolom), voor autocomplete. */
+    public static function distinctTags(string $q = ''): array
+    {
+        $stmt = Database::pdo()->query(
+            "SELECT tags FROM kennisbank_artikelen WHERE deleted_at IS NULL AND tags IS NOT NULL AND tags <> ''"
+        );
+
+        $tags = [];
+        foreach ($stmt->fetchAll(\PDO::FETCH_COLUMN) as $raw) {
+            foreach (self::splitTags($raw) as $tag) {
+                $tags[mb_strtolower($tag)] = $tag;
+            }
+        }
+
+        if ($q !== '') {
+            $needle = mb_strtolower($q);
+            $tags = array_filter($tags, fn (string $tag) => str_contains(mb_strtolower($tag), $needle));
+        }
+
+        $tags = array_values($tags);
+        sort($tags, SORT_STRING | SORT_FLAG_CASE);
+
+        return $tags;
+    }
+
+    /** Splitst de comma-separated tags-kolom naar een schone array (getrimd, lege waarden eruit). */
+    public static function splitTags(?string $tags): array
+    {
+        if ($tags === null || trim($tags) === '') {
+            return [];
+        }
+
+        return array_values(array_filter(array_map('trim', explode(',', $tags)), fn (string $t) => $t !== ''));
+    }
+
+    /** Normaliseert vrije tags-invoer (comma-separated string) naar een unieke, hoofdletterongevoelig gededupliceerde comma-separated string. */
+    public static function normalizeTags(string $rawInput): ?string
+    {
+        $unique = [];
+        foreach (self::splitTags($rawInput) as $tag) {
+            $unique[mb_strtolower($tag)] ??= $tag;
+        }
+
+        return $unique === [] ? null : implode(', ', $unique);
+    }
+
+    /**
+     * Categorie/subcategorie-boom met aantallen voor de kennisbank-navigatie (linkerkolom).
+     * @return array<int, array{naam: string, aantal: int, subcategorieen: array<int, array{naam: string, aantal: int}>}>
+     */
+    public static function categorieBoom(): array
+    {
+        $rows = Database::pdo()->query(
+            "SELECT categorie, subcategorie, COUNT(*) AS aantal
+             FROM kennisbank_artikelen
+             WHERE deleted_at IS NULL
+             GROUP BY categorie, subcategorie"
+        )->fetchAll();
+
+        $boom = [];
+        foreach ($rows as $row) {
+            $categorie = $row['categorie'];
+            if (!isset($boom[$categorie])) {
+                $boom[$categorie] = ['naam' => $categorie, 'aantal' => 0, 'subcategorieen' => []];
+            }
+            $boom[$categorie]['aantal'] += (int) $row['aantal'];
+
+            $sub = trim((string) ($row['subcategorie'] ?? ''));
+            if ($sub !== '') {
+                $boom[$categorie]['subcategorieen'][$sub] = ['naam' => $sub, 'aantal' => (int) $row['aantal']];
+            }
+        }
+
+        ksort($boom, SORT_STRING | SORT_FLAG_CASE);
+        foreach ($boom as &$cat) {
+            ksort($cat['subcategorieen'], SORT_STRING | SORT_FLAG_CASE);
+            $cat['subcategorieen'] = array_values($cat['subcategorieen']);
+        }
+
+        return array_values($boom);
     }
 }
