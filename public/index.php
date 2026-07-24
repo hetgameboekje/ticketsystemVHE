@@ -138,6 +138,8 @@ $router->post('/verbeterpunten/{id}/tijd', [VerbeterpuntTijdController::class, '
 $router->post('/verbeterpunten/{id}/log', [VerbeterpuntLogController::class, 'store']);
 $router->post('/reflecties/{id}/log', [ReflectieLogController::class, 'store']);
 $router->get('/kennisbank/categorieen', [KennisbankController::class, 'categorieen']);
+$router->get('/kennisbank/subcategorieen', [KennisbankController::class, 'subcategorieen']);
+$router->get('/kennisbank/tags', [KennisbankController::class, 'tags']);
 $router->post('/kennisbank/{id}/log', [KennisbankLogController::class, 'store']);
 $router->post('/kennisbank/{id}/log/volgorde', [KennisbankLogController::class, 'reorder']);
 $router->post('/cyberrisicos/{id}/log', [CyberRisicoLogController::class, 'store']);

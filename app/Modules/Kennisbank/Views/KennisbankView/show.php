@@ -18,6 +18,17 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
   <div>
     <div class="card" style="margin-bottom:16px">
       <div class="card-header"><span class="card-title">Inhoud</span></div>
+      <?php if (!empty($item['samenvatting'])): ?>
+        <div style="padding:12px 16px 0;font-size:13px;color:var(--color-text-secondary)"><?= htmlspecialchars($item['samenvatting']) ?></div>
+      <?php endif; ?>
+      <?php $tags = \App\Modules\Kennisbank\Models\KennisbankModel::splitTags($item['tags'] ?? null); ?>
+      <?php if (!empty($tags)): ?>
+        <div style="padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:4px">
+          <?php foreach ($tags as $tag): ?>
+            <a href="/kennisbank?tag=<?= urlencode($tag) ?>" class="badge" style="background:var(--color-background-tertiary);color:var(--color-text-secondary);font-weight:400;text-decoration:none"><?= htmlspecialchars($tag) ?></a>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
       <div class="collapsible-text" style="padding:16px;font-size:13px;line-height:1.7;color:var(--color-text-secondary);max-height:4.5em;overflow:hidden">
         <?= nl2br(htmlspecialchars($item['inhoud'])) ?>
       </div>
@@ -67,7 +78,10 @@ require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
     <div class="card">
       <div class="card-header"><span class="card-title">Details</span></div>
       <div style="padding:0 16px">
-        <div class="meta-row"><span class="meta-key">Categorie</span><span><?= htmlspecialchars($item['categorie']) ?></span></div>
+        <div class="meta-row"><span class="meta-key">Categorie</span><span><a href="/kennisbank?categorie=<?= urlencode($item['categorie']) ?>"><?= htmlspecialchars($item['categorie']) ?></a></span></div>
+        <?php if (!empty($item['subcategorie'])): ?>
+        <div class="meta-row"><span class="meta-key">Subcategorie</span><span><a href="/kennisbank?categorie=<?= urlencode($item['categorie']) ?>&subcategorie=<?= urlencode($item['subcategorie']) ?>"><?= htmlspecialchars($item['subcategorie']) ?></a></span></div>
+        <?php endif; ?>
         <div class="meta-row"><span class="meta-key">Auteur</span><span><?= htmlspecialchars($item['auteur_naam'] ?? '—') ?></span></div>
         <div class="meta-row"><span class="meta-key">Aangemaakt</span><span><?= formatDatum($item['created_at']) ?></span></div>
       </div>
