@@ -92,11 +92,14 @@ class UitgifteController extends CrudController
         }
 
         $opmerking = trim($_POST['opmerking'] ?? '') ?: null;
+        $resultaat = ($_POST['resultaat'] ?? '') === 'afgeschreven' ? 'afgeschreven' : 'op_voorraad';
 
         UitgifteModel::setTeruggegeven($id, date('Y-m-d'), $opmerking);
-        VoorraadItemModel::setStatus((int) $uitgifte['voorraad_item_id'], 'op_voorraad');
+        VoorraadItemModel::setStatus((int) $uitgifte['voorraad_item_id'], $resultaat);
 
-        $_SESSION['flash_success'] = "{$uitgifte['type_naam']} ({$uitgifte['barcode']}) is retour genomen.";
+        $_SESSION['flash_success'] = $resultaat === 'afgeschreven'
+            ? "{$uitgifte['type_naam']} ({$uitgifte['barcode']}) is afgeschreven."
+            : "{$uitgifte['type_naam']} ({$uitgifte['barcode']}) is retour genomen.";
         $this->redirect('/uitgiften');
     }
 

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="installatie_opdrachten" engine="InnoDB">
+  <columns>
+    <column name="id" type="INT" primary="true" auto_increment="true"/>
+    <column name="device_id" type="INT" nullable="false" references="devices.id" on_delete="CASCADE"/>
+    <column name="opmerking" type="TEXT"/>
+    <column name="toegewezen_door_id" type="INT"/>
+    <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
+    <column name="updated_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP" on_update="CURRENT_TIMESTAMP"/>
+  </columns>
+</table>

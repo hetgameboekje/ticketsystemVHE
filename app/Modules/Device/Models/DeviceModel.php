@@ -52,6 +52,16 @@ class DeviceModel extends Model
         return $row === false ? null : $row;
     }
 
+    /** Zoeksuggesties op naam voor de installatie-opdracht-zoekveld (autocomplete). */
+    public static function zoekNamen(string $q): array
+    {
+        $stmt = Database::pdo()->prepare(
+            'SELECT id, naam FROM devices WHERE deleted_at IS NULL AND naam LIKE ? ORDER BY naam ASC LIMIT 15'
+        );
+        $stmt->execute(['%' . $q . '%']);
+        return $stmt->fetchAll();
+    }
+
     public static function forMedewerker(int $medewerkerId): array
     {
         $stmt = Database::pdo()->prepare(self::SELECT . ' AND d.medewerker_id = ? ORDER BY d.naam ASC');

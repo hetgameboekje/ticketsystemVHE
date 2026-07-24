@@ -6,7 +6,7 @@
 require_once APP_ROOT . '/app/Views/partials/ticket-helpers.php';
 $statussen = ['nieuw' => 'Nieuw', 'in_overweging' => 'In overweging', 'goedgekeurd' => 'Goedgekeurd', 'afgewezen' => 'Afgewezen', 'uitgevoerd' => 'Uitgevoerd'];
 $statusLogs = array_values(array_filter($logs, fn ($log) => $log['status_naar'] !== null));
-$opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['opmerking'] ?? '') !== '' && $log['opmerking'] !== 'Status bijgewerkt.'));
+$opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['titel'] ?? '') !== ''));
 ?>
 <div class="page-header">
   <div style="display:flex;align-items:center;gap:12px">
@@ -61,7 +61,9 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['opmerkin
           <?php if (!empty($log['titel'])): ?>
             <div class="log-title" style="font-weight:600;margin-bottom:2px"><?= htmlspecialchars($log['titel']) ?></div>
           <?php endif; ?>
+          <?php if (trim($log['opmerking'] ?? '') !== ''): ?>
           <div class="log-text"><?= nl2br(htmlspecialchars($log['opmerking'])) ?></div>
+          <?php endif; ?>
         </div>
         <?php endforeach; ?>
       <?php endif; ?>

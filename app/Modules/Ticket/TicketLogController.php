@@ -21,9 +21,8 @@ class TicketLogController extends Controller
 
         $titel = trim($_POST['titel'] ?? '');
         $opmerking = trim($_POST['opmerking'] ?? '');
-        // Een opmerking telt alleen mee als titel én tekst zijn ingevuld (zelfde silent-drop
-        // gedrag als Kennisbank's opmerkingen-formulier) — anders wordt hij niet opgeslagen.
-        $opmerkingGeldig = $titel !== '' && $opmerking !== '';
+        // Titel is verplicht voor een opmerking, omschrijving niet.
+        $opmerkingGeldig = $titel !== '';
         $nieuweStatus = $_POST['status'] ?? '';
         $statusGewijzigd = $nieuweStatus !== '' && $nieuweStatus !== $ticket['status'];
 

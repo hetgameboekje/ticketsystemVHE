@@ -9,7 +9,7 @@ class VoorraadItemModel extends Model
 {
     protected static string $table = 'voorraad_items';
     protected static array $fillable = [
-        'type_id', 'variant', 'serienummer', 'barcode', 'status', 'locatie', 'opmerking', 'aangemaakt_door_id',
+        'type_id', 'variant', 'serienummer', 'barcode', 'status', 'locatie', 'opmerking', 'specificaties', 'aangemaakt_door_id',
     ];
     protected static bool $softDeletes = true;
 
