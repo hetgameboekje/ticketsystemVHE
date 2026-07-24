@@ -75,6 +75,12 @@ class DeviceSoftwareImport
         return ['extern_apparaat_id' => $externId, 'rows' => $rows];
     }
 
+    /**
+     * MySQL TIMESTAMP-kolommen accepteren alleen 1970-01-01 00:00:01 t/m 2038-01-19 03:14:07.
+     * Exports bevatten soms datums met 2-cijferige jaartallen (bv. "1/14/62") die PHP als 2062
+     * interpreteert, of andere onzinwaarden — die vallen buiten dat bereik en zouden de hele
+     * import laten vastlopen op een SQL-fout. Zulke datums worden hier stilzwijgend leeg gelaten.
+     */
     private static function parseDatum(string $raw): ?string
     {
         if ($raw === '') {
@@ -82,9 +88,17 @@ class DeviceSoftwareImport
         }
 
         try {
-            return (new \DateTimeImmutable($raw))->format('Y-m-d H:i:s');
+            $dt = new \DateTimeImmutable($raw);
         } catch (\Exception) {
             return null;
         }
+
+        $min = new \DateTimeImmutable('1970-01-01 00:00:01');
+        $max = new \DateTimeImmutable('2038-01-19 03:14:07');
+        if ($dt < $min || $dt > $max) {
+            return null;
+        }
+
+        return $dt->format('Y-m-d H:i:s');
     }
 }
