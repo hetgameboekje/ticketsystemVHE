@@ -46,4 +46,21 @@ class UitgifteModel extends Model
         $stmt = Database::pdo()->prepare('UPDATE uitgiften SET teruggegeven_op = ?, retour_opmerking = ? WHERE id = ?');
         $stmt->execute([$datum, $opmerking, $id]);
     }
+
+    /** Top uitgegeven voorraadtypen (aller tijden, ongeacht of het item al geretourneerd is), voor het dashboard. */
+    public static function topUitgegeven(int $limit = 5): array
+    {
+        $stmt = Database::pdo()->prepare("
+            SELECT vt.id, vt.naam, vt.code, COUNT(u.id) AS aantal
+            FROM uitgiften u
+            LEFT JOIN voorraad_items vi ON vi.id = u.voorraad_item_id
+            LEFT JOIN voorraad_types vt ON vt.id = vi.type_id
+            GROUP BY vt.id, vt.naam, vt.code
+            ORDER BY aantal DESC
+            LIMIT ?
+        ");
+        $stmt->bindValue(1, $limit, \PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

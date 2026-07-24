@@ -55,6 +55,28 @@ Routing convention: most modules are wired via the `$modules` array in `public/i
 
 Deployment target is Hostnet shared hosting (no SSH): `APP_DEV=false`, `APP_GIT_PULL_ENABLED=false`, deploy via SFTP, schema applied through phpMyAdmin, `public/uploads/` must be writable.
 
+## Frontend design direction
+
+A new visual identity was prototyped as a static, dependency-free HTML reference (`docs/design/ticketsysteem-overzicht.html` — no build step, not served by the app) and is being rolled out into the real views module by module. Treat that file as the source of truth for tokens and component patterns; don't reinvent colors or spacing per module.
+
+**Design tokens** (defined as CSS custom properties in `public/assets/css/app.css`, both light and dark blocks — the existing `--color-*` naming and the `data-bs-theme`/`localStorage.theme` toggle are kept as-is, not replaced):
+- Dark theme backgrounds were retuned to the reference's navy/charcoal palette instead of the previous neutral-brown dark theme: `--color-background-primary:#1B2029`, `--color-background-secondary:#212733`, `--color-background-tertiary:#12151B`, borders `#3A4150`/`#2B313D`. Light theme is unchanged.
+- New accent tokens `--color-accent-bg`/`--color-accent-text`/`--color-accent-border` (amber, `#E0A756` in dark) — kept separate from `--color-background-info`/`--color-text-info`, which still carries the existing "open/informational" meaning in badges (`.badge-open`) and filter chips. Don't repurpose one for the other.
+- `--color-text-success` (dark) now uses the reference's teal (`#4FC1A6`), `--color-text-danger` (dark) uses its red (`#E2665A`) — chosen because those already map to the same semantic roles (done/success, danger) as the reference's status colors. The reference's violet ("informational categories") has **not** been adopted anywhere yet — that would mean changing what `--color-background-info`/`badge-open` mean everywhere they're used, which is a later, deliberate step, not a token rename.
+- Typography: `--font-display` (Space Grotesk, headings/`.page-title`/`.card-title`/nav brand), `--font-body` (Inter, replaces the old `--font-sans` as the body default; `--font-sans` itself is kept as the underlying system-font fallback), `--font-mono` (IBM Plex Mono, via `.mono` utility) — loaded via Google Fonts `<link>` tags in both `app/Views/layouts/app.php` and `guest.php`.
+- `.btn-accent` (new, next to the existing `.btn-primary`) is the new primary-action button style — applied to the login button (`app/Views/auth/login.php`) as the first concrete example. Don't mass-convert existing `.btn-primary` usages in one pass; swap them opportunistically whenever a view is touched for other reasons.
+
+**Reusable component patterns** in the reference file, to reuse rather than reinvent per module once the rollout reaches them: sticky top nav with brand mark + amber primary action; KPI/stat cards (icon + value + label); status badges with a colored dot, one color per logical status (reuse the same badge-to-status mapping everywhere, don't invent new per-module colors); data tables with muted uppercase headers and row hover; horizontal numbered pipeline indicator (only for genuine sequences, e.g. the MailMind pipeline or ticket status flow — not decorative); terminal-style code blocks for commands/env vars; module cards with a monospace "path" label mirroring real file paths.
+
+**Rollout plan (step by step, verify manually after each since there's no test suite):**
+1. ✅ Done — tokens (palette, accent, fonts) added to `public/assets/css/app.css`; Google Fonts loaded in both layouts; nav active-link/dropdown-item state and the login button (`app/Views/auth/login.php`) retinted to the accent.
+2. Dashboard / Overview (`app/Shared/Dashboard`, `app/Shared/Overview`) next — highest visibility, reuses `.stat`/`.card`/`.page-dashboard` classes already in `app.css`; retint hover/active states with the accent rather than adding new component classes.
+3. Highest-traffic modules next: Ticket, then Kennisbank (including the EmailVerwerking/MailMind review UI, since it already conceptually matches this style).
+4. Remaining domain modules (Verbeterpunt, Reflectie, HardwareUitgave, Medewerker, Voorraad, Device, Printer, CyberRisico, Uitgifte, Agenda) — batch by shared view type (list/table views together, form views together) rather than module-by-module. This is also where adopting the badge/status color mapping (teal/amber/red/violet per status) would happen, if decided — a deliberate step, not automatic.
+5. Account, Beheer, Tools, Script, Schijfgebruik last — lowest-traffic admin/settings screens.
+
+Each step is a visual/CSS pass only: keep existing routes, controllers, Dutch UI text, and behavior unchanged unless a bug is found along the way. Click through the affected module locally after each step (`php -S localhost:8000 -t public public/router.php`, check both `data-bs-theme="light"` and `"dark"`) before moving to the next one — there's no automated test suite to catch a visual regression.
+
 ## Roadmap / openstaande verbeterpunten
 
 **Geleverd** (fases 1–4, gecontroleerd tegen de code): CRM-hiërarchie/stamboom voor medewerkers (`manager_id`/`is_keyuser`, `GET /medewerkers/hierarchie`); Urenstaat-koppeling aan keyuser/klant (`urenstaat_registraties.keyuser_id`); Agenda-teamoverzicht "in behandeling" (`GET /agenda/team-events`); Tools herstart-mail export en verzending (`RestartReminderController`, `GET/POST /tools/herstart-herinneringen*`, met `Mailer::verstuur()` cc/bcc-support).

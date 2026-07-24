@@ -2,7 +2,7 @@
 /** @var array $mag */
 /** @var array $stats */
 /** @var array $actieveTickets */
-/** @var array $voorraadOverview */
+/** @var array $topUitgegevenHardware */
 /** @var int $cyberrisicosOpen */
 /** @var array $cyberrisicosPerDag */
 /** @var array $cyberrisicosByDate */
@@ -506,15 +506,15 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
 </div>
 <?php endif; ?>
 
-<?php if ($mag['voorraad']['lezen']): ?>
+<?php if ($mag['uitgiften']['lezen']): ?>
 <div class="card shadow-sm">
     <div class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <span class="fw-semibold">Beschikbare hardware</span>
-        <a class="btn btn-sm btn-outline-secondary" href="/voorraad">Voorraad beheren &rarr;</a>
+        <span class="fw-semibold">Top 5 uitgegeven hardware</span>
+        <a class="btn btn-sm btn-outline-secondary" href="/uitgiften">Alle uitgiften &rarr;</a>
     </div>
 
-    <?php if (empty($voorraadOverview)): ?>
-        <div class="card-body text-body-secondary">Nog geen voorraadtypen aangemaakt.</div>
+    <?php if (empty($topUitgegevenHardware)): ?>
+        <div class="card-body text-body-secondary">Nog geen hardware uitgegeven.</div>
     <?php else: ?>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
@@ -522,17 +522,15 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
                     <tr>
                         <th>Type</th>
                         <th style="width: 100px;">Code</th>
-                        <th style="width: 130px;">Beschikbaar</th>
-                        <th style="width: 100px;">Totaal</th>
+                        <th style="width: 100px;">Uitgegeven</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($voorraadOverview as $t): ?>
-                        <tr class="cursor-pointer" onclick="window.location='/voorraad?type_naam=<?= urlencode($t['naam']) ?>'">
-                            <td><?= htmlspecialchars($t['naam']) ?></td>
-                            <td class="text-body-secondary"><?= htmlspecialchars($t['code']) ?></td>
-                            <td><?= (int) $t['beschikbaar'] ?></td>
-                            <td class="text-body-secondary"><?= (int) $t['totaal'] ?></td>
+                    <?php foreach ($topUitgegevenHardware as $t): ?>
+                        <tr class="cursor-pointer" onclick="window.location='/voorraad?type_naam=<?= urlencode($t['naam'] ?? '') ?>'">
+                            <td><?= htmlspecialchars($t['naam'] ?? 'Onbekend') ?></td>
+                            <td class="text-body-secondary"><?= htmlspecialchars($t['code'] ?? '—') ?></td>
+                            <td><?= (int) $t['aantal'] ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
