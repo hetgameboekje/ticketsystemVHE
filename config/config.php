@@ -13,15 +13,12 @@ return [
     'env' => $appEnv,
 
     // true = lokale ontwikkelomgeving: /login pullt en parsed het schema automatisch (zie App\Core\DevSync).
-    // false = productie (bv. Hostnet): alleen handmatig via Beheer > Git pull / Database parsen.
-    // Zet dit via {LOCAL,HOSTNET}_APP_DEV in .env — moet false zijn voor het Hostnet-profiel.
-    'dev' => filter_var($env('APP_DEV', 'true'), FILTER_VALIDATE_BOOLEAN),
-
-    // Schakelt alle server-side shell-uitvoering uit (git pull, en het git-onderdeel van
-    // de dev-sync). Nodig op hosts zonder shell/exec-toegang, zoals Hostnet shared webhosting
-    // (cPanel/DirectAdmin zonder SSH) — daar faalt exec() sowieso of staat 'm uit in php.ini.
-    // Zet via {LOCAL,HOSTNET}_APP_GIT_PULL_ENABLED in .env.
-    'gitPullEnabled' => filter_var($env('APP_GIT_PULL_ENABLED', 'true'), FILTER_VALIDATE_BOOLEAN),
+    // false = productie (Hostnet): alleen handmatig via Beheer > Git pull / Database parsen.
+    // Volledig afgeleid van APP_ENV — hostnet heeft geen shell-toegang (bv. Hostnet shared
+    // webhosting zonder SSH, waar exec() sowieso faalt of uitstaat in php.ini) en mag niet
+    // automatisch pullen/syncen bij elke /login.
+    'dev' => $appEnv !== 'hostnet',
+    'gitPullEnabled' => $appEnv !== 'hostnet',
 
     'db' => [
         'host'     => $env('DB_HOST', '127.0.0.1'),

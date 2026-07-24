@@ -46,14 +46,13 @@ Routing convention: most modules are wired via the `$modules` array in `public/i
 
 ### Config and environments
 
-`config/config.php` reads from `getenv()` with Laragon-friendly local defaults; `.env` (gitignored, copy from `.env.example`) overrides per environment. Key flags:
-- `APP_DEV` — when true, hitting `/login` triggers `DevSync`: automatic `git pull` + database parse/apply. Must be `false` in production.
-- `APP_GIT_PULL_ENABLED` — separately gates the `exec('git pull')` call, since shared hosts (e.g. Hostnet) often disable `exec()`/have no shell access; database parsing still works with this off.
-- `APP_ENCRYPTION_KEY` — base64 32-byte key for `App\Shared\Crypto\FieldEncryptor`, used to encrypt sensitive ticket fields (`omschrijving`, `opdrachtgever_naam`). Must be identical across all environments sharing a database — rotating it makes existing encrypted tickets unreadable. Generate with `openssl rand -base64 32`.
-- `APP_URL` — base URL used to build absolute links in emails (e.g. reminder emails), since there's no active HTTP request context there.
+`config/config.php` reads from `getenv()`; `.env` (gitignored, copy from `.env.example`) is one file shared across environments, holding both a `LOCAL_*` and a `HOSTNET_*` block (DB/mail/URL). `APP_ENV=local|hostnet` is the one line set manually per place — it picks which prefixed block `config.php` reads, and also fully derives `dev`/`gitPullEnabled` behavior (and, in `app/bootstrap.php`, `display_errors`): anything other than `hostnet` counts as a dev environment (auto git pull + schema-sync on `/login`, PHP errors shown), `hostnet` always has all three off. There's no separate `APP_DEV`/`APP_GIT_PULL_ENABLED`/`APP_DEBUG` key anymore — they used to be settable per environment but in practice always tracked `APP_ENV`, so they were collapsed into it.
+- `App\Core\DevSync` reads `config('dev')`/`config('gitPullEnabled')` — unaffected by the collapse, still booleans.
+- `APP_ENCRYPTION_KEY` — base64 32-byte key for `App\Shared\Crypto\FieldEncryptor`, used to encrypt sensitive ticket fields (`omschrijving`, `opdrachtgever_naam`). Must be identical across all environments sharing a database — rotating it makes existing encrypted tickets unreadable. Generate with `openssl rand -base64 32`. Not per-environment-prefixed.
+- `{LOCAL,HOSTNET}_APP_URL` — base URL used to build absolute links in emails (e.g. reminder emails), since there's no active HTTP request context there.
 - `N8N_WEBHOOK_URL` / `N8N_API_KEY` / `AI_CONFIDENCE_DREMPEL` — `App\Modules\EmailVerwerking\Services\AiAnalysisService` posts the e-mail to this n8n webhook instead of calling an AI provider directly; n8n owns ingestion/extraction/knowledge-matching/internet-lookup and must return the schema `analyseer()` validates. Not per-environment-prefixed, same as `APP_ENCRYPTION_KEY`. Empty `N8N_WEBHOOK_URL` fails closed: the analysis endpoint logs the error to `processing_logs` and leaves the e-mail on status `stored` for the next cron run, instead of throwing.
 
-Deployment target is Hostnet shared hosting (no SSH): `APP_DEV=false`, `APP_GIT_PULL_ENABLED=false`, deploy via SFTP, schema applied through phpMyAdmin, `public/uploads/` must be writable.
+Deployment target is Hostnet shared hosting (no SSH): `.env` on that server has `APP_ENV=hostnet`, deploy via SFTP, schema applied through phpMyAdmin, `public/uploads/` must be writable.
 
 ## Frontend design direction
 

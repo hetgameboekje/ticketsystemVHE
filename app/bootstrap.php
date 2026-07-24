@@ -25,18 +25,14 @@ if (is_file($envFile)) {
 }
 unset($envFile);
 
-// APP_ENV kiest welk LOCAL_*/HOSTNET_*-blok in .env geldt (zie config/config.php) — hier alvast
-// nodig om de juiste *_APP_DEBUG te lezen, want dat gebeurt vóór config.php geladen wordt.
-$appEnvPrefix = strtolower(trim((string) (getenv('APP_ENV') ?: 'local'))) === 'hostnet' ? 'HOSTNET' : 'LOCAL';
-
-// Zet {LOCAL,HOSTNET}_APP_DEBUG=true in .env om PHP-fouten direct in de browser te tonen i.p.v.
-// een kale 500-pagina. Alleen voor tijdelijke foutopsporing — weer op false na diagnose.
-if (filter_var(getenv("{$appEnvPrefix}_APP_DEBUG") ?: 'false', FILTER_VALIDATE_BOOLEAN)) {
+// APP_ENV kiest welk omgevingsprofiel geldt (zie config/config.php) — hier alvast nodig om te
+// weten of PHP-fouten getoond mogen worden, want dat gebeurt vóór config.php geladen wordt.
+// hostnet = productie: nooit fouten tonen. Alles anders (incl. local) = tonen.
+if (strtolower(trim((string) (getenv('APP_ENV') ?: 'local'))) !== 'hostnet') {
     ini_set('display_errors', '1');
     ini_set('display_startup_errors', '1');
     error_reporting(E_ALL);
 }
-unset($appEnvPrefix);
 
 spl_autoload_register(function (string $class): void {
     $prefix = 'App\\';
