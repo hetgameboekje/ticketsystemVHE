@@ -235,6 +235,37 @@ section.block{ padding: 64px 0; border-top: 1px solid var(--border-soft); }
     white-space:nowrap;
 }
 
+
+
+.about-links{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-top:24px;
+}
+
+.about-link-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:44px;
+    padding:10px 16px;
+    border-radius: var(--radius-sm);
+    border:1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-primary);
+    font-size:13px;
+    font-weight:600;
+    transition: transform .15s ease, border-color .15s ease, background .15s ease, color .15s ease;
+}
+
+.about-link-btn:hover{
+    border-color: var(--amber-dim);
+    background: var(--amber-soft);
+    color: var(--amber);
+    transform: translateY(-2px);
+}
+
 .pipeline{ display:flex; align-items:flex-start; gap:0; margin-bottom:30px; overflow-x:auto; padding-bottom:6px; }
 .pipe-step{ flex:1; min-width:118px; text-align:center; position:relative; padding:0 6px; }
 .pipe-step:not(:last-child)::after{
@@ -363,6 +394,9 @@ footer .foot-right{ font-family:var(--font-mono); font-size:11px; color: var(--t
     .wrap{ padding: 0 20px; }
     .hero{ padding: 50px 0 40px; }
 }
+
+
+
 </style>
 </head>
 <body>
@@ -687,6 +721,12 @@ footer .foot-right{ font-family:var(--font-mono); font-size:11px; color: var(--t
                 <p>
                 Naast mijn technische werk ben ik actief bij de Reddingsbrigade, waar ik onder meer mijn uitgebreide EHBO, Lifeguard Open Water en OGS behaalde. Ik werk toe naar volledige inzetbaarheid als bemanningslid en draag actief bij aan activiteiten en ledenwerving binnen de organisatie.
                 </p>
+                <div class="about-links">
+                    <a class="about-link-btn" href="https://www.linkedin.com/in/timo-bergthaler/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                    <a class="about-link-btn" href="http://github.com/hetgameboekje" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    <a class="about-link-btn" href="https://stackoverflow.com/users/32338561/timo" target="_blank" rel="noopener noreferrer">Stack Overflow</a>
+                    <a class="about-link-btn" href="https://bergthaler.nl" target="_blank" rel="noopener noreferrer">Portfolio</a>
+                </div>
             </div>
         </div>
     </section>
