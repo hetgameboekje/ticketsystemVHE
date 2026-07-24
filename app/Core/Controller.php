@@ -22,6 +22,7 @@ abstract class Controller
 
         $currentUser = $this->currentUser();
         $navRechten = $this->navRechten();
+        $navBadges = $this->navBadges();
         $csrfToken = Csrf::token();
         require APP_ROOT . '/app/Views/layouts/app.php';
     }
@@ -33,6 +34,7 @@ abstract class Controller
 
         $currentUser = $this->currentUser();
         $navRechten = $this->navRechten();
+        $navBadges = $this->navBadges();
         $csrfToken = Csrf::token();
         require APP_ROOT . '/app/Views/layouts/app.php';
     }
@@ -114,6 +116,24 @@ abstract class Controller
         }
 
         return $out;
+    }
+
+    /**
+     * @return array<string, int> module => teller, voor sidebar-badges. Alleen goedkope, al
+     * bestaande count-queries — geen nieuwe zware aggregaties toevoegen puur voor de sidebar.
+     */
+    protected function navBadges(): array
+    {
+        if ($this->currentUser() === null) {
+            return [];
+        }
+
+        $badges = [];
+        if ($this->hasRecht('tickets')) {
+            $badges['tickets'] = \App\Modules\Ticket\Models\TicketModel::countByStatus('open');
+        }
+
+        return $badges;
     }
 
     /**

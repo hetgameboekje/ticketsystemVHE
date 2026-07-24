@@ -22,18 +22,6 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
 ?>
 
 <style>
-    .stat-card {
-        transition: transform .15s ease, box-shadow .15s ease;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-2px);
-    }
-
-    .stat-card .card-body {
-        min-height: 110px;
-    }
-
     .cursor-pointer {
         cursor: pointer;
     }
@@ -100,83 +88,70 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
 
 
 
-<div class="row g-3 mb-3">
+<div class="kpi-grid">
     <?php if ($mag['tickets']['lezen']): ?>
-    <div class="col-12 col-sm-6 col-xl-3">
-        <a class="card shadow-sm h-100 text-decoration-none stat-card" href="/tickets?status=open">
-            <div class="card-body d-flex flex-column justify-content-center">
-                <div class="text-body-secondary small mb-1">Open tickets</div>
-                <div class="fs-2 fw-bold text-info">
-                    <?= (int) $stats['tickets_open'] ?>
-                </div>
-            </div>
-        </a>
-    </div>
+    <a class="kpi-card" href="/tickets?status=open">
+        <div class="kpi-card-head">
+            <span class="kpi-label">Open tickets</span>
+            <span class="kpi-icon kpi-icon-open"><i class="bi bi-ticket-perforated"></i></span>
+        </div>
+        <div class="kpi-value"><?= (int) $stats['tickets_open'] ?></div>
+    </a>
 
-    <div class="col-12 col-sm-6 col-xl-3">
-        <a class="card shadow-sm h-100 text-decoration-none stat-card" href="/tickets?status=in_behandeling">
-            <div class="card-body d-flex flex-column justify-content-center">
-                <div class="text-body-secondary small mb-1">In behandeling</div>
-                <div class="fs-2 fw-bold text-warning">
-                    <?= (int) $stats['tickets_in_behandeling'] ?>
-                </div>
-            </div>
-        </a>
-    </div>
+    <a class="kpi-card" href="/tickets?status=in_behandeling">
+        <div class="kpi-card-head">
+            <span class="kpi-label">In behandeling</span>
+            <span class="kpi-icon kpi-icon-behandeling"><i class="bi bi-hourglass-split"></i></span>
+        </div>
+        <div class="kpi-value"><?= (int) $stats['tickets_in_behandeling'] ?></div>
+    </a>
     <?php endif; ?>
 
     <?php if ($mag['verbeterpunten']['lezen']): ?>
-    <div class="col-12 col-sm-6 col-xl-3">
-        <a class="card shadow-sm h-100 text-decoration-none stat-card" href="/verbeterpunten">
-            <div class="card-body d-flex flex-column justify-content-center">
-                <div class="text-body-secondary small mb-1">Verbeterpunten</div>
-                <div class="fs-2 fw-bold">
-                    <?= (int) $stats['verbeterpunten'] ?>
-                </div>
-            </div>
-        </a>
-    </div>
+    <a class="kpi-card" href="/verbeterpunten">
+        <div class="kpi-card-head">
+            <span class="kpi-label">Verbeterpunten</span>
+            <span class="kpi-icon kpi-icon-neutral"><i class="bi bi-lightbulb"></i></span>
+        </div>
+        <div class="kpi-value"><?= (int) $stats['verbeterpunten'] ?></div>
+    </a>
     <?php endif; ?>
 
     <?php if ($mag['medewerkers']['lezen']): ?>
-    <div class="col-12 col-sm-6 col-xl-3">
-        <a class="card shadow-sm h-100 text-decoration-none stat-card" href="/medewerkers">
-            <div class="card-body d-flex flex-column justify-content-center">
-                <div class="text-body-secondary small mb-1">Medewerkers</div>
-                <div class="fs-2 fw-bold">
-                    <?= (int) $stats['medewerkers'] ?>
-                </div>
-            </div>
-        </a>
-    </div>
+    <a class="kpi-card" href="/medewerkers">
+        <div class="kpi-card-head">
+            <span class="kpi-label">Medewerkers</span>
+            <span class="kpi-icon kpi-icon-neutral"><i class="bi bi-people"></i></span>
+        </div>
+        <div class="kpi-value"><?= (int) $stats['medewerkers'] ?></div>
+    </a>
     <?php endif; ?>
 
-    <div class="col-12 col-sm-6 col-xl-3 d-flex">
-        <div class="card shadow-sm w-100 h-100">
-            <div class="card-body d-flex flex-column justify-content-center">
-                <div class="text-body-secondary small mb-1">Laatste telefoonlijst</div>
-                <?php if ($laatsteTelefoonlijst === null): ?>
-                    <div class="text-body-secondary small">Nog geen telefoonlijst verwerkt.</div>
-                    <a class="btn btn-sm btn-outline-secondary mt-2" href="/tools/telefoonlijst">Openen</a>
-                <?php else: ?>
-                    <div class="small text-body-secondary mb-2">
-                        <?= formatDatumTijd($laatsteTelefoonlijst['processed_at']) ?> &middot;
-                        <?= (int) $laatsteTelefoonlijst['contact_count'] ?> contact(en)
-                    </div>
-                    <a class="btn btn-sm btn-primary" href="/tools/telefoonlijst/<?= (int) $laatsteTelefoonlijst['id'] ?>/download">Download .vcf</a>
-                <?php endif; ?>
-            </div>
+    <div class="kpi-card">
+        <div class="kpi-card-head">
+            <span class="kpi-label">Laatste telefoonlijst</span>
+            <span class="kpi-icon kpi-icon-neutral"><i class="bi bi-telephone"></i></span>
         </div>
+        <?php if ($laatsteTelefoonlijst === null): ?>
+            <div class="kpi-sublabel">Nog geen telefoonlijst verwerkt.</div>
+            <a class="btn btn-sm btn-outline-secondary mt-2" href="/tools/telefoonlijst">Openen</a>
+        <?php else: ?>
+            <div class="kpi-sublabel">
+                <?= formatDatumTijd($laatsteTelefoonlijst['processed_at']) ?> &middot;
+                <?= (int) $laatsteTelefoonlijst['contact_count'] ?> contact(en)
+            </div>
+            <a class="btn btn-sm btn-primary mt-2" href="/tools/telefoonlijst/<?= (int) $laatsteTelefoonlijst['id'] ?>/download">Download .vcf</a>
+        <?php endif; ?>
     </div>
 </div>
 
 <div class="row g-3 mb-3">
     <?php if ($mag['cyberrisicos']['lezen']): ?>
     <div class="col-12 col-lg-6 d-flex">
-        <div class="card shadow-sm w-100 h-100">
-            <div class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <span class="fw-semibold">Gemelde cyberrisico's — laatste 30 dagen</span>
-                <a class="btn btn-sm btn-outline-secondary" href="/cyberrisicos">Alle risico's &rarr;</a>
+        <div class="card w-100 h-100">
+            <div class="card-header">
+                <span class="card-title">Gemelde cyberrisico's — laatste 30 dagen</span>
+                <a class="btn" href="/cyberrisicos">Alle risico's &rarr;</a>
             </div>
             <div class="card-body">
                 <div class="chart-wrap">
@@ -189,9 +164,9 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
 
     <?php if ($mag['agenda']['lezen']): ?>
     <div class="col-12 col-lg-6 d-flex">
-        <div class="card shadow-sm w-100 h-100">
-            <div class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <a class="fw-semibold text-decoration-none" href="/agenda">Mijn agenda</a>
+        <div class="card w-100 h-100">
+            <div class="card-header">
+                <a class="card-title" href="/agenda">Mijn agenda</a>
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                     <input type="date" id="dashAgendaDatum" class="form-control form-control-sm" style="width:auto;">
                     <?php if ($mag['agenda']['schrijven']): ?>
@@ -465,30 +440,30 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
 <?php endif; ?>
 
 <?php if ($mag['tickets']['lezen']): ?>
-<div class="card shadow-sm mb-3">
-    <div class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <span class="fw-semibold">Actieve tickets</span>
-        <a class="btn btn-sm btn-outline-secondary" href="/tickets">Alle tickets &rarr;</a>
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">Actieve tickets</span>
+        <a class="btn" href="/tickets">Alle tickets &rarr;</a>
     </div>
 
     <?php if (empty($actieveTickets)): ?>
-        <div class="card-body text-body-secondary">Geen actieve tickets.</div>
+        <div class="empty-state">Geen actieve tickets.</div>
     <?php else: ?>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+        <div class="table-wrap">
+            <table>
                 <thead>
                     <tr>
-                        <th style="width: 90px;">#</th>
+                        <th class="col-1">#</th>
                         <th>Taak</th>
-                        <th style="width: 140px;">Afdeling</th>
-                        <th style="width: 120px;">Prioriteit</th>
-                        <th style="width: 140px;">Status</th>
+                        <th class="col-2">Afdeling</th>
+                        <th class="col-2">Prioriteit</th>
+                        <th class="col-2">Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($actieveTickets as $t): ?>
-                        <tr class="cursor-pointer" onclick="window.location='/tickets/<?= (int) $t['id'] ?>'">
-                            <td class="text-body-secondary text-nowrap">#<?= (int) $t['id'] ?></td>
+                        <tr onclick="window.location='/tickets/<?= (int) $t['id'] ?>'">
+                            <td class="mono" style="color:var(--color-text-tertiary)">#<?= (int) $t['id'] ?></td>
                             <td>
                                 <span title="<?= htmlspecialchars($t['titel']) ?>">
                                     <?= htmlspecialchars(truncateWoorden($t['titel'])) ?>
@@ -507,29 +482,29 @@ $chartData   = array_map(fn(array $d) => $d['aantal'], $cyberrisicosPerDag);
 <?php endif; ?>
 
 <?php if ($mag['uitgiften']['lezen']): ?>
-<div class="card shadow-sm">
-    <div class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <span class="fw-semibold">Top 5 uitgegeven hardware</span>
-        <a class="btn btn-sm btn-outline-secondary" href="/uitgiften">Alle uitgiften &rarr;</a>
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">Top 5 uitgegeven hardware</span>
+        <a class="btn" href="/uitgiften">Alle uitgiften &rarr;</a>
     </div>
 
     <?php if (empty($topUitgegevenHardware)): ?>
-        <div class="card-body text-body-secondary">Nog geen hardware uitgegeven.</div>
+        <div class="empty-state">Nog geen hardware uitgegeven.</div>
     <?php else: ?>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+        <div class="table-wrap">
+            <table>
                 <thead>
                     <tr>
                         <th>Type</th>
-                        <th style="width: 100px;">Code</th>
-                        <th style="width: 100px;">Uitgegeven</th>
+                        <th class="col-2">Code</th>
+                        <th class="col-2">Uitgegeven</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($topUitgegevenHardware as $t): ?>
-                        <tr class="cursor-pointer" onclick="window.location='/voorraad?type_naam=<?= urlencode($t['naam'] ?? '') ?>'">
+                        <tr onclick="window.location='/voorraad?type_naam=<?= urlencode($t['naam'] ?? '') ?>'">
                             <td><?= htmlspecialchars($t['naam'] ?? 'Onbekend') ?></td>
-                            <td class="text-body-secondary"><?= htmlspecialchars($t['code'] ?? '—') ?></td>
+                            <td style="color:var(--color-text-tertiary)"><?= htmlspecialchars($t['code'] ?? '—') ?></td>
                             <td><?= (int) $t['aantal'] ?></td>
                         </tr>
                     <?php endforeach; ?>
@@ -602,6 +577,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     canvas.style.cursor = 'pointer';
 
+    var barColor = getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim() || '#4FC1A6';
+
     new Chart(canvas, {
         type: 'bar',
         data: {
@@ -609,7 +586,7 @@ document.addEventListener('DOMContentLoaded', function () {
             datasets: [{
                 label: 'Gemelde incidenten',
                 data: <?= json_encode($chartData) ?>,
-                backgroundColor: '#9cc3e8',
+                backgroundColor: barColor,
                 borderRadius: 4,
                 maxBarThickness: 18
             }]
