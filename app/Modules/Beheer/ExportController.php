@@ -97,7 +97,7 @@ class ExportController extends Controller
             $sheets[] = ['name' => substr($dataset['label'], 0, 31), 'headers' => $headers, 'rows' => $rows];
         }
 
-        $content = Xlsx::writeMultiSheet($sheets, $this->currentUser()['naam'] ?? 'Ticketsysteem VHE');
+        $content = Xlsx::writeMultiSheet($sheets, $this->currentUser()['naam'] ?? 'Ticketsysteem Leen van Punt');
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="export-' . date('Y-m-d') . '.xlsx"');

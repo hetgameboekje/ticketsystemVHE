@@ -112,7 +112,7 @@ class AuthController extends Controller
         try {
             Mailer::verstuur(
                 $admin,
-                'Ticketsysteem VHE: verdachte inlogpogingen gedetecteerd',
+                'Ticketsysteem Leen van Punt: verdachte inlogpogingen gedetecteerd',
                 "Voor het account {$email} zijn binnen " . self::LOCKOUT_MINUTEN . " minuten "
                 . self::MAX_MISLUKTE_POGINGEN . " mislukte inlogpogingen geregistreerd vanaf IP-adres {$ip}.<br>"
                 . 'Het account is tijdelijk geblokkeerd. Bekijk Beheer &gt; Beveiliging voor details.'

@@ -1,6 +1,6 @@
-# Outlook-intake voor IT@vhe.nl
+# Outlook-intake voor IT@bergthaler.dev
 
-Leest ongelezen mail uit de gedeelde mailbox IT@vhe.nl via Outlook Classic (COM/pywin32) en zet ze
+Leest ongelezen mail uit de gedeelde mailbox IT@bergthaler.dev via Outlook Classic (COM/pywin32) en zet ze
 om naar tickets op het intranet. Verstuurt of ontvangt zelf geen mail — leest alleen wat er al in
 Outlook staat.
 
@@ -21,7 +21,7 @@ bestaande case, geen nieuwe informatie om te documenteren.
 
 ## Vereisten
 
-- Outlook Classic, met de gedeelde mailbox IT@vhe.nl toegevoegd aan je eigen profiel.
+- Outlook Classic, met de gedeelde mailbox IT@bergthaler.dev toegevoegd aan je eigen profiel.
 - Python 3.x op dezelfde Windows-pc.
 - `pip install -r requirements.txt`
 
@@ -50,7 +50,7 @@ vullen — de sleutelwaarde zelf wordt na aanmaken niet meer opnieuw getoond).
 python outlook_intake.py
 ```
 
-Zorg dat Outlook open staat en ingelogd is op het profiel met de IT@vhe.nl-mailbox. Fouten en
+Zorg dat Outlook open staat en ingelogd is op het profiel met de IT@bergthaler.dev-mailbox. Fouten en
 verwerkte mails komen in `outlook_intake.log` (in dezelfde map) én op het scherm.
 
 ## Draaien via Windows Taakplanner
@@ -89,5 +89,6 @@ conceptartikelgeneratie draaien server-side via een eigen Taakplanner-taak (of a
 periodiek `POST /api/email-analysis/verwerken` aanroept met een API-sleutel met scope
 **"AI-analyse en conceptartikelen verwerken (Taakplanner)"** — zie
 `App\Shared\Automation\AutomationController` voor hetzelfde patroon met andere achtergrondtaken.
-Vereist `AI_API_KEY` (en optioneel `AI_API_URL`/`AI_MODEL`/`AI_CONFIDENCE_DREMPEL`) in de `.env` van
-het intranet zelf, niet in `config.ini` van dit script.
+Vereist `N8N_WEBHOOK_URL`/`N8N_API_KEY` (en optioneel `AI_CONFIDENCE_DREMPEL`) in de `.env` van
+het intranet zelf, niet in `config.ini` van dit script. De classificatie zelf loopt via een externe
+n8n-workflow (ingestie/extractie/kennis-koppeling/internet-lookup), niet via een directe AI-provider-call.

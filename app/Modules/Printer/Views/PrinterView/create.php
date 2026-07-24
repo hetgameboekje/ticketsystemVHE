@@ -14,7 +14,7 @@
       </div>
       <div class="form-group">
         <label class="form-label">Server (ComputerName)</label>
-        <input type="text" name="computer_naam" placeholder="bv. fs01-vhe">
+        <input type="text" name="computer_naam" placeholder="bv. fs01-leenvanpunt">
       </div>
       <div class="form-group">
         <label class="form-label">Type</label>

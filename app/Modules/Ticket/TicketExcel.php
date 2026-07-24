@@ -22,7 +22,7 @@ class TicketExcel
     private const STATUS_ALIASSEN = ['opgelost' => 'afgehandeld', 'gesloten' => 'afgehandeld'];
 
     /** @param array $tickets Al gefilterde/gezochte tickets (zie TicketController::export()) — exporteert exact deze set. */
-    public static function export(array $tickets, string $author = 'Ticketsysteem VHE'): string
+    public static function export(array $tickets, string $author = 'Ticketsysteem Leen van Punt'): string
     {
         $rows = [];
         foreach ($tickets as $t) {

@@ -1,4 +1,4 @@
-# VHE Intranet Ticketsysteem
+# Leen van Punt Intranet Ticketsysteem
 
 Een modulair opgezet intranet in plain PHP (zonder framework) met MySQL/MariaDB.
 De applicatie ondersteunt ticketbeheer en meerdere ondersteunende modules voor IT en CRM.
@@ -89,8 +89,8 @@ public/
 
 ### 1) Database opzetten
 
-1. Maak database `vhe` aan.
-2. Voer `database/schema.sql` uit op database `vhe`.
+1. Maak database `leenvanpunt` aan.
+2. Voer `database/schema.sql` uit op database `leenvanpunt`.
 3. (Optioneel) Wijzig je tabellen via `database/xml/*`, draai daarna:
 
 ```bash
@@ -159,7 +159,7 @@ Demo-login:
 
 **Optie A: Laragon/Apache**
 - Start Apache + MySQL
-- Open je lokale project-URL (bijv. `http://ticketsystemvhe.test`)
+- Open je lokale project-URL (bijv. `http://ticketsystemleenvanpunt.test`)
 
 **Optie B: PHP built-in server**
 

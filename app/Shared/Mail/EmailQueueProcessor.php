@@ -55,7 +55,7 @@ class EmailQueueProcessor
         try {
             Mailer::verstuur(
                 $admin,
-                'Ticketsysteem VHE: te veel e-mails in de wachtrij',
+                'Ticketsysteem Leen van Punt: te veel e-mails in de wachtrij',
                 "Er staan {$aantal} e-mails klaar om verzonden te worden (limiet is " . self::MAX_PER_RUN . " per verwerking).<br>"
                 . 'De wachtrij wordt niet automatisch verwerkt totdat dit is opgelost. Bekijk Beheer &gt; E-mails.'
             );

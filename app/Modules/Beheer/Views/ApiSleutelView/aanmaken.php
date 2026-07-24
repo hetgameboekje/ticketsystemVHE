@@ -20,7 +20,7 @@ use App\Shared\ApiKey\Models\ApiKeyModel;
     <div class="form-grid">
       <div class="form-group">
         <label class="form-label">Naam</label>
-        <input type="text" name="naam" value="<?= htmlspecialchars($oud['naam']) ?>" placeholder="bv. Outlook-intake IT@vhe.nl" required>
+        <input type="text" name="naam" value="<?= htmlspecialchars($oud['naam']) ?>" placeholder="bv. Outlook-intake it@bergthaler.dev" required>
       </div>
     </div>
     <div class="form-group" style="margin-top:8px">

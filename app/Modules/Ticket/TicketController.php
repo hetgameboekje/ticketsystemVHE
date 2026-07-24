@@ -177,7 +177,7 @@ class TicketController extends CrudController
         $items = $this->applyDefaultFilters($allItems);
         $items = TableQuery::apply($items, $_GET, $this->searchColumn);
 
-        $content = TicketExcel::export($items, $this->currentUser()['naam'] ?? 'Ticketsysteem VHE');
+        $content = TicketExcel::export($items, $this->currentUser()['naam'] ?? 'Ticketsysteem Leen van Punt');
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="tickets-export-' . date('Y-m-d') . '.xlsx"');
