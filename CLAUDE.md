@@ -18,7 +18,7 @@ php -S localhost:8000 -t public public/router.php
 Database:
 ```bash
 php database/parse.php     # regenerate database/.parsed/schema.sql from database/xml/*.xml
-php database/seed.php      # seed demo users (admin@intranet.local / wachtwoord123)
+php database/seed.php      # seed demo user (timo@bergthaler.nl / demo123, override via SEED_USER_* in .env)
 php database/clear.php --force   # drop all local tables and rebuild schema
 ```
 Table definitions live as XML in `database/xml/*.xml`; edit those, not `database/schema.sql` directly, then run `php database/parse.php`. The Beheer UI ("Database toepassen") can also add missing tables/columns automatically but never alters an existing column type.
@@ -53,45 +53,11 @@ Deployment target is Hostnet shared hosting (no SSH): `APP_DEV=false`, `APP_GIT_
 
 ## Roadmap / openstaande verbeterpunten
 
-Backlog van kleinere verbeterpunten, verdeeld in fases op basis van omvang en afhankelijkheden. Fases zijn een volgorde-advies, geen harde deadlines.
+**Geleverd** (fases 1–4, gecontroleerd tegen de code): CRM-hiërarchie/stamboom voor medewerkers (`manager_id`/`is_keyuser`, `GET /medewerkers/hierarchie`); Urenstaat-koppeling aan keyuser/klant (`urenstaat_registraties.keyuser_id`); Agenda-teamoverzicht "in behandeling" (`GET /agenda/team-events`); Tools herstart-mail export en verzending (`RestartReminderController`, `GET/POST /tools/herstart-herinneringen*`, met `Mailer::verstuur()` cc/bcc-support).
 
-**Al opgeleverd** (gecontroleerd tegen de code op 2026-07-20, staat er niet meer als open werk):
-Logging (verdachte-login mail, "niet ingelogd"-filter, POST-data popup, opschoon-cron), Uitgifte-manager-vinkje, Ticket UX (uitklapbare omschrijving, cyber-risico-vlag + grafiek, tijdregistratie in vaste blokken, opmerking-titel, zoekende categorie-select), Kennisbank zoekende categorie-select, Schijfgebruik device↔medewerker-koppeling, en Verbeterpunt-Ticket gelijktrekking (Verbeterpunt heeft al dezelfde uitklapbare omschrijving/titel/tijdregistratie/categorie-select als Ticket).
+**Open aandachtspunt:** de categorie-zoekfunctie (Ticket/Kennisbank/Verbeterpunt) gebruikt een debounce van ~200ms i.p.v. de gewenste ~2s — verhogen als dit te veel requests tijdens typen oplevert.
 
-Kleine kanttekening: de categorie-zoekfunctie (Ticket/Kennisbank/Verbeterpunt) gebruikt nu een debounce van ~200ms in plaats van de gewenste ~2s — pas aan als dit als hinderlijk ervaren wordt (te veel requests tijdens typen).
-
-**Fase 1–4 zijn gebouwd** (2026-07-20, nog niet lokaal getest — geen PHP CLI beschikbaar in de omgeving waarin dit gebouwd is; run `php database/parse.php` of gebruik Beheer → "Database toepassen" om de nieuwe kolommen/tabellen toe te passen, en loop de flows hieronder na in de browser):
-
-### Fase 1 — CRM: hiërarchie/stamboom ✅
-`medewerkers` heeft nu `manager_id` (self-referencing FK) en `is_keyuser` (tinyint). Nieuwe view `GET /medewerkers/hierarchie` toont een boomstructuur (`MedewerkerController::hierarchie()`, `MedewerkerModel::alleVoorHierarchie()`), keyusers krijgen een badge. Manager-select en keyuser-vinkje toegevoegd aan het medewerker create/edit-formulier.
-
-### Fase 2 — Urenstaat koppelen aan CRM/klant ✅
-`urenstaat_registraties` heeft een nieuwe nullable `keyuser_id` (FK → `medewerkers.id`), instelbaar via een "Keyuser/klant"-select in het urenstaat create/edit-formulier en zichtbaar in index/show (`MedewerkerModel::alleKeyusers()`).
-
-### Fase 3 — Agenda: overzicht "in behandeling" ✅
-Nieuwe route `GET /agenda/team-events` (`AgendaController::teamEvents()`, `AgendaItemModel::forTeam()`) toont afspraken van alle gebruikers, met een "Alle gebruikers"-vinkje en een "Alleen tickets 'in behandeling'"-filter naast de bestaande persoon-select. Titel/tooltip van elke afspraak toont nu wie hij is en waar hij aan gekoppeld is (gekoppelde titel + status), i.p.v. alleen de kale afspraaktitel.
-
-### Fase 4 — Tools: herstart-mail export ✅
-Nieuwe module `RestartReminderController` (`GET/POST /tools/herstart-herinneringen*`): toont apparaten met `SchijfgebruikHealth::evaluate()['herstart_nodig'] === true` + gekoppelde medewerker/e-mail, met CSV-export en een "Verstuur herinneringen"-knop die per medewerker een gepersonaliseerde mail verstuurt (`{naam}`/`{apparaat}`/`{dagen}`-placeholders). Onderwerp/inhoud/cc/bcc zijn instelbaar via een nieuwe tabel `herstart_herinnering_instellingen`. `Mailer::verstuur()` ondersteunt nu ook `$cc`/`$bcc` (echte SMTP Cc-header + RCPT TO, Bcc alleen RCPT TO). Verzending gaat rechtstreeks via `Mailer` (niet via de `email_queue`), omdat die wachtrij maar één mail tegelijk toestaat en dus niet geschikt is voor een bulkverzending naar meerdere medewerkers in één keer.
-Let op: een losse "CSV-import terug in het systeem" bleek niet nodig — de bestaande Schijfgebruik CSV-import (die `laatste_boot` bijwerkt) voedt de `herstart_nodig`-berekening al; er is geen apart importpad gebouwd.
-
-### Losse verkenning — geocoding/routing API (nog geen fase toegewezen)
-Nog te onderzoeken, niet gekoppeld aan een deadline; input voor een eventuele latere fase (bv. reistijd-indicatie bij Urenstaat/locaties). Coördinaten worden voor nu handmatig ingevuld naast het adresveld (zie `LocatieModel`); geen API-integratie inbouwen totdat hier bewust voor gekozen wordt.
+**Losse verkenning — geocoding/routing API (geen fase toegewezen):** nog te onderzoeken voor een eventuele reistijd-indicatie bij Urenstaat/locaties; coördinaten worden nu handmatig ingevuld naast het adresveld (zie `LocatieModel`). Geen API-integratie bouwen totdat hier bewust voor gekozen wordt.
 - OpenCage Geocoding API voor adres → coördinaten (`api.opencagedata.com/geocode/v1/json`); vereist eigen API-key, rate limits nog niet uitgezocht.
-- ANWB routing-API voor reistijd/afstand tussen coördinaten (incl. tolwegen) — bevestigd werkend via PowerShell:
-  ```powershell
-  $headers = @{ "x-anwb-caller-id" = "routing/traffic-info-web" }
-  $response = Invoke-RestMethod -Uri "https://api.anwb.nl/routing/route/v1/route/car?locations=51.193943%2C6.001977%3A51.454764%2C5.389512&tollInfo=true&traffic=true&routeType=fastest&includeAlternatives=true" -Headers $headers
-  $response.value | ForEach-Object {
-      [PSCustomObject]@{
-          RouteId = $_.id
-          AfstandKm = [math]::Round($_.summary.distanceInMeters / 1000, 1)
-          DuurMinuten = [math]::Round($_.summary.durationInSeconds / 60, 0)
-          Wegen = $_.summary.roadNumbers -join ", "
-          Tol = $_.summary.tollRoads
-      }
-  } | Format-Table -AutoSize
-  ```
-  Header `x-anwb-caller-id` is ongedocumenteerd/publiek; stabiliteit en gebruiksvoorwaarden voor productiegebruik nog niet bevestigd.
-
+- ANWB routing-API voor reistijd/afstand (incl. tolwegen) via `https://api.anwb.nl/routing/route/v1/route/car` met header `x-anwb-caller-id: routing/traffic-info-web` — werkend getest via PowerShell `Invoke-RestMethod`, maar de header is ongedocumenteerd/publiek en stabiliteit/gebruiksvoorwaarden voor productiegebruik zijn niet bevestigd.
 
