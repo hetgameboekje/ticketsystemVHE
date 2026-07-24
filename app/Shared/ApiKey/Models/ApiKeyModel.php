@@ -6,7 +6,7 @@ use App\Core\Database;
 use App\Core\Model;
 
 /**
- * Machine-to-machine API-sleutels voor externe scripts (bv. de Outlook-intake op it@vhe.nl of een
+ * Machine-to-machine API-sleutels voor externe scripts (bv. de Outlook-intake op it@bergthaler.dev of een
  * Taakplanner-taak), beheerd via Beheer > API-sleutels i.p.v. één gedeeld geheim in .env. Elke
  * sleutel heeft expliciete scopes (welke endpoints hij mag aanroepen) en kan los ingetrokken worden.
  */

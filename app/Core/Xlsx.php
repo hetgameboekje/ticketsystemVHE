@@ -6,7 +6,7 @@ class Xlsx
 {
     private const EXCEL_EPOCH = '1899-12-30';
 
-    public static function write(string $sheetName, array $headers, array $rows, array $dateColumns = [], string $author = 'Ticketsysteem VHE'): string
+    public static function write(string $sheetName, array $headers, array $rows, array $dateColumns = [], string $author = 'Ticketsysteem Leen van Punt'): string
     {
         return self::writeMultiSheet([
             ['name' => $sheetName, 'headers' => $headers, 'rows' => $rows, 'dateColumns' => $dateColumns],
@@ -17,7 +17,7 @@ class Xlsx
      * Zoals write(), maar met meerdere werkbladen in één workbook.
      * @param array<int, array{name: string, headers: array, rows: array, dateColumns?: array}> $sheets
      */
-    public static function writeMultiSheet(array $sheets, string $author = 'Ticketsysteem VHE'): string
+    public static function writeMultiSheet(array $sheets, string $author = 'Ticketsysteem Leen van Punt'): string
     {
         $now = gmdate('Y-m-d\TH:i:s\Z');
         $sheetNames = array_column($sheets, 'name');
@@ -320,7 +320,7 @@ class Xlsx
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
             . '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" '
             . 'xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">'
-            . '<Application>Ticketsysteem VHE</Application>'
+            . '<Application>Ticketsysteem Leen van Punt</Application>'
             . '<DocSecurity>0</DocSecurity>'
             . '<ScaleCrop>false</ScaleCrop>'
             . '<HeadingPairs><vt:vector size="2" baseType="variant">'

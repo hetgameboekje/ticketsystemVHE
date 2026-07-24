@@ -37,7 +37,7 @@ class EmailQueueController extends Controller
             $this->redirect('/beheer/emails');
         }
 
-        $onderwerp = 'Ticketsysteem VHE: testmail';
+        $onderwerp = 'Ticketsysteem Leen van Punt: testmail';
         $inhoud = 'Dit is een testmail, verstuurd via Beheer &gt; E-mails op ' . date('d-m-Y H:i') . '.';
 
         try {

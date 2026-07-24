@@ -26,7 +26,7 @@ return [
     'db' => [
         'host'     => $env('DB_HOST', '127.0.0.1'),
         'port'     => $env('DB_PORT', '3306'),
-        'database' => $env('DB_DATABASE', 'vhe'),
+        'database' => $env('DB_DATABASE', 'leenvanpunt'),
         'username' => $env('DB_USERNAME', 'root'),
         'password' => $env('DB_PASSWORD', ''),
     ],
@@ -66,8 +66,8 @@ return [
         'encryption' => $env('MAIL_ENCRYPTION', 'tls'),
         'username' => $env('MAIL_USERNAME'),
         'password' => $env('MAIL_PASSWORD'),
-        'from_address' => $env('MAIL_FROM_ADDRESS', 'noreply@vhe.nl'),
-        'from_name' => $env('MAIL_FROM_NAME', 'Ticketsysteem VHE'),
+        'from_address' => $env('MAIL_FROM_ADDRESS', 'noreply@bergthaler.dev'),
+        'from_name' => $env('MAIL_FROM_NAME', 'Ticketsysteem Leen van Punt'),
         'admin_address' => $env('MAIL_ADMIN_ADDRESS'),
     ],
 ];

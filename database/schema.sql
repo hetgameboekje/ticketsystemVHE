@@ -1,6 +1,6 @@
 -- Intranet database schema (MySQL / MariaDB)
 -- Voer uit in HeidiSQL (open dit bestand als query-tab) of via:
--- mysql -u root vhe < database/schema.sql
+-- mysql -u root leenvanpunt < database/schema.sql
 
 CREATE TABLE IF NOT EXISTS users (
     id              INT AUTO_INCREMENT PRIMARY KEY,

@@ -37,7 +37,7 @@ class EmailAnalysisController extends Controller
 
         foreach (ImportedEmailModel::metStatus('stored', self::BATCHGROOTTE) as $email) {
             try {
-                $analyse = $aiService->analyseer($email['onderwerp'], $email['body_schoon']);
+                $analyse = $aiService->analyseer($email);
 
                 EmailAiAnalysisModel::create([
                     'imported_email_id' => $email['id'],

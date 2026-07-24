@@ -7,7 +7,7 @@ use App\Modules\EmailVerwerking\Models\ImportedEmailModel;
 use App\Modules\EmailVerwerking\Models\ProcessingLogModel;
 
 /**
- * Neemt e-mails aan vanuit een extern script (bv. mailmind_intake.py op it@vhe.nl, zie
+ * Neemt e-mails aan vanuit een extern script (bv. mailmind_intake.py op it@bergthaler.dev, zie
  * scripts/automation/outlook-intake/) voor de e-mail-/kennisbankverwerkingspipeline. Geen
  * sessie-auth — API-sleutel met scope 'email_import', zelfde patroon als TicketEmailIntakeController.
  */

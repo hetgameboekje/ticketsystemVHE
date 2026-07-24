@@ -1,5 +1,5 @@
 """
-Leest ongelezen mail uit de gedeelde mailbox IT@vhe.nl (via Outlook Classic/pywin32) en zet ze om
+Leest ongelezen mail uit de gedeelde mailbox IT@bergthaler.dev (via Outlook Classic/pywin32) en zet ze om
 naar tickets op het intranet, door te posten naar de bestaande e-mail-intake-endpoints:
 
 - Eindgebruiker/key-user-mail  -> POST /api/tickets/vanuit-email      (TicketEmailIntakeController::store)

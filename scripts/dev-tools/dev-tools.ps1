@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    Interactief dev-onderhoudsmenu voor Ticketsysteem VHE.
+    Interactief dev-onderhoudsmenu voor Ticketsysteem Leen van Punt.
 
 .DESCRIPTION
     Pijltjes = navigeren, Spatie = selecteren, Enter = uitvoeren, Esc = annuleren.
@@ -37,7 +37,7 @@ function Show-CheckboxMenu {
 
     while ($true) {
         Clear-Host
-        Write-Host "Ticketsysteem VHE - dev-tools" -ForegroundColor Cyan
+        Write-Host "Ticketsysteem Leen van Punt - dev-tools" -ForegroundColor Cyan
         Write-Host "Pijltjes = navigeren, Spatie = selecteren, Enter = uitvoeren, Esc = annuleren`n"
         for ($i = 0; $i -lt $Items.Count; $i++) {
             $marker = if ($selected[$i]) { '[x]' } else { '[ ]' }
@@ -143,7 +143,7 @@ function Invoke-PullLive {
         return
     }
 
-    $dumpFile = Join-Path $env:TEMP "vhe-live-dump-$(Get-Date -Format 'yyyyMMdd-HHmmss').sql"
+    $dumpFile = Join-Path $env:TEMP "leenvanpunt-live-dump-$(Get-Date -Format 'yyyyMMdd-HHmmss').sql"
     Write-Host "Dump downloaden van $url ..."
     try {
         Invoke-WebRequest -Uri $url -Headers @{ 'X-Api-Key' = $apiKey } -OutFile $dumpFile -UseBasicParsing

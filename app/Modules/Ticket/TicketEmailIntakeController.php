@@ -8,7 +8,7 @@ use App\Modules\Ticket\Models\TicketModel;
 use App\Shared\User\Models\UserModel;
 
 /**
- * Neemt tickets aan vanuit een extern script (bv. het Outlook/pywin32-script op it@vhe.nl,
+ * Neemt tickets aan vanuit een extern script (bv. het Outlook/pywin32-script op it@bergthaler.dev,
  * zie scripts/automation/outlook-intake/) i.p.v. via de ingelogde UI. Geen sessie-auth — authenticatie
  * gaat via een API-sleutel met de juiste scope (zie App\Shared\ApiKey\Models\ApiKeyModel en
  * Beheer > API-sleutels), vergelijkbaar met een webhook.
@@ -61,7 +61,7 @@ class TicketEmailIntakeController extends Controller
     }
 
     /**
-     * Neemt ACA-case-updatemails aan (zie Python/pywin32-script op it@vhe.nl). Het CAS-nummer
+     * Neemt ACA-case-updatemails aan (zie Python/pywin32-script op it@bergthaler.dev). Het CAS-nummer
      * (bv. "CAS-109512-R6Z2W3") blijft constant over de levensduur van een case, terwijl het
      * ACA-nummer per update-mail wijzigt — het CAS-nummer is dus de sleutel om updates aan
      * hetzelfde ticket te koppelen (opgeslagen in escalatie_nummer, net als handmatige escalaties).

@@ -62,7 +62,7 @@ $terugUrl = $isEdit ? "/tools/handtekeningen/{$signature['id']}/bewerken" : '/to
       <div style="padding:16px">
         <?php if (empty($logos)): ?>
           <p style="font-size:13px;color:var(--color-text-secondary);margin-top:0">
-            Nog geen logo's geüpload. Upload hieronder bijvoorbeeld het logo van "VHE Automation Industry" en van "VHE | Asia" — daarna kun je ze per handtekening kiezen bij een regel van het type "Logo".
+            Nog geen logo's geüpload. Upload hieronder bijvoorbeeld het logo van "Leen van Punt Industry" en van "Leen van Punt | Azië" — daarna kun je ze per handtekening kiezen bij een regel van het type "Logo".
           </p>
         <?php else: ?>
           <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px">
@@ -84,7 +84,7 @@ $terugUrl = $isEdit ? "/tools/handtekeningen/{$signature['id']}/bewerken" : '/to
           <div class="form-grid">
             <div class="form-group">
               <label class="form-label">Naam</label>
-              <input type="text" name="logo_naam" placeholder="Bijv. VHE Automation Industry" required>
+              <input type="text" name="logo_naam" placeholder="Bijv. Leen van Punt Industry" required>
             </div>
             <div class="form-group">
               <label class="form-label">Breedte (px)</label>

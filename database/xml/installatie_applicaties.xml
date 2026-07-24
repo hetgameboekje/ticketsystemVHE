@@ -17,7 +17,7 @@
     <row><value column="naam">SentinelOne</value><value column="volgorde">8</value></row>
     <row><value column="naam">NinjaOne</value><value column="volgorde">9</value></row>
     <row><value column="naam">Exact</value><value column="volgorde">10</value></row>
-    <row><value column="naam">corp.vhe.nl</value><value column="volgorde">11</value></row>
+    <row><value column="naam">corp.bergthaler.dev</value><value column="volgorde">11</value></row>
     <row><value column="naam">Windows updates</value><value column="volgorde">12</value></row>
     <row><value column="naam">Office 365</value><value column="volgorde">13</value></row>
   </seed>

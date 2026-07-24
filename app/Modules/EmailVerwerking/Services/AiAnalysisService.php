@@ -3,10 +3,10 @@
 namespace App\Modules\EmailVerwerking\Services;
 
 /**
- * Roept de geconfigureerde AI-provider (config/config.php 'ai', zie .env: AI_API_KEY/AI_API_URL/AI_MODEL)
- * aan om één e-mail te classificeren en dwingt een vast JSON-schema af via de systeemprompt. Default
- * implementatie praat tegen de Anthropic Messages API; andere providers kunnen door deze klasse te
- * vervangen zolang analyseer() hetzelfde array-schema teruggeeft (zie validateer()).
+ * Stuurt een e-mail door naar de externe n8n-orkestratielaag (config/config.php 'n8n', zie .env:
+ * N8N_WEBHOOK_URL/N8N_API_KEY) die de eigenlijke classificatie/extractie uitvoert, en verwacht
+ * daar het vaste JSON-schema terug dat validateer() afdwingt (zelfde schema als voorheen door de
+ * Anthropic-call gevuld) zodat EmailAnalysisController en KbDraftGenerator ongewijzigd blijven.
  *
  * Bevat bewust geen retry/backoff-logica — EmailAnalysisController::verwerken() laat een mislukte
  * e-mail gewoon op status 'stored' staan zodat de eerstvolgende cron-run het opnieuw probeert.
@@ -18,27 +18,9 @@ class AiAnalysisService
         'oplossing_suggestie', 'voorgestelde_titel', 'tags', 'confidence',
     ];
 
-    private const SYSTEEMPROMPT = <<<'PROMPT'
-        Je bent een IT-supportanalist. Analyseer de meegegeven e-mail (onderwerp + inhoud) en geef
-        UITSLUITEND een geldig JSON-object terug, zonder omliggende tekst of markdown-codeblok, met
-        exact deze velden:
-        {
-          "onderwerp": string (kort, herkend onderwerp/probleemtype),
-          "categorie": string (kennisbankcategorie, bv. "Server Documentation", "Password & Security"),
-          "subcategorie": string of null,
-          "sentiment": string (bv. "neutraal", "gefrustreerd", "urgent"),
-          "urgentie": "laag" | "normaal" | "hoog",
-          "samenvatting": string (1-2 zinnen),
-          "probleem": string (wat er precies misgaat),
-          "oplossing_suggestie": string (voorgestelde aanpak),
-          "voorgestelde_titel": string (titel voor een kennisbankartikel),
-          "tags": array van maximaal 5 losse tag-strings,
-          "confidence": number tussen 0 en 1,
-          "mens_review_aanbevolen": boolean
-        }
-        PROMPT;
-
     /**
+     * @param array $email rij uit imported_emails (id, bron_message_id, afzender_email,
+     *   afzender_naam, onderwerp, body_schoon, ontvangen_at, ...)
      * @return array{
      *   onderwerp:string, categorie:string, subcategorie:?string, sentiment:string, urgentie:string,
      *   samenvatting:string, probleem:string, oplossing_suggestie:string, voorgestelde_titel:string,
@@ -46,23 +28,36 @@ class AiAnalysisService
      * }
      * @throws \RuntimeException bij een configuratie-, netwerk- of parsefout (vangen in de aanroeper).
      */
-    public function analyseer(string $onderwerp, string $body): array
+    public function analyseer(array $email): array
     {
         $config = self::config();
-        if ($config['apiKey'] === '') {
-            throw new \RuntimeException('Geen AI-provider geconfigureerd (AI_API_KEY ontbreekt in .env).');
+        if ($config['webhookUrl'] === '') {
+            throw new \RuntimeException('Geen n8n-webhook geconfigureerd (N8N_WEBHOOK_URL ontbreekt in .env).');
         }
 
         $payload = json_encode([
-            'model' => $config['model'],
-            'max_tokens' => 1024,
-            'system' => self::SYSTEEMPROMPT,
-            'messages' => [
-                ['role' => 'user', 'content' => "Onderwerp: {$onderwerp}\n\nInhoud:\n{$body}"],
+            'source' => 'email',
+            'messageId' => $email['bron_message_id'],
+            'threadId' => '',
+            'receivedAt' => self::isoDatum($email['ontvangen_at'] ?? null),
+            'from' => [
+                'name' => $email['afzender_naam'] ?? '',
+                'email' => $email['afzender_email'],
+            ],
+            'to' => [],
+            'subject' => $email['onderwerp'],
+            'bodyText' => $email['body_schoon'],
+            'bodyHtml' => '',
+            'attachments' => [],
+            'labels' => [],
+            'metadata' => [
+                'tenant' => 'default',
+                'environment' => getenv('APP_ENV') ?: 'production',
+                'origin' => 'ticketsysteem-leenvanpunt',
             ],
         ], JSON_THROW_ON_ERROR);
 
-        $ch = curl_init($config['apiUrl']);
+        $ch = curl_init($config['webhookUrl']);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
@@ -71,7 +66,6 @@ class AiAnalysisService
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
                 'x-api-key: ' . $config['apiKey'],
-                'anthropic-version: 2023-06-01',
             ],
         ]);
 
@@ -81,34 +75,31 @@ class AiAnalysisService
         curl_close($ch);
 
         if ($response === false) {
-            throw new \RuntimeException("AI-provider onbereikbaar: {$curlError}");
+            throw new \RuntimeException("n8n-webhook onbereikbaar: {$curlError}");
         }
         if ($httpCode >= 400) {
-            throw new \RuntimeException("AI-provider gaf HTTP {$httpCode} terug: " . substr($response, 0, 500));
+            throw new \RuntimeException("n8n-webhook gaf HTTP {$httpCode} terug: " . substr($response, 0, 500));
         }
 
-        $tekst = self::extraheerTekst($response);
-        $analyse = self::parseJson($tekst);
+        $analyse = self::parseJson($response);
         self::valideer($analyse);
 
         $analyse['ruwe_response'] = $response;
-        $analyse['model_versie'] = $config['model'];
+        $analyse['model_versie'] = 'n8n';
 
         return $analyse;
     }
 
-    private static function extraheerTekst(string $response): string
+    private static function isoDatum(?string $ontvangenAt): string
     {
-        $decoded = json_decode($response, true);
-        $tekst = $decoded['content'][0]['text'] ?? null;
-        if (!is_string($tekst) || $tekst === '') {
-            throw new \RuntimeException('Onverwacht antwoordformaat van de AI-provider (geen content[0].text).');
+        if ($ontvangenAt === null || $ontvangenAt === '') {
+            return (new \DateTime())->format(DATE_ATOM);
         }
 
-        return $tekst;
+        return (new \DateTime($ontvangenAt))->format(DATE_ATOM);
     }
 
-    /** De AI kan ondanks instructie toch een codeblok om de JSON heen zetten — dit strippen we zonder te falen. */
+    /** n8n kan ondanks afspraak toch een codeblok om de JSON heen zetten — dit strippen we zonder te falen. */
     private static function parseJson(string $tekst): array
     {
         $tekst = trim($tekst);
@@ -117,7 +108,7 @@ class AiAnalysisService
 
         $decoded = json_decode($tekst, true);
         if (!is_array($decoded)) {
-            throw new \RuntimeException('AI-response is geen geldig JSON-object: ' . substr($tekst, 0, 300));
+            throw new \RuntimeException('n8n-response is geen geldig JSON-object: ' . substr($tekst, 0, 300));
         }
 
         return $decoded;
@@ -127,13 +118,13 @@ class AiAnalysisService
     {
         $ontbrekend = array_diff(self::VERPLICHTE_VELDEN, array_keys($analyse));
         if ($ontbrekend !== []) {
-            throw new \RuntimeException('AI-response mist verplichte velden: ' . implode(', ', $ontbrekend));
+            throw new \RuntimeException('n8n-response mist verplichte velden: ' . implode(', ', $ontbrekend));
         }
     }
 
     private static function config(): array
     {
         $config = require APP_ROOT . '/config/config.php';
-        return $config['ai'];
+        return $config['n8n'];
     }
 }
