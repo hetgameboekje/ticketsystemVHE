@@ -27,6 +27,7 @@ class RechtenModel extends Model
         'schijfgebruik' => 'Schijfgebruik',
         'scripts' => 'Scripts',
         'urenstaat' => 'Urenstaat',
+        'email_verwerking' => 'E-mail & kennisbank verwerking',
     ];
 
     public static function has(int $userId, string $module, string $actie): bool

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="kb_article_drafts" engine="InnoDB">
+  <columns>
+    <column name="id" type="INT" primary="true" auto_increment="true"/>
+    <column name="titel" type="VARCHAR" length="255" nullable="false"/>
+    <column name="categorie" type="VARCHAR" length="100" nullable="false" default="'Algemeen'"/>
+    <column name="subcategorie" type="VARCHAR" length="100"/>
+    <column name="samenvatting" type="TEXT"/>
+    <column name="probleem" type="TEXT"/>
+    <column name="oplossing" type="TEXT"/>
+    <column name="stappenplan" type="TEXT"/>
+    <column name="tags" type="VARCHAR" length="500"/>
+    <column name="status" type="VARCHAR" length="20" nullable="false" default="'draft_created'"/>
+    <column name="confidence" type="DECIMAL" length="5,2"/>
+    <!-- Geen references="kennisbank_artikelen.id"/"users.id": die tabellen dateren van vóór het
+         XML-schemasysteem (zie SchemaParser::LEGACY_PLAIN_INT_TABLES) en hun werkelijke id-kolomtype
+         kan per omgeving afwijken van die aanname — zelfde aanpak als kennisbank_artikelen.auteur_id
+         en tickets.behandelaar_id, die om diezelfde reden ook geen DB-niveau FK-constraint hebben. -->
+    <column name="kennisbank_artikel_id" type="INT"/>
+    <column name="reviewer_id" type="INT"/>
+    <column name="versie" type="INT" nullable="false" default="1"/>
+    <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
+    <column name="updated_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP" on_update="CURRENT_TIMESTAMP"/>
+    <column name="deleted_at" type="TIMESTAMP" nullable="true"/>
+  </columns>
+</table>

@@ -7,7 +7,7 @@
 /** @var string $csrfToken */
 
 $navRechten = $navRechten ?? [];
-$magService = array_filter(['tickets', 'verbeterpunten', 'reflecties', 'kennisbank'], fn($m) => $navRechten[$m] ?? false);
+$magService = array_filter(['tickets', 'verbeterpunten', 'reflecties', 'kennisbank', 'email_verwerking'], fn($m) => $navRechten[$m] ?? false);
 $magAssets = array_filter(['voorraad', 'uitgiften', 'printers'], fn($m) => $navRechten[$m] ?? false);
 $magSecurity = array_filter(['cyberrisicos'], fn($m) => $navRechten[$m] ?? false);
 $magCrm = array_filter(['medewerkers', 'urenstaat'], fn($m) => $navRechten[$m] ?? false);
@@ -76,7 +76,7 @@ $active = $activeModule ?? '';
 
                 <?php if ($magService): ?>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle<?= dropdownActive(['service', 'tickets', 'verbeterpunten', 'reflecties', 'kennisbank'], $active) ?>"
+                    <a class="nav-link dropdown-toggle<?= dropdownActive(['service', 'tickets', 'verbeterpunten', 'reflecties', 'kennisbank', 'email_verwerking'], $active) ?>"
                        href="#"
                        id="serviceDropdown"
                        role="button"
@@ -89,6 +89,7 @@ $active = $activeModule ?? '';
                         <?php if ($navRechten['verbeterpunten'] ?? false): ?><li><a class="dropdown-item<?= navActive('verbeterpunten', $active) ?>" href="/verbeterpunten">Verbeterpunten</a></li><?php endif; ?>
                         <?php if ($navRechten['reflecties'] ?? false): ?><li><a class="dropdown-item<?= navActive('reflecties', $active) ?>" href="/reflecties">Reflectie</a></li><?php endif; ?>
                         <?php if ($navRechten['kennisbank'] ?? false): ?><li><a class="dropdown-item<?= navActive('kennisbank', $active) ?>" href="/kennisbank">Kennisbank</a></li><?php endif; ?>
+                        <?php if ($navRechten['email_verwerking'] ?? false): ?><li><a class="dropdown-item<?= navActive('email_verwerking', $active) ?>" href="/email-verwerking">E-mail &amp; kennisbank verwerking</a></li><?php endif; ?>
                     </ul>
                 </li>
                 <?php endif; ?>

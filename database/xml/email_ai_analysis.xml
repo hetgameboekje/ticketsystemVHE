@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="email_ai_analysis" engine="InnoDB">
+  <columns>
+    <column name="id" type="INT" primary="true" auto_increment="true"/>
+    <column name="imported_email_id" type="INT" nullable="false" references="imported_emails.id" on_delete="CASCADE"/>
+    <column name="model_versie" type="VARCHAR" length="100" nullable="false"/>
+    <column name="herkend_onderwerp" type="VARCHAR" length="255"/>
+    <column name="categorie" type="VARCHAR" length="100"/>
+    <column name="subcategorie" type="VARCHAR" length="100"/>
+    <column name="sentiment" type="VARCHAR" length="50"/>
+    <column name="urgentie" type="VARCHAR" length="20"/>
+    <column name="samenvatting" type="TEXT"/>
+    <column name="probleem" type="TEXT"/>
+    <column name="oplossing_suggestie" type="TEXT"/>
+    <column name="voorgestelde_titel" type="VARCHAR" length="255"/>
+    <column name="tags" type="VARCHAR" length="500"/>
+    <column name="confidence" type="DECIMAL" length="5,2"/>
+    <column name="mens_review_aanbevolen" type="TINYINT" nullable="false" default="0"/>
+    <column name="ruwe_response" type="LONGTEXT"/>
+    <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
+  </columns>
+</table>

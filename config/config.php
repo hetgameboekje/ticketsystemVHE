@@ -48,6 +48,18 @@ return [
     // Niet per omgeving geprefixt — hoeft niet te verschillen tussen local/hostnet.
     'logRetentieDagen' => (int) (getenv('LOG_RETENTIE_DAGEN') ?: 90),
 
+    // AI-verwerking voor de e-mail-/kennisbankverwerking (App\Modules\EmailVerwerking\Services\AiAnalysisService)
+    // draait via een eigen n8n-orkestratielaag i.p.v. een directe AI-provider-call.
+    // Niet per omgeving geprefixt: dezelfde webhook/sleutel gelden lokaal en op Hostnet.
+    'ai' => [
+        'confidenceDrempel' => (float) (getenv('AI_CONFIDENCE_DREMPEL') ?: 0.75),
+    ],
+
+    'n8n' => [
+        'webhookUrl' => getenv('N8N_WEBHOOK_URL') ?: '',
+        'apiKey' => getenv('N8N_API_KEY') ?: '',
+    ],
+
     'mail' => [
         'host' => $env('MAIL_HOST'),
         'port' => (int) $env('MAIL_PORT', '587'),

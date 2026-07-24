@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="email_import_batches" engine="InnoDB">
+  <columns>
+    <column name="id" type="INT" primary="true" auto_increment="true"/>
+    <column name="bron" type="VARCHAR" length="100" nullable="false"/>
+    <column name="status" type="VARCHAR" length="20" nullable="false" default="'lopend'"/>
+    <column name="aantal_gevonden" type="INT" nullable="false" default="0"/>
+    <column name="aantal_verwerkt" type="INT" nullable="false" default="0"/>
+    <column name="aantal_mislukt" type="INT" nullable="false" default="0"/>
+    <column name="gestart_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
+    <column name="voltooid_at" type="TIMESTAMP" nullable="true"/>
+    <column name="created_at" type="TIMESTAMP" nullable="false" default="CURRENT_TIMESTAMP"/>
+  </columns>
+</table>

@@ -16,6 +16,9 @@ use App\Modules\Beheer\RechtenController;
 use App\Modules\CyberRisico\CyberRisicoController;
 use App\Modules\CyberRisico\CyberRisicoLogController;
 use App\Modules\Device\DeviceController;
+use App\Modules\EmailVerwerking\EmailAnalysisController;
+use App\Modules\EmailVerwerking\EmailImportController;
+use App\Modules\EmailVerwerking\EmailVerwerkingController;
 use App\Modules\HardwareUitgave\HardwareUitgaveController;
 use App\Modules\Kennisbank\KennisbankController;
 use App\Modules\Kennisbank\KennisbankLogController;
@@ -88,6 +91,21 @@ $router->post('/api/email-queue/verwerken', [AutomationController::class, 'email
 $router->post('/api/tickets/herinneringen', [AutomationController::class, 'ticketHerinneringenGenereren']);
 $router->post('/api/logs/opschonen', [AutomationController::class, 'logsOpschonen']);
 $router->get('/api/database/export', [AutomationController::class, 'databaseExport']);
+
+// E-mail & kennisbank verwerking (MailMind): webhook + achtergrondtaak, zelfde patroon als
+// TicketEmailIntakeController/AutomationController hierboven.
+$router->post('/api/email-import/inbound', [EmailImportController::class, 'store']);
+$router->post('/api/email-analysis/verwerken', [EmailAnalysisController::class, 'verwerken']);
+
+$router->get('/email-verwerking', [EmailVerwerkingController::class, 'dashboard']);
+$router->get('/email-verwerking/inbox', [EmailVerwerkingController::class, 'inbox']);
+$router->get('/email-verwerking/logboek', [EmailVerwerkingController::class, 'logboek']);
+$router->get('/email-verwerking/review', [EmailVerwerkingController::class, 'review']);
+$router->get('/email-verwerking/concepten/{id}', [EmailVerwerkingController::class, 'conceptBewerken']);
+$router->post('/email-verwerking/concepten/{id}', [EmailVerwerkingController::class, 'conceptOpslaan']);
+$router->post('/email-verwerking/concepten/{id}/publiceren', [EmailVerwerkingController::class, 'publiceren']);
+$router->post('/email-verwerking/concepten/{id}/afwijzen', [EmailVerwerkingController::class, 'afwijzen']);
+$router->get('/email-verwerking/{id}', [EmailVerwerkingController::class, 'show']);
 
 $router->get('/overzicht', [OverviewController::class, 'index']);
 
