@@ -13,6 +13,10 @@ class OverviewController extends Controller
         'kennisbank' => ['titel' => 'Kennisbank', 'omschrijving' => "Handleidingen, FAQ's en quick-action scripts.", 'link' => '/kennisbank'],
     ];
 
+    private const AGENDA_TILES = [
+        'agenda' => ['titel' => 'Agenda', 'omschrijving' => 'Afspraken inplannen en het teamoverzicht bekijken.', 'link' => '/agenda'],
+    ];
+
     private const ASSETS_TILES = [
         'voorraad' => ['titel' => 'Voorraad', 'omschrijving' => 'Voorraaditems en aantallen beheren.', 'link' => '/voorraad'],
         'uitgiften' => ['titel' => 'Uitgifte', 'omschrijving' => 'Items toewijzen aan medewerkers en retour nemen.', 'link' => '/uitgiften'],
@@ -31,6 +35,14 @@ class OverviewController extends Controller
 
     private const CRM_TILES = [
         'medewerkers' => ['titel' => 'Medewerkers', 'omschrijving' => 'Medewerkersgegevens en afdelingen beheren.', 'link' => '/medewerkers'],
+        'urenstaat' => ['titel' => 'Urenstaat', 'omschrijving' => 'Gewerkte uren en locaties registreren.', 'link' => '/urenstaat'],
+    ];
+
+    private const TOOLS_TILES = [
+        'telefoonlijst' => ['titel' => 'Telefoonlijst naar VCF', 'omschrijving' => 'Interne telefoonlijst omzetten naar een .vcf-bestand.', 'link' => '/tools/telefoonlijst'],
+        'handtekeningen' => ['titel' => 'Handtekeningen', 'omschrijving' => 'E-mailhandtekening samenstellen uit tekst, iconen en logo\'s.', 'link' => '/tools/handtekeningen'],
+        'herstart-herinneringen' => ['titel' => 'Herstart-herinneringen', 'omschrijving' => 'Apparaten die lang niet herstart zijn en herinneringsmails versturen.', 'link' => '/tools/herstart-herinneringen'],
+        'installatie' => ['titel' => 'Installatie', 'omschrijving' => 'Installatie-checklist beheren, printen of digitaal afvinken.', 'link' => '/tools/installatie'],
     ];
 
     public function index(): void
@@ -39,6 +51,7 @@ class OverviewController extends Controller
 
         $categorieen = [
             'Service' => self::SERVICE_TILES,
+            'Agenda' => self::AGENDA_TILES,
             'Assets' => self::ASSETS_TILES,
             'Security' => self::SECURITY_TILES,
             'Onderhoud' => self::ONDERHOUD_TILES,
@@ -52,6 +65,9 @@ class OverviewController extends Controller
                 $groups[$label] = $toegestaan;
             }
         }
+
+        // Tools zijn niet aan de rechtenmatrix gekoppeld — elke ingelogde gebruiker mag ze gebruiken.
+        $groups['Tools'] = self::TOOLS_TILES;
 
         $this->render('Shared/Overview/Views/OverviewView/index', [
             'activeModule' => 'overzicht',
