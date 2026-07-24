@@ -20,7 +20,9 @@ Database:
 php database/parse.php     # regenerate database/.parsed/schema.sql from database/xml/*.xml
 php database/seed.php      # seed demo user (timo@bergthaler.nl / demo123, override via SEED_USER_* in .env)
 php database/clear.php --force   # drop all local tables and rebuild schema
+php database/rename_database.php <nieuwe_naam> [--drop-old]   # rename the live DB in place (no dump/restore)
 ```
+For Hostnet (no php-cli access), `database/rename_database_hostnet.sql` does the same rename via plain `RENAME TABLE` statements, runnable from phpMyAdmin's SQL tab — see the comment header in that file for the required steps (new database must be created via Hostnet's control panel first).
 Table definitions live as XML in `database/xml/*.xml`; edit those, not `database/schema.sql` directly, then run `php database/parse.php`. The Beheer UI ("Database toepassen") can also add missing tables/columns automatically but never alters an existing column type.
 
 Windows dev helper (interactive menu for the above plus git pull, `.env` rebuild, pulling a live DB dump):
