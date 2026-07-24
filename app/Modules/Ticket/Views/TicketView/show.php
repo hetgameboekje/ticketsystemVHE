@@ -12,6 +12,9 @@ $statussen = ['open' => 'Open', 'in_behandeling' => 'In behandeling', 'wacht_op_
 // verdwijnt de opmerking uit beeld zodra hij samen met een statuswijziging is opgeslagen.
 $statusLogs = array_values(array_filter($logs, fn ($log) => $log['status_naar'] !== null));
 $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['titel'] ?? '') !== ''));
+
+$flashError = $_SESSION['flash_error'] ?? null;
+unset($_SESSION['flash_error']);
 ?>
 <div class="page-header">
   <div style="display:flex;align-items:center;gap:12px">
@@ -24,6 +27,10 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['titel'] 
     <?= deleteButton('tickets', $item['id']) ?>
   </div>
 </div>
+
+<?php if ($flashError): ?>
+  <div class="alert alert-error"><?= htmlspecialchars($flashError) ?></div>
+<?php endif; ?>
 
 <div class="detail-layout-3col">
   <div class="area-col1">
@@ -44,11 +51,11 @@ $opmerkingen = array_values(array_filter($logs, fn ($log) => trim($log['titel'] 
         <form method="post" action="/tickets/<?= $item['id'] ?>/log" id="ticketLogForm">
           <div class="form-group">
             <label class="form-label">Titel</label>
-            <input type="text" name="titel" placeholder="Korte titel voor deze opmerking">
+            <input type="text" name="titel" id="opmerkingTitel" placeholder="Korte titel voor deze opmerking">
           </div>
           <div class="form-group">
             <label class="form-label">Opmerking toevoegen</label>
-            <textarea name="opmerking" placeholder="Beschrijf wat je gedaan hebt of vraag om meer informatie..."></textarea>
+            <textarea name="opmerking" id="opmerkingTekst" placeholder="Beschrijf wat je gedaan hebt of vraag om meer informatie..."></textarea>
           </div>
           <button class="btn btn-primary" type="submit">Opslaan</button>
         </form>
@@ -243,6 +250,23 @@ document.addEventListener('DOMContentLoaded', function () {
             sessionStorage.setItem(scrollKey, String(window.scrollY));
         });
     });
+
+    var ticketLogForm = document.getElementById('ticketLogForm');
+    var opmerkingTitel = document.getElementById('opmerkingTitel');
+    var opmerkingTekst = document.getElementById('opmerkingTekst');
+    if (ticketLogForm && opmerkingTitel && opmerkingTekst) {
+        ticketLogForm.addEventListener('submit', function (e) {
+            if (opmerkingTekst.value.trim() !== '' && opmerkingTitel.value.trim() === '') {
+                e.preventDefault();
+                opmerkingTitel.setCustomValidity('Vul een titel in om deze opmerking op te slaan.');
+                opmerkingTitel.reportValidity();
+                opmerkingTitel.focus();
+            }
+        });
+        opmerkingTitel.addEventListener('input', function () {
+            opmerkingTitel.setCustomValidity('');
+        });
+    }
 
     document.querySelectorAll('.collapsible-text').forEach(function (el) {
         if (el.scrollHeight <= el.clientHeight + 1) {
