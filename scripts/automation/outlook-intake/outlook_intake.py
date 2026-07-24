@@ -125,6 +125,29 @@ def post_eindgebruiker_mail(base_url: str, api_key: str, afzender: str, titel: s
     return resp.json()
 
 
+def post_mailmind_import(base_url: str, api_key: str, mail, afzender: str, onderwerp: str, body: str) -> dict:
+    """Stuurt dezelfde e-mail ook naar de e-mail-/kennisbankverwerkingspipeline (MailMind), zodat elke
+    ticketmelding ook meetelt voor logboekregistratie, AI-analyse en kennisbankopbouw
+    (App\\Modules\\EmailVerwerking\\EmailImportController). Los van de ticketaanmaak hierboven: een
+    mislukking hier mag de ticketflow nooit blokkeren (zie de aanroep in verwerk_mail())."""
+    resp = requests.post(
+        f"{base_url}/api/email-import/inbound",
+        headers={"X-Api-Key": api_key},
+        data={
+            "bron_message_id": mail.EntryID,
+            "afzender_email": afzender,
+            "afzender_naam": mail.SenderName or "",
+            "onderwerp": onderwerp,
+            "body_ruw": mail.Body or "",
+            "body_schoon": body,
+            "ontvangen_op": mail.ReceivedTime.isoformat(),
+        },
+        timeout=30,
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
 def post_aca_update(base_url: str, api_key: str, match: re.Match, body: str, behandelaar_hint: str) -> dict:
     resp = requests.post(
         f"{base_url}/api/tickets/vanuit-aca-email",
@@ -166,6 +189,16 @@ def verwerk_mail(mail, config: configparser.SectionProxy) -> bool:
 
     resultaat = post_eindgebruiker_mail(base_url, api_key, afzender, onderwerp, body, behandelaar_hint)
     logging.info('Eindgebruiker-mail verwerkt ("%s" van %s): %s', onderwerp, afzender, resultaat)
+
+    # Best-effort: telt ook mee voor de e-mail-/kennisbankverwerkingspipeline (MailMind). Een fout hier
+    # mag de ticketaanmaak hierboven nooit blokkeren of de mail alsnog ongelezen laten — vandaar een
+    # eigen try/except in plaats van de fout door te laten lopen naar de aanroeper van verwerk_mail().
+    try:
+        mailmind_resultaat = post_mailmind_import(base_url, api_key, mail, afzender, onderwerp, body)
+        logging.info("MailMind-import verwerkt: %s", mailmind_resultaat)
+    except Exception:
+        logging.exception('MailMind-import mislukt voor "%s" (ticket is wel aangemaakt) — genegeerd.', onderwerp)
+
     return True
 
 

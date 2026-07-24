@@ -26,6 +26,8 @@ class ApiKeyModel extends Model
         'ticket_herinneringen' => 'Ticketherinneringen genereren (Taakplanner)',
         'database_export' => 'Database-export (dev-sync: live database ophalen naar lokale omgeving)',
         'log_opschonen' => 'Oude logregels opschonen (Taakplanner)',
+        'email_import' => 'E-mailimport voor E-mail & kennisbank verwerking (MailMind-intake)',
+        'email_analysis' => 'AI-analyse en conceptartikelen verwerken (Taakplanner)',
     ];
 
     /** @return array{id:int,plaintext:string} */

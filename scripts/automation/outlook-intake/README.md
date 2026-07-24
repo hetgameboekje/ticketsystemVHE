@@ -11,6 +11,14 @@ Twee mailtypes worden herkend, op basis van het afzenderadres:
 - **Overige mail** (eindgebruikers/key-users) → `POST /api/tickets/vanuit-email`, altijd een nieuw
   ticket (met dedupe op afzender+titel binnen 30 dagen, zie `TicketEmailIntakeController`).
 
+Elke eindgebruiker/key-user-mail wordt daarnaast ook gepost naar `POST /api/email-import/inbound`
+(`App\Modules\EmailVerwerking\EmailImportController`) — de e-mail-/kennisbankverwerkingspipeline
+("E-mail & kennisbank verwerking" in het intranetmenu) die e-mails logt, laat classificeren door AI
+en omzet in kennisbankconcepten. Dit is best-effort: mislukt deze tweede POST, dan blijft het ticket
+gewoon aangemaakt en wordt alleen een waarschuwing gelogd (zie `post_mailmind_import()` in
+`outlook_intake.py`). ACA-case-updates gaan hier bewust niet doorheen — dat zijn statusupdates op een
+bestaande case, geen nieuwe informatie om te documenteren.
+
 ## Vereisten
 
 - Outlook Classic, met de gedeelde mailbox IT@vhe.nl toegevoegd aan je eigen profiel.
@@ -20,7 +28,8 @@ Twee mailtypes worden herkend, op basis van het afzenderadres:
 ## Configuratie
 
 1. Maak op het intranet (ingelogd als admin) een API-sleutel aan via **Beheer > API-sleutels >
-   Nieuwe sleutel**, met de scopes **"E-mailintake tickets"** en **"ACA-case-updates"** aangevinkt.
+   Nieuwe sleutel**, met de scopes **"E-mailintake tickets"**, **"ACA-case-updates"** en
+   **"E-mailimport voor E-mail & kennisbank verwerking (MailMind-intake)"** aangevinkt.
    De sleutel wordt maar één keer getoond — kopieer hem direct.
 2. Kopieer `config.example.ini` naar `config.ini`.
 3. Vul in:
@@ -72,3 +81,13 @@ CAS-109512-R6Z2W3 - Afmelding - Uitval netwerk ACA:000134120
 Mail van het geconfigureerde `aca_sender_email` met een onderwerp dat niet aan dit patroon voldoet,
 wordt overgeslagen en blijft ongelezen (zichtbaar als waarschuwing in het logbestand) — die moet je
 dan handmatig beoordelen.
+
+## AI-analyse van geïmporteerde e-mails (los van dit script)
+
+Dit script levert alleen de ruwe e-mails aan (stap "opgeslagen"). De AI-classificatie en
+conceptartikelgeneratie draaien server-side via een eigen Taakplanner-taak (of andere scheduler) die
+periodiek `POST /api/email-analysis/verwerken` aanroept met een API-sleutel met scope
+**"AI-analyse en conceptartikelen verwerken (Taakplanner)"** — zie
+`App\Shared\Automation\AutomationController` voor hetzelfde patroon met andere achtergrondtaken.
+Vereist `AI_API_KEY` (en optioneel `AI_API_URL`/`AI_MODEL`/`AI_CONFIDENCE_DREMPEL`) in de `.env` van
+het intranet zelf, niet in `config.ini` van dit script.
