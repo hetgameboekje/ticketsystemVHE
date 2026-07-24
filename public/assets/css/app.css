@@ -23,37 +23,84 @@
 :root{
   --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   --font-body:'Inter',var(--font-sans);
-  --font-display:'Space Grotesk',var(--font-sans);
-  --font-mono:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
-  --border-radius-md:6px;
-  --border-radius-lg:10px;
+  /* Geen apart display-font meer (was Space Grotesk) — het Lovable-conceptontwerp
+     "Leen van Punt Hub" gebruikt overal Inter, ook voor koppen; variabele blijft
+     bestaan zodat bestaande .page-title/.card-title/etc. selectors niet aangepast hoeven. */
+  --font-display:'Inter',var(--font-sans);
+  --font-mono:'JetBrains Mono','SFMono-Regular',Consolas,monospace;
+  --border-radius-md:8px;
+  --border-radius-lg:12px;
   color-scheme:light;
 
-  --color-text-primary:#1c1c1a;
-  --color-text-secondary:#6b6a64;
-  --color-text-tertiary:#9b9a93;
+  --color-text-primary:oklch(0.18 0.02 260);
+  --color-text-secondary:oklch(0.5 0.02 260);
+  --color-text-tertiary:oklch(0.62 0.015 260);
 
-  --color-background-primary:#ffffff;
-  --color-background-secondary:#f4f3ee;
-  --color-background-tertiary:#ececE6;
+  --color-background-primary:oklch(1 0 0);
+  --color-background-secondary:oklch(0.96 0.008 260);
+  --color-background-tertiary:oklch(0.985 0.004 95);
 
-  --color-border-secondary:#d8d6cd;
-  --color-border-tertiary:#e5e3da;
+  --color-border-secondary:oklch(0.88 0.008 250);
+  --color-border-tertiary:oklch(0.92 0.006 250);
 
-  --color-background-info:#E6F1FB;
-  --color-text-info:#0C447C;
-  --color-border-info:#9cc3e8;
+  /* Emerald primaire actiekleur (Lovable-mockup "Leen van Punt Hub") — vervangt het
+     eerdere amber accent volledig. --color-accent-* blijft als variabelenaam bestaan
+     (gebruikt door .btn-accent en bestaande views) maar wijst nu naar de emerald-tint,
+     en is een solide vulling i.p.v. de vorige zachte tint-stijl. */
+  --color-primary:oklch(0.58 0.13 165);
+  --color-primary-text:oklch(0.99 0.005 165);
+  --color-accent-bg:var(--color-primary);
+  --color-accent-text:var(--color-primary-text);
+  --color-accent-border:oklch(0.52 0.13 165);
 
-  --color-text-warning:#8a5a00;
-  --color-text-success:#27500A;
-  --color-text-danger:#b3261e;
+  /* "Open"-badge/informatief blauw is nu gelijk aan de status-kleur "open" hieronder,
+     zodat er niet twee losse blauwtinten naast elkaar bestaan. */
+  --color-background-info:var(--color-status-open-bg);
+  --color-text-info:var(--color-status-open);
+  --color-border-info:oklch(0.75 0.08 240);
 
-  /* Amber accent (zie docs/design/ticketsysteem-overzicht.html) — de nieuwe primaire
-     actiekleur, los van --color-background-info gehouden omdat die variabele al de
-     betekenis "open/informatief" draagt in badges en filter-chips. */
-  --color-accent-bg:#FBF1E1;
-  --color-accent-text:#7A4A0E;
-  --color-accent-border:#E6C084;
+  --color-text-warning:var(--color-status-wachtend);
+  --color-text-success:var(--color-status-opgelost);
+  --color-text-danger:oklch(0.6 0.22 25);
+
+  /* Statuskleur-systeem — betekenis ligt vast over alle modules (ticket-, verbeterpunt-,
+     uitgifte- en overige statussen mappen op dezelfde 5 kleuren, zie .badge-* hieronder). */
+  --color-status-open:oklch(0.5 0.16 240);
+  --color-status-open-bg:oklch(0.96 0.03 240);
+  --color-status-wachtend:oklch(0.55 0.15 55);
+  --color-status-wachtend-bg:oklch(0.965 0.04 80);
+  --color-status-behandeling:oklch(0.5 0.13 265);
+  --color-status-behandeling-bg:oklch(0.96 0.025 265);
+  --color-status-opgelost:oklch(0.5 0.13 160);
+  --color-status-opgelost-bg:oklch(0.955 0.035 160);
+  --color-status-gesloten:oklch(0.45 0.01 260);
+  --color-status-gesloten-bg:oklch(0.955 0.004 260);
+
+  /* CyberRisico — eigen schaal (warm/rood), botst bewust niet met de statuskleuren hierboven. */
+  --color-risk-laag:oklch(0.55 0.10 145);
+  --color-risk-laag-bg:oklch(0.965 0.03 145);
+  --color-risk-gemiddeld:oklch(0.6 0.14 75);
+  --color-risk-gemiddeld-bg:oklch(0.97 0.045 80);
+  --color-risk-hoog:oklch(0.58 0.19 35);
+  --color-risk-hoog-bg:oklch(0.965 0.045 40);
+  --color-risk-kritiek:oklch(0.48 0.22 15);
+  --color-risk-kritiek-bg:oklch(0.955 0.055 20);
+
+  /* Voorraad-indicatoren */
+  --color-stock-ok:var(--color-primary);
+  --color-stock-ok-bg:oklch(0.96 0.035 160);
+  --color-stock-low:oklch(0.6 0.22 25);
+  --color-stock-low-bg:oklch(0.965 0.05 25);
+
+  /* Sidebar blijft bewust donker in zowel licht als donker thema (zie Lovable-mockup),
+     daarom hier in :root gedefinieerd i.p.v. herhaald in [data-bs-theme="dark"]. */
+  --color-sidebar-bg:oklch(0.19 0.015 250);
+  --color-sidebar-text:oklch(0.9 0.01 250);
+  --color-sidebar-primary-bg:oklch(0.72 0.13 165);
+  --color-sidebar-primary-text:oklch(0.15 0.02 165);
+  --color-sidebar-hover-bg:oklch(0.25 0.02 250);
+  --color-sidebar-hover-text:oklch(0.98 0.005 250);
+  --color-sidebar-border:oklch(0.27 0.02 250);
 
   /* Aliassen voor losse view-specifieke <style>-blokken met net iets andere naamgeving
      (bv. dashboard), zodat die automatisch meedoen met het thema i.p.v. hardcoded
@@ -66,31 +113,49 @@
 [data-bs-theme="dark"]{
   color-scheme:dark;
 
-  --color-text-primary:#EDEFF3;
-  --color-text-secondary:#9CA4B3;
-  --color-text-tertiary:#656E7F;
+  --color-text-primary:oklch(0.96 0.005 250);
+  --color-text-secondary:oklch(0.7 0.015 250);
+  --color-text-tertiary:oklch(0.55 0.015 250);
 
-  /* Navy/charcoal palette uit de referentiemockup i.p.v. het vorige neutraal-bruine dark theme. */
-  --color-background-primary:#1B2029;
-  --color-background-secondary:#212733;
-  --color-background-tertiary:#12151B;
+  --color-background-primary:oklch(0.21 0.015 250);
+  --color-background-secondary:oklch(0.26 0.02 250);
+  --color-background-tertiary:oklch(0.15 0.015 250);
 
-  --color-border-secondary:#3A4150;
-  --color-border-tertiary:#2B313D;
+  --color-border-secondary:oklch(1 0 0 / 16%);
+  --color-border-tertiary:oklch(1 0 0 / 10%);
 
-  --color-background-info:#16283a;
-  --color-text-info:#7fb8ec;
-  --color-border-info:#2c4f70;
+  --color-primary:oklch(0.72 0.13 165);
+  --color-primary-text:oklch(0.15 0.02 165);
+  --color-accent-border:oklch(0.66 0.13 165);
 
-  --color-text-warning:#e2a94a;
-  --color-text-success:#4FC1A6;
-  --color-text-danger:#E2665A;
+  --color-border-info:oklch(0.45 0.1 240);
+  --color-text-danger:oklch(0.65 0.2 25);
 
-  /* Donkere modus krijgt de volle amber, omdat hij hier ook de rol van primaire
-     actiekleur overneemt (zie --amber in de referentiemockup). */
-  --color-accent-bg:#3A2F1C;
-  --color-accent-text:#E0A756;
-  --color-accent-border:#8A6A34;
+  /* Statuskleuren krijgen in donker thema meer lichtheid (leesbaar op donkere kaarten)
+     en een gedempte, getinte achtergrond i.p.v. de bijna-witte tinten uit het lichte thema. */
+  --color-status-open:oklch(0.72 0.13 240);
+  --color-status-open-bg:oklch(0.28 0.045 240);
+  --color-status-wachtend:oklch(0.75 0.13 70);
+  --color-status-wachtend-bg:oklch(0.3 0.05 75);
+  --color-status-behandeling:oklch(0.72 0.11 265);
+  --color-status-behandeling-bg:oklch(0.28 0.04 265);
+  --color-status-opgelost:oklch(0.72 0.11 160);
+  --color-status-opgelost-bg:oklch(0.28 0.045 160);
+  --color-status-gesloten:oklch(0.68 0.01 260);
+  --color-status-gesloten-bg:oklch(0.27 0.006 260);
+
+  --color-risk-laag:oklch(0.72 0.1 145);
+  --color-risk-laag-bg:oklch(0.28 0.04 145);
+  --color-risk-gemiddeld:oklch(0.75 0.13 75);
+  --color-risk-gemiddeld-bg:oklch(0.3 0.05 80);
+  --color-risk-hoog:oklch(0.7 0.17 35);
+  --color-risk-hoog-bg:oklch(0.3 0.05 40);
+  --color-risk-kritiek:oklch(0.68 0.2 20);
+  --color-risk-kritiek-bg:oklch(0.3 0.06 20);
+
+  --color-stock-ok-bg:oklch(0.28 0.045 160);
+  --color-stock-low:oklch(0.68 0.19 25);
+  --color-stock-low-bg:oklch(0.3 0.05 25);
 }
 
 [data-bs-theme="dark"] .card,
@@ -169,13 +234,26 @@ a.page-link:hover{background:var(--color-background-secondary);color:var(--color
 .page-link-active{background:var(--color-background-info);color:var(--color-text-info);font-weight:600}
 .page-link-disabled{color:var(--color-text-tertiary);opacity:.5}
 
-.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
-.badge-open{background:#E6F1FB;color:#0C447C}
-.badge-progress,.badge-in_behandeling,.badge-aangevraagd,.badge-nieuw,.badge-in_onderzoek,.badge-bevestigd{background:#FAEEDA;color:#633806}
-.badge-wait,.badge-wacht_op_info,.badge-in_overweging,.badge-besteld{background:#EEEDFE;color:#3C3489}
-.badge-done,.badge-opgelost,.badge-afgehandeld,.badge-goedgekeurd,.badge-geleverd,.badge-actief,.badge-uitgevoerd{background:#EAF3DE;color:#27500A}
-.badge-closed,.badge-gesloten,.badge-afgewezen,.badge-afgekeurd,.badge-inactief,.badge-geaccepteerd{background:#F1EFE8;color:#444441}
-.badge-keyuser{background:#FDECEA;color:#8A2E1F}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+/* Statuskleur-mapping (zie --color-status-* in :root) — betekenis ligt vast: elke module
+   die een van deze statusnamen gebruikt krijgt automatisch dezelfde kleur. */
+.badge-open{background:var(--color-status-open-bg);color:var(--color-status-open)}
+.badge-progress,.badge-in_behandeling,.badge-aangevraagd,.badge-nieuw,.badge-in_onderzoek,.badge-bevestigd{background:var(--color-status-behandeling-bg);color:var(--color-status-behandeling)}
+.badge-wait,.badge-wacht_op_info,.badge-in_overweging,.badge-besteld{background:var(--color-status-wachtend-bg);color:var(--color-status-wachtend)}
+.badge-done,.badge-opgelost,.badge-afgehandeld,.badge-goedgekeurd,.badge-geleverd,.badge-actief,.badge-uitgevoerd{background:var(--color-status-opgelost-bg);color:var(--color-status-opgelost)}
+.badge-closed,.badge-gesloten,.badge-afgewezen,.badge-afgekeurd,.badge-inactief,.badge-geaccepteerd{background:var(--color-status-gesloten-bg);color:var(--color-status-gesloten)}
+.badge-keyuser{background:var(--color-risk-hoog-bg);color:var(--color-risk-hoog)}
+
+/* CyberRisico-niveaus — eigen kleurschaal, zie --color-risk-* in :root. */
+.badge-risico-laag{background:var(--color-risk-laag-bg);color:var(--color-risk-laag)}
+.badge-risico-gemiddeld{background:var(--color-risk-gemiddeld-bg);color:var(--color-risk-gemiddeld)}
+.badge-risico-hoog{background:var(--color-risk-hoog-bg);color:var(--color-risk-hoog)}
+.badge-risico-kritiek{background:var(--color-risk-kritiek-bg);color:var(--color-risk-kritiek)}
+
+/* Voorraadniveau — zie --color-stock-* in :root. */
+.badge-voorraad-ok{background:var(--color-stock-ok-bg);color:var(--color-stock-ok)}
+.badge-voorraad-laag{background:var(--color-stock-low-bg);color:var(--color-stock-low)}
 
 .org-tree,.org-tree ul{list-style:none;margin:0;padding:0}
 .org-tree ul{padding-left:28px;margin-top:8px}
@@ -187,10 +265,10 @@ a.page-link:hover{background:var(--color-background-secondary);color:var(--color
 
 .prio{display:inline-flex;align-items:center;gap:4px;font-size:12px}
 .prio-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.prio-kritiek .prio-dot{background:#E24B4A}
-.prio-hoog .prio-dot{background:#EF9F27}
-.prio-normaal .prio-dot,.prio-middel .prio-dot{background:#378ADD}
-.prio-laag .prio-dot{background:#888780}
+.prio-kritiek .prio-dot{background:var(--color-text-danger)}
+.prio-hoog .prio-dot{background:var(--color-status-wachtend)}
+.prio-normaal .prio-dot,.prio-middel .prio-dot{background:var(--color-status-open)}
+.prio-laag .prio-dot{background:var(--color-text-tertiary)}
 
 /* Dashboard heeft een bewust ruimer/groter format dan de lijst-pagina's, maar deelt
    classnamen (.page-title, .card, .stat, ...) met die pagina's. Scope de afwijkende
@@ -270,8 +348,8 @@ textarea{resize:vertical;min-height:80px}
 .empty-state{padding:40px 16px;text-align:center;color:var(--color-text-secondary);font-size:13px}
 
 .alert{padding:10px 14px;border-radius:var(--border-radius-md);font-size:13px;margin-bottom:16px}
-.alert-error{background:#FBEAEA;color:#b3261e;border:0.5px solid #f0c4c1}
-.alert-success{background:#EAF3DE;color:#27500A;border:0.5px solid #c5dba3}
+.alert-error{background:var(--color-risk-kritiek-bg);color:var(--color-text-danger);border:0.5px solid var(--color-border-tertiary)}
+.alert-success{background:var(--color-status-opgelost-bg);color:var(--color-text-success);border:0.5px solid var(--color-border-tertiary)}
 
 input[type=file]{font-size:12px;color:var(--color-text-secondary)}
 
